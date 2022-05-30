@@ -2,10 +2,8 @@ package me.byrt.meltdown.listener
 
 import me.byrt.meltdown.Main
 import me.byrt.meltdown.manager.GameState
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.GameMode
 
+import org.bukkit.GameMode
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

@@ -1,9 +1,8 @@
 package me.byrt.meltdown.command
 
-import cloud.commandframework.annotations.Argument
 import me.byrt.meltdown.Main
-import me.byrt.meltdown.manager.GameState
 
+import cloud.commandframework.annotations.Argument
 import cloud.commandframework.annotations.CommandDescription
 import cloud.commandframework.annotations.CommandMethod
 import cloud.commandframework.annotations.CommandPermission

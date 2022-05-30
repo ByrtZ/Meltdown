@@ -7,8 +7,8 @@ import net.kyori.adventure.title.Title
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import java.time.Duration
 
+import java.time.Duration
 import java.util.*
 
 import kotlin.collections.ArrayList
