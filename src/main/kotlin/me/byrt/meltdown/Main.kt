@@ -1,12 +1,12 @@
 package me.byrt.meltdown
 
+import me.byrt.meltdown.manager.Game
 import me.byrt.meltdown.command.BaseCommand
 
 import cloud.commandframework.annotations.AnnotationParser
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.meta.SimpleCommandMeta
 import cloud.commandframework.paper.PaperCommandManager
-import me.byrt.meltdown.manager.Game
 
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -29,6 +29,7 @@ class Main : JavaPlugin() {
         game = Game(this)
         setupCommands()
         setupEventListeners()
+        game.getInfoBoardManager().buildScoreboard()
     }
 
     override fun onDisable() {
