@@ -34,82 +34,79 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
 
         // Game/round starting front end //TODO: GAME TUTORIAL IN ROUND ONE STARTING PHASE
         if (game.getGameState() == GameState.STARTING && game.getTimerState() == TimerState.ACTIVE) {
-            if (game.getRoundState() == RoundState.ROUND_ONE) { // Round one starting titles
-                if (timeLeft in 4..10) {
-                    for (player in Bukkit.getOnlinePlayers()) {
-                        if(timeLeft == 10) {
-                            player.playSound(player.location, Sound.MUSIC_DISC_BLOCKS, SoundCategory.VOICE, 0.5f, 1f)
-                        }
-                        player.playSound(player.location, "clockticknormal", 1f, 1f)
+            if (timeLeft in 4..10) {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    if(timeLeft == 10) {
+                        player.playSound(player.location, Sound.MUSIC_DISC_BLOCKS, SoundCategory.VOICE, 0.5f, 1f)
+                    }
+                    player.playSound(player.location, "clockticknormal", 1f, 1f)
+                    player.showTitle(Title.title(
+                        Component.text("Starting in").color(NamedTextColor.AQUA),
+                        Component.text("►$timeLeft◄").decoration(TextDecoration.BOLD, true),
+                        Title.Times.times(
+                            Duration.ofSeconds(0),
+                            Duration.ofSeconds(5),
+                            Duration.ofSeconds(0)
+                            )
+                        )
+                    )
+                }
+            }
+            if (timeLeft == 3 || timeLeft == 2 || timeLeft == 1) {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    player.playSound(player.location, "123", 1f, 1f)
+                    player.playSound(player.location, "clockticknormal", 1f, 1f)
+                    if (timeLeft == 3) {
                         player.showTitle(Title.title(
-                                Component.text("Starting in").color(NamedTextColor.AQUA),
-                                Component.text("►$timeLeft◄").decoration(TextDecoration.BOLD, true),
-                                Title.Times.times(
-                                    Duration.ofSeconds(0),
-                                    Duration.ofSeconds(5),
-                                    Duration.ofSeconds(0)
+                            Component.text("Starting in").color(NamedTextColor.AQUA),
+                            Component.text("►$timeLeft◄").color(NamedTextColor.GREEN)
+                                .decoration(TextDecoration.BOLD, true),
+                            Title.Times.times(
+                                Duration.ofSeconds(0),
+                                Duration.ofSeconds(5),
+                                Duration.ofSeconds(0)
+                                )
+                            )
+                        )
+                    }
+                    if (timeLeft == 2) {
+                        player.showTitle(Title.title(
+                            Component.text("Starting in").color(NamedTextColor.AQUA),
+                            Component.text("►$timeLeft◄").color(NamedTextColor.YELLOW)
+                                .decoration(TextDecoration.BOLD, true),
+                            Title.Times.times(
+                                Duration.ofSeconds(0),
+                                Duration.ofSeconds(5),
+                                Duration.ofSeconds(0)
+                                )
+                            )
+                        )
+                    }
+                    if (timeLeft == 1) {
+                        player.showTitle(Title.title(
+                            Component.text("Starting in").color(NamedTextColor.AQUA),
+                            Component.text("►$timeLeft◄").color(NamedTextColor.RED)
+                                .decoration(TextDecoration.BOLD, true),
+                            Title.Times.times(
+                                Duration.ofSeconds(0),
+                                Duration.ofSeconds(5),
+                                Duration.ofSeconds(0)
                                 )
                             )
                         )
                     }
                 }
-                if (timeLeft == 3 || timeLeft == 2 || timeLeft == 1) {
-                    for (player in Bukkit.getOnlinePlayers()) {
-                        player.playSound(player.location, "123", 1f, 1f)
-                        player.playSound(player.location, "clockticknormal", 1f, 1f)
-                        if (timeLeft == 3) {
-                            player.showTitle(Title.title(
-                                    Component.text("Starting in").color(NamedTextColor.AQUA),
-                                    Component.text("►$timeLeft◄").color(NamedTextColor.GREEN)
-                                        .decoration(TextDecoration.BOLD, true),
-                                    Title.Times.times(
-                                        Duration.ofSeconds(0),
-                                        Duration.ofSeconds(5),
-                                        Duration.ofSeconds(0)
-                                    )
-                                )
-                            )
-                        }
-                        if (timeLeft == 2) {
-                            player.showTitle(Title.title(
-                                    Component.text("Starting in").color(NamedTextColor.AQUA),
-                                    Component.text("►$timeLeft◄").color(NamedTextColor.YELLOW)
-                                        .decoration(TextDecoration.BOLD, true),
-                                    Title.Times.times(
-                                        Duration.ofSeconds(0),
-                                        Duration.ofSeconds(5),
-                                        Duration.ofSeconds(0)
-                                    )
-                                )
-                            )
-                        }
-                        if (timeLeft == 1) {
-                            player.showTitle(Title.title(
-                                    Component.text("Starting in").color(NamedTextColor.AQUA),
-                                    Component.text("►$timeLeft◄").color(NamedTextColor.RED)
-                                        .decoration(TextDecoration.BOLD, true),
-                                    Title.Times.times(
-                                        Duration.ofSeconds(0),
-                                        Duration.ofSeconds(5),
-                                        Duration.ofSeconds(0)
-                                    )
-                                )
-                            )
-                        }
-                    }
+            }
+            if (timeLeft <= 0) {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    player.playSound(player.location, "go", 1f, 1f)
+                    player.playSound(player.location, "clocktickhigh", 1f, 1f)
+                    player.playSound(player.location, "music.meltdown", SoundCategory.VOICE, 1f, 1f)
+                    player.playSound(player.location, "meltdown_entrance", 1f, 1f)
+                    player.resetTitle()
                 }
+                game.setGameState(GameState.IN_GAME)
             }
-        }
-
-        if (timeLeft <= 0) {
-            for (player in Bukkit.getOnlinePlayers()) {
-                player.playSound(player.location, "go", 1f, 1f)
-                player.playSound(player.location, "clocktickhigh", 1f, 1f)
-                player.playSound(player.location, "music.meltdown", SoundCategory.VOICE, 1f, 1f)
-                player.playSound(player.location, "meltdown_entrance", 1f, 1f)
-                player.resetTitle()
-            }
-            game.setGameState(GameState.IN_GAME)
         }
 
         // <=30s remaining
@@ -121,7 +118,7 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
             }
             if (timeLeft in 0..10) {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.playSound(player.location, "clocktickhigh", 1f, 2f)
+                    player.playSound(player.location, "clocktickhigh", 1f, 1f)
                 }
             }
         }

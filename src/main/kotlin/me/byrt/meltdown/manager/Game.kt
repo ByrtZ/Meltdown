@@ -23,7 +23,6 @@ class Game(private val plugin : Main) {
                 gameCountdownTask.setTimeLeft(20)
                 if(roundState == RoundState.ROUND_ONE) {
                     gameCountdownTask.runTaskTimer(plugin, 0, 20)
-                    //TODO: GAME TUTORIAL
                 }
             }
             GameState.IN_GAME -> {
