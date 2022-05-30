@@ -1,0 +1,6 @@
+name: Meltdown
+version: '${version}'
+main: me.byrt.meltdown.Main
+api-version: 1.18
+authors: [ Byrt ]
+description: A recreation of the MCC game Meltdown written in Kotlin.
