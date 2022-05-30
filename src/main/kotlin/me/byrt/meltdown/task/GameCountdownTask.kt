@@ -37,7 +37,7 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
             if (timeLeft in 4..10) {
                 for (player in Bukkit.getOnlinePlayers()) {
                     if(timeLeft == 10) {
-                        player.playSound(player.location, Sound.MUSIC_DISC_BLOCKS, SoundCategory.VOICE, 0.5f, 1f)
+                        player.playSound(player.location, Sound.MUSIC_DISC_BLOCKS, SoundCategory.VOICE, 1f, 1f)
                     }
                     player.playSound(player.location, "clockticknormal", 1f, 1f)
                     player.showTitle(Title.title(
@@ -129,7 +129,7 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
                 for (player in Bukkit.getOnlinePlayers()) {
                     player.stopSound("music.meltdown", SoundCategory.VOICE)
                     player.playSound(player.location, "roundend", 1f, 1f)
-                    player.playSound(player.location, Sound.MUSIC_DISC_MALL, SoundCategory.VOICE, 0.5f, 1f)
+                    player.playSound(player.location, Sound.MUSIC_DISC_MALL, SoundCategory.VOICE, 1f, 1f)
                     player.showTitle(Title.title(
                         Component.text("Game Over!").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true),
                         Component.text(""),
@@ -149,7 +149,7 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
                 for (player in Bukkit.getOnlinePlayers()) {
                     player.stopSound("music.meltdown", SoundCategory.VOICE)
                     player.playSound(player.location, "roundend", 1f, 1f)
-                    player.playSound(player.location, Sound.MUSIC_DISC_FAR, SoundCategory.VOICE, 0.5f, 1f)
+                    player.playSound(player.location, Sound.MUSIC_DISC_FAR, SoundCategory.VOICE, 1f, 1f)
                     player.showTitle(Title.title(
                         Component.text("Round Over!").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true),
                         Component.text(""),
