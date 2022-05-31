@@ -11,6 +11,7 @@ class Game(private val plugin : Main) {
     private var gameCountdownTask = GameCountdownTask(this)
     private var infoBoardManager = InfoBoardManager(this)
     private var freezeManager = FreezeManager(this)
+    private var heaterManager = HeaterManager(this)
 
     fun setGameState(newState : GameState) {
         this.gameState = newState
@@ -71,6 +72,10 @@ class Game(private val plugin : Main) {
 
     fun getFreezeManager() : FreezeManager {
         return this.freezeManager
+    }
+
+    fun getHeaterManager() : HeaterManager {
+        return this.heaterManager
     }
 
     fun cleanUp() {

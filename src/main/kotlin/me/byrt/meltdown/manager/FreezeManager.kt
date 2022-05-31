@@ -21,7 +21,7 @@ class FreezeManager(private var game : Game) {
     fun freezePlayer(player : Player) {
         player.freezeTicks = Int.MAX_VALUE
         player.playSound(player.location, "meltdown_frozen", 1f, 1f)
-        val sanitisedPlayerLoc = Location(player.world, player.location.x.roundToInt() + 0.5, player.location.y,player.location.z.roundToInt() + 0.5)
+        val sanitisedPlayerLoc = Location(player.world, player.location.x.roundToInt() + 0.5, player.location.y, player.location.z.roundToInt() + 0.5, player.location.yaw, player.location.pitch)
         val sanitisedPlayerEyeLoc = Location(player.world, player.eyeLocation.x.roundToInt() + 0.5, player.eyeLocation.y,player.eyeLocation.z.roundToInt() + 0.5)
         sanitisedPlayerLoc.block.type = Material.LIGHT_BLUE_STAINED_GLASS
         sanitisedPlayerEyeLoc.block.type = Material.LIGHT_BLUE_STAINED_GLASS
@@ -47,8 +47,8 @@ class FreezeManager(private var game : Game) {
     fun unfreezePlayer(player : Player) {
         player.freezeTicks = 0
         player.playSound(player.location, "meltdown_unfrozen", 1f, 1f)
-        val playerLoc = Location(player.world, player.location.x, player.location.y,player.location.z)
-        val playerEyeLoc = Location(player.world, player.eyeLocation.x, player.eyeLocation.y,player.eyeLocation.z)
+        val playerLoc = Location(player.world, player.location.x, player.location.y, player.location.z)
+        val playerEyeLoc = Location(player.world, player.eyeLocation.x, player.eyeLocation.y, player.eyeLocation.z)
         playerLoc.block.type = Material.AIR
         playerEyeLoc.block.type = Material.AIR
         frozenPlayers.remove(player.uniqueId)

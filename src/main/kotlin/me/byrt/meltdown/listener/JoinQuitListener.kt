@@ -20,7 +20,6 @@ class JoinQuitListener : Listener {
         e.joinMessage(Component.text("${e.player.name} joined the game.").color(TextColor.fromHexString("#ffff00")))
         if(Main.getGame().getGameState() == GameState.IDLE) {
             e.player.gameMode = GameMode.ADVENTURE
-            e.player.inventory.clear()
         }
     }
 

@@ -20,12 +20,17 @@ class FreezeArrowHitListener : Listener {
                     Main.getGame().getFreezeManager().freezePlayer(e.hitEntity as Player)
                     Main.getGame().getFreezeManager().freezePlayerDisplay(e.hitEntity as Player, e.entity.shooter as Player)
                 }
+                else {
+                    e.entity.remove()
+                    e.isCancelled = true
+                }
             }
 
             if(e.entity is Arrow && e.hitBlock != null) {
                 e.entity.remove()
             }
         } else {
+            e.entity.remove()
             e.isCancelled = true
         }
     }
