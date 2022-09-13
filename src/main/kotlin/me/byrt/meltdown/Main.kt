@@ -54,7 +54,7 @@ class Main : JavaPlugin() {
         commandManager.registerAsynchronousCompletions()
         commandManager.registerBrigadier()
         // Thanks broccolai <3 https://github.com/broccolai/tickets/commit/e8c227abc298d1a34094708a24601d006ec25937
-        commandManager.setCommandSuggestionProcessor { context, strings ->
+        commandManager.commandSuggestionProcessor { context, strings ->
             var input: String = if (context.inputQueue.isEmpty()) {
                 ""
             } else {

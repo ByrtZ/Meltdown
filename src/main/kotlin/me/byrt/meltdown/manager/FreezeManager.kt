@@ -1,5 +1,8 @@
 package me.byrt.meltdown.manager
 
+import me.byrt.meltdown.Main
+import me.byrt.meltdown.task.FrozenLoopTask
+
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
@@ -27,6 +30,7 @@ class FreezeManager(private var game : Game) {
         sanitisedPlayerEyeLoc.block.type = Material.LIGHT_BLUE_STAINED_GLASS
         player.teleport(sanitisedPlayerLoc)
         frozenPlayers.add(player.uniqueId)
+        startFrozenLoop(player, sanitisedPlayerLoc)
     }
 
     fun freezePlayerDisplay(frozenPlayer : Player, shooter : Player) {
@@ -40,8 +44,9 @@ class FreezeManager(private var game : Game) {
                 Duration.ofSeconds(0),
                 Duration.ofSeconds(4),
                 Duration.ofSeconds(1),
+                )
             )
-        ))
+        )
     }
 
     fun unfreezePlayer(player : Player) {
@@ -54,7 +59,16 @@ class FreezeManager(private var game : Game) {
         frozenPlayers.remove(player.uniqueId)
     }
 
+    private fun startFrozenLoop(player : Player, frozenPlayerLocation : Location) {
+        val frozenLoop = FrozenLoopTask(player, frozenPlayerLocation, 5)
+        Main.getPlugin().logger.info("Started new Frozen loop with $player, at $frozenPlayerLocation.\nFrozen Loop information: $frozenLoop")
+    }
+
     fun getFrozenPlayers() : ArrayList<UUID> {
         return this.frozenPlayers
+    }
+
+    fun isFrozen(player : Player) : Boolean {
+        return frozenPlayers.contains(player.uniqueId)
     }
 }
