@@ -40,7 +40,7 @@ class FrozenLoopTask(player : Player, frozenPlayerLocation : Location, thawTime 
                                 }
                             }
                         } else {
-                            player.sendActionBar(Component.text("You are no longer unthawing!").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
+                            player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                             thawTimer = 5
                             this.cancel()
                         }

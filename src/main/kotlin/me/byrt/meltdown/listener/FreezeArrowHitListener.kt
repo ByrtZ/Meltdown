@@ -19,6 +19,7 @@ class FreezeArrowHitListener : Listener {
                 if(!Main.getGame().getFreezeManager().getFrozenPlayers().contains(e.hitEntity?.uniqueId)) {
                     Main.getGame().getFreezeManager().freezePlayer(e.hitEntity as Player)
                     Main.getGame().getFreezeManager().freezePlayerDisplay(e.hitEntity as Player, e.entity.shooter as Player)
+                    e.entity.remove()
                 }
                 else {
                     e.entity.remove()
