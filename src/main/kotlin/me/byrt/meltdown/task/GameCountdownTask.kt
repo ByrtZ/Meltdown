@@ -39,7 +39,7 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
                     if(timeLeft == 10) {
                         player.playSound(player.location, Sound.MUSIC_DISC_BLOCKS, SoundCategory.VOICE, 1f, 1f)
                     }
-                    player.playSound(player.location, "clockticknormal", 1f, 1f)
+                    player.playSound(player.location, "event.clockticknormal", 1f, 1f)
                     player.showTitle(Title.title(
                         Component.text("Starting in").color(NamedTextColor.AQUA),
                         Component.text("►$timeLeft◄").decoration(TextDecoration.BOLD, true),
@@ -54,8 +54,8 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
             }
             if (timeLeft == 3 || timeLeft == 2 || timeLeft == 1) {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.playSound(player.location, "123", 1f, 1f)
-                    player.playSound(player.location, "clockticknormal", 1f, 1f)
+                    player.playSound(player.location, "event.123", 1f, 1f)
+                    player.playSound(player.location, "event.clockticknormal", 1f, 1f)
                     if (timeLeft == 3) {
                         player.showTitle(Title.title(
                             Component.text("Starting in").color(NamedTextColor.AQUA),
@@ -99,10 +99,10 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
             }
             if (timeLeft <= 0) {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.playSound(player.location, "go", 1f, 1f)
-                    player.playSound(player.location, "clocktickhigh", 1f, 1f)
-                    player.playSound(player.location, "music.meltdown", SoundCategory.VOICE, 1f, 1f)
-                    player.playSound(player.location, "meltdown_entrance", 1f, 1f)
+                    player.playSound(player.location, "event.go", 1f, 1f)
+                    player.playSound(player.location, "event.clocktickhigh", 1f, 1f)
+                    player.playSound(player.location, "event.music.meltdown", SoundCategory.VOICE, 1f, 1f)
+                    player.playSound(player.location, "event.meltdown_entrance", 1f, 1f)
                     player.resetTitle()
                 }
                 game.setGameState(GameState.IN_GAME)
@@ -113,12 +113,12 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
         if (game.getGameState() == GameState.IN_GAME && game.getTimerState() == TimerState.ACTIVE) {
             if (timeLeft in 11..30 || timeLeft % 60 == 0) {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.playSound(player.location, "clockticknormal", 1f, 1f)
+                    player.playSound(player.location, "event.clockticknormal", 1f, 1f)
                 }
             }
             if (timeLeft in 0..10) {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.playSound(player.location, "clocktickhigh", 1f, 1f)
+                    player.playSound(player.location, "event.clocktickhigh", 1f, 1f)
                 }
             }
         }
@@ -127,8 +127,8 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
         if (timeLeft <= 0 && game.getGameState() == GameState.IN_GAME && game.getTimerState() == TimerState.ACTIVE) {
             if (game.getRoundState() == RoundState.ROUND_THREE) {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.stopSound("music.meltdown", SoundCategory.VOICE)
-                    player.playSound(player.location, "roundend", 1f, 1f)
+                    player.stopSound("event.music.meltdown", SoundCategory.VOICE)
+                    player.playSound(player.location, "event.roundend", 1f, 1f)
                     player.playSound(player.location, Sound.MUSIC_DISC_MALL, SoundCategory.VOICE, 1f, 1f)
                     player.showTitle(Title.title(
                         Component.text("Game Over!").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true),
@@ -147,8 +147,8 @@ class GameCountdownTask(private var game: Game) : BukkitRunnable() {
                 game.setGameState(GameState.GAME_END)
             } else {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    player.stopSound("music.meltdown", SoundCategory.VOICE)
-                    player.playSound(player.location, "roundend", 1f, 1f)
+                    player.stopSound("event.music.meltdown", SoundCategory.VOICE)
+                    player.playSound(player.location, "event.roundend", 1f, 1f)
                     player.playSound(player.location, Sound.MUSIC_DISC_FAR, SoundCategory.VOICE, 1f, 1f)
                     player.showTitle(Title.title(
                         Component.text("Round Over!").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true),

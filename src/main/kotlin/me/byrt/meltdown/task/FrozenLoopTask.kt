@@ -35,7 +35,7 @@ class FrozenLoopTask(player : Player, frozenPlayerLocation : Location, thawTime 
                                     Main.getGame().getFreezeManager().unfreezePlayer(player)
                                     this.cancel()
                                 } else {
-                                    player.sendActionBar(Component.text("You will unthaw in ${thawTimer}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
+                                    player.sendActionBar(Component.text("You will thaw in ${thawTimer}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
                                     thawTimer--
                                 }
                             }

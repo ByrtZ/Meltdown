@@ -15,7 +15,7 @@ class InfoBoardManager(private val game : Game) {
     private var meltdownBoard: Objective = scoreboard.registerNewObjective(
         "meltdown_board",
         Criteria.DUMMY,
-        Component.text("Meltdown").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true)
+        Component.text("Byrt's Server").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true)
     )
 
     private var currentGameText: Score = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game: " + ChatColor.RESET + "Meltdown")

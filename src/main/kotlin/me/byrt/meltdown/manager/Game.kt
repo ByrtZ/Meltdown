@@ -3,7 +3,6 @@ package me.byrt.meltdown.manager
 import me.byrt.meltdown.Main
 import me.byrt.meltdown.task.GameCountdownTask
 
-@Suppress("unused")
 class Game(private val plugin : Main) {
     private var gameState : GameState = GameState.IDLE
     private var roundState : RoundState = RoundState.ROUND_ONE

@@ -16,32 +16,31 @@ import kotlin.collections.ArrayList
 import kotlin.math.cos
 import kotlin.math.sin
 
-@Suppress("unused")
 class HeaterManager(private val game : Game) {
     private var heaterLocations = ArrayList<Location>()
-    //private var heaterLocation = mutableMapOf<Location, UUID>()
+    private var heaterLoopMap = mutableMapOf<Location, BukkitRunnable>()
     private var heaterLoopTask : BukkitTask? = null
 
     fun placeHeater(placementLocation : Location, placer : Player) {
         heaterLocations.add(placementLocation)
         placementLocation.block.type = Material.NETHERITE_BLOCK
-        placer.world.playSound(placementLocation, "heater_place", 1f, 1f)
+        placer.world.playSound(placementLocation, "event.heater_place", 1f, 1f)
         placer.sendMessage(Component.text("You placed your heater!").color(NamedTextColor.GOLD))
         if(heaterLoopTask != null) {
             heaterLoopTask!!.cancel()
         }
-        heaterLoop()
+        heaterLoop(placementLocation)
     }
 
     fun breakHeater(destructionLocation : Location, destructor : Player?) {
         heaterLocations.remove(destructionLocation)
         destructionLocation.block.type = Material.AIR
         destructor?.sendMessage(Component.text("You broke a heater!").color(NamedTextColor.GOLD))
-        destructionLocation.world.playSound(destructionLocation, "heater_break", 1f, 1f)
+        destructionLocation.world.playSound(destructionLocation, "event.heater_break", 1f, 1f)
     }
 
-    private fun heaterLoop() {
-        heaterLoopTask = object : BukkitRunnable() {
+    private fun heaterLoop(location : Location) {
+        val heaterRunnable = object : BukkitRunnable() {
             var heaterAliveTime = 0
             override fun run() {
                 if(Main.getGame().getHeaterManager().heaterLocations.isNotEmpty()) {
@@ -56,7 +55,7 @@ class HeaterManager(private val game : Game) {
                             if(!Main.getGame().getHeaterManager().heaterLocations.contains(location)) {
                                 this.cancel()
                             } else {
-                                location.world.playSound(location, "heater_loop_1000ms", 0.1f, 1f)
+                                location.world.playSound(location, "event.heater_loop_1000ms", 0.1f, 1f)
                                 val x = cos(d.toDouble()) * 3
                                 val z = sin(d.toDouble()) * 3
                                 location.world.spawnParticle(
@@ -78,10 +77,16 @@ class HeaterManager(private val game : Game) {
                     this.cancel()
                 }
             }
-        }.runTaskTimer(Main.getPlugin(), 0, 20L)
+        }
+        heaterRunnable.runTaskTimer(Main.getPlugin(), 0, 20L)
+        heaterLoopMap[location] = heaterRunnable
     }
 
     fun getHeaterLocations(): ArrayList<Location> {
-        return this.heaterLocations
+        return heaterLocations
+    }
+
+    fun getHeaterLoopMap() : Map<Location, BukkitRunnable> {
+        return heaterLoopMap
     }
 }
