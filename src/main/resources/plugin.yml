@@ -1,6 +1,6 @@
 name: Meltdown
 version: '1.0-SNAPSHOT'
-main: me.byrt.meltdown.Main
-api-version: 1.18
+main: dev.byrt.meltdown.Main
+api-version: 1.20
 authors: [ Byrt ]
 description: A recreation of the MCC game Meltdown written in Kotlin.
