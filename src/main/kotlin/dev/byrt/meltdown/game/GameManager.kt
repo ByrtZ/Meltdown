@@ -100,7 +100,7 @@ class GameManager(private val game : Game) {
         }
         game.playerManager.giveItemsToPlayers()
         game.playerManager.setPlayersSurvival()
-        game.blockManager.removeBarriers()
+        game.entranceManager.openAllEntrances()
     }
 
     private fun starting() {
@@ -116,7 +116,7 @@ class GameManager(private val game : Game) {
         game.playerManager.setPlayersAdventure()
         game.playerManager.clearNonBootsItems()
         game.teamManager.hideDisplayTeamNames()
-        game.blockManager.resetAllBlocks()
+        game.entranceManager.resetEntrances()
     }
 
     private fun startOvertime() {
@@ -165,8 +165,9 @@ class GameManager(private val game : Game) {
                 game.freezeManager.unfreezePlayer(player)
             }
         }
-        game.playerManager.setPlayersAdventure()
+        game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
+        game.freezeManager.resetTeamFrozenLists()
     }
 
     private fun roundEnd() {
@@ -190,8 +191,9 @@ class GameManager(private val game : Game) {
                 game.freezeManager.unfreezePlayer(player)
             }
         }
-        game.playerManager.setPlayersAdventure()
+        game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
+        game.freezeManager.resetTeamFrozenLists()
         game.roundManager.nextRound()
     }
 

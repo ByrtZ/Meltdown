@@ -34,11 +34,11 @@ class WhitelistManager(private val game : Game) {
             WhitelistGroup.OFF -> {
                 Main.getPlugin().server.setWhitelist(false)
             } else -> {
-            for(player in game.configManager.getWhitelistConfig().getStringList("group.admin").plus(game.configManager.getWhitelistConfig().getStringList("group.${group.toString().lowercase()}"))) {
-                Bukkit.getOfflinePlayer(player).isWhitelisted = true
-                Main.getPlugin().logger.info("Whitelisted $player as they are in the $group group or inherit it.")
+                for(player in game.configManager.getWhitelistConfig().getStringList("group.admin").plus(game.configManager.getWhitelistConfig().getStringList("group.${group.toString().lowercase()}"))) {
+                    Bukkit.getOfflinePlayer(player).isWhitelisted = true
+                    Main.getPlugin().logger.info("Whitelisted $player as they are in the $group group or inherit it.")
+                }
             }
-        }
         }
         Main.getPlugin().server.reloadWhitelist()
     }

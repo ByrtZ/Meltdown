@@ -30,6 +30,30 @@ class ItemManager(private val game : Game) {
                 teamABoots.itemMeta = lm
                 player.inventory.boots = teamABoots
             }
+            Teams.YELLOW -> {
+                val teamCBoots = ItemStack(Material.LEATHER_BOOTS)
+                val teamCBootsMeta: ItemMeta = teamCBoots.itemMeta
+                teamCBootsMeta.displayName(Component.text("Yellow Team Boots").color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false))
+                teamCBootsMeta.isUnbreakable = true
+                teamCBootsMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_DYE, ItemFlag.HIDE_ATTRIBUTES)
+                teamCBoots.itemMeta = teamCBootsMeta
+                val lm: LeatherArmorMeta = teamCBoots.itemMeta as LeatherArmorMeta
+                lm.setColor(Color.YELLOW)
+                teamCBoots.itemMeta = lm
+                player.inventory.boots = teamCBoots
+            }
+            Teams.LIME -> {
+                val teamDBoots = ItemStack(Material.LEATHER_BOOTS)
+                val teamDBootsMeta: ItemMeta = teamDBoots.itemMeta
+                teamDBootsMeta.displayName(Component.text("Lime Team Boots").color(NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false))
+                teamDBootsMeta.isUnbreakable = true
+                teamDBootsMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_DYE, ItemFlag.HIDE_ATTRIBUTES)
+                teamDBoots.itemMeta = teamDBootsMeta
+                val lm: LeatherArmorMeta = teamDBoots.itemMeta as LeatherArmorMeta
+                lm.setColor(Color.LIME)
+                teamDBoots.itemMeta = lm
+                player.inventory.boots = teamDBoots
+            }
             Teams.BLUE -> {
                 val teamBBoots = ItemStack(Material.LEATHER_BOOTS)
                 val teamBBootsMeta: ItemMeta = teamBBoots.itemMeta

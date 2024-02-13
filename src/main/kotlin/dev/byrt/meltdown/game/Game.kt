@@ -1,6 +1,7 @@
 package dev.byrt.meltdown.game
 
 import dev.byrt.meltdown.Main
+import dev.byrt.meltdown.arena.*
 import dev.byrt.meltdown.manager.*
 import dev.byrt.meltdown.state.*
 import dev.byrt.meltdown.util.*
@@ -21,6 +22,7 @@ class Game(val plugin : Main) {
     val teamManager = TeamManager(this)
     val itemManager = ItemManager(this)
     val blockManager = BlockManager(this)
+    val entranceManager = EntranceManager(this)
     val infoBoardManager = InfoBoardManager(this)
     val tabListManager = TabListManager(this)
     val locationManager = LocationManager(this)
@@ -33,6 +35,7 @@ class Game(val plugin : Main) {
     val musicTask = MusicTask(this)
     val heaterTask = HeaterTask(this)
     val freezeTask = FreezeTask(this)
+    val eliminatedTask = TeamEliminatedTask(this)
 
     val dev = Dev(this)
 
@@ -59,10 +62,11 @@ class Game(val plugin : Main) {
         teamManager.buildDisplayTeams()
         tabListManager.populateMeltdownPuns()
         locationManager.populateSpawns()
+        locationManager.populateEntrances()
     }
 
     fun cleanUp() {
-        blockManager.resetAllBlocks()
+        entranceManager.resetEntrances()
         teamManager.destroyDisplayTeams()
         infoBoardManager.destroyScoreboard()
         configManager.saveWhitelistConfig()
@@ -77,7 +81,8 @@ class Game(val plugin : Main) {
         playerManager.resetPlayers()
         infoBoardManager.destroyScoreboard()
         infoBoardManager.buildScoreboard()
-        blockManager.resetAllBlocks()
+        entranceManager.resetEntrances()
+        freezeManager.resetTeamFrozenLists()
 
         for(player in Bukkit.getOnlinePlayers()) {
             player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(3), Duration.ofSeconds(1))))

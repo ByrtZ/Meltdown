@@ -14,6 +14,7 @@ import kotlin.math.sin
 class HeaterTask(private val game : Game) {
     private var heaterLoopMap = mutableMapOf<Heater, BukkitRunnable>()
     fun startHeaterLoop(heater : Heater) {
+        game.heaterManager.addHeater(heater)
         val heaterRunnable = object : BukkitRunnable() {
             var heaterAliveSeconds = 0
             var heaterAliveTicks = 0
@@ -21,9 +22,11 @@ class HeaterTask(private val game : Game) {
                 if(heater.location.block.type != Material.NETHERITE_BLOCK) {
                     stopHeaterLoop(heater)
                 } else {
+                    if(heaterAliveTicks % 5 == 0) {
+                        heaterParticleCircle(heater.location, heater.team)
+                    }
                     if(heaterAliveTicks >= 20) {
                         heater.location.world.playSound(heater.location, Sounds.Heater.HEATER_LOOP, 1f, 1f)
-                        heaterParticleCircle(heater.location, heater.team)
                         heaterAliveTicks = 0
                         heaterAliveSeconds++
                     }
@@ -40,6 +43,7 @@ class HeaterTask(private val game : Game) {
 
     fun stopHeaterLoop(heater : Heater) {
         heaterLoopMap.remove(heater)?.cancel()
+        game.heaterManager.removeHeater(heater)
         Bukkit.getPlayer(heater.owner)?.let { game.heaterManager.breakHeater(heater.location, it) }
     }
 
@@ -51,8 +55,8 @@ class HeaterTask(private val game : Game) {
         object : BukkitRunnable() {
             override fun run() {
                 for(i in 0 .. 20) {
-                    val x = cos(i.toDouble()) * 3
-                    val z = sin(i.toDouble()) * 3
+                    val x = cos(i.toDouble()) * Heater.HEATER_RADIUS
+                    val z = sin(i.toDouble()) * Heater.HEATER_RADIUS
                     location.world.spawnParticle(
                         Particle.REDSTONE,
                         location.x + x + 0.5,

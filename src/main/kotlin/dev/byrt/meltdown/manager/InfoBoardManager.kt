@@ -23,6 +23,8 @@ class InfoBoardManager(private val game : Game) {
     private lateinit var gameStatusText: Score
     private lateinit var gameScoreText: Score
     private lateinit var redScore: Score
+    private lateinit var yellowScore: Score
+    private lateinit var limeScore: Score
     private lateinit var blueScore: Score
     private lateinit var blankSpaceOne: Score
     private lateinit var blankSpaceTwo: Score
@@ -30,13 +32,15 @@ class InfoBoardManager(private val game : Game) {
     fun buildScoreboard() {
         constructScoreboardInfo()
         meltdownBoard.displaySlot = DisplaySlot.SIDEBAR
-        currentGameText.score = 8
-        currentMapText.score = 7
-        currentRoundText.score = 6
-        gameStatusText.score = 5
-        blankSpaceOne.score = 4
-        gameScoreText.score = 3
-        redScore.score = 2
+        currentGameText.score = 10
+        currentMapText.score = 9
+        currentRoundText.score = 8
+        gameStatusText.score = 7
+        blankSpaceOne.score = 6
+        gameScoreText.score = 5
+        redScore.score = 4
+        yellowScore.score = 3
+        limeScore.score = 2
         blueScore.score = 1
         blankSpaceTwo.score = 0
     }
@@ -54,12 +58,14 @@ class InfoBoardManager(private val game : Game) {
         )
 
         currentGameText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game: " + ChatColor.RESET + "Meltdown")
-        currentMapText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Map: " + ChatColor.WHITE + "Unconfigured")
+        currentMapText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Map: " + ChatColor.WHITE + "Laboratory")
         currentRoundText = meltdownBoard.getScore(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "None")
         gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game status: " + ChatColor.RESET + "Waiting...")
         gameScoreText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game Coins: " + ChatColor.RESET + "(" + ChatColor.YELLOW + "x1.0" + ChatColor.RESET + ")")
         redScore = meltdownBoard.getScore(" 1. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                 0c")
-        blueScore = meltdownBoard.getScore(" 2. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
+        yellowScore = meltdownBoard.getScore(" 2. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                0c")
+        limeScore = meltdownBoard.getScore(" 3. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                0c")
+        blueScore = meltdownBoard.getScore(" 4. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
         blankSpaceOne = meltdownBoard.getScore("§")
         blankSpaceTwo = meltdownBoard.getScore("§§")
     }
@@ -78,37 +84,37 @@ class InfoBoardManager(private val game : Game) {
             if(game.roundManager.getRoundState() == RoundState.ONE) {
                 meltdownBoard.scoreboard!!.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game begins: " + ChatColor.RESET + "" + previousDisplayTime)
                 gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game begins: " + ChatColor.RESET + "" + displayTime)
-                gameStatusText.score = 5
+                gameStatusText.score = 7
             } else {
                 meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Round begins: " + ChatColor.RESET + previousDisplayTime)
                 gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Round begins: " + ChatColor.RESET + "" + displayTime)
-                gameStatusText.score = 5
+                gameStatusText.score = 7
             }
 
             meltdownBoard.scoreboard?.resetScores(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "None")
             meltdownBoard.scoreboard?.resetScores(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "${game.roundManager.getRoundState().ordinal}/${game.roundManager.getTotalRounds()}")
             currentRoundText = meltdownBoard.getScore(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "${game.roundManager.getRoundState().ordinal + 1}/${game.roundManager.getTotalRounds()}")
-            currentRoundText.score = 6
+            currentRoundText.score = 8
         }
         if(gameState == GameState.IN_GAME) {
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game begins: " + ChatColor.RESET + previousDisplayTime)
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Round begins: " + ChatColor.RESET + previousDisplayTime)
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + previousDisplayTime)
             gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + displayTime)
-            gameStatusText.score = 5
+            gameStatusText.score = 7
         }
         if(gameState == GameState.OVERTIME) {
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + previousDisplayTime)
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + previousDisplayTime)
             gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + displayTime)
-            gameStatusText.score = 5
+            gameStatusText.score = 7
         }
         if(gameState == GameState.ROUND_END) {
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + previousDisplayTime)
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Next round: " + ChatColor.RESET + previousDisplayTime)
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + previousDisplayTime)
             gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Next round: " + ChatColor.RESET + "" + displayTime)
-            gameStatusText.score = 5
+            gameStatusText.score = 7
         }
         if(gameState == GameState.GAME_END) {
             meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + previousDisplayTime)
@@ -120,7 +126,7 @@ class InfoBoardManager(private val game : Game) {
             } else {
                 meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game ending: " + ChatColor.RESET + "" + displayTime)
             }
-            gameStatusText.score = 5
+            gameStatusText.score = 7
         }
     }
 }

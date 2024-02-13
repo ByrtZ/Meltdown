@@ -9,6 +9,9 @@ import cloud.commandframework.annotations.CommandDescription
 import cloud.commandframework.annotations.CommandMethod
 import cloud.commandframework.annotations.CommandPermission
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+
 import org.bukkit.entity.Player
 
 @Suppress("unused")
@@ -34,7 +37,7 @@ class DebugCommands : BaseCommand {
     @CommandPermission("meltdown.freeze")
     fun debugFreeze(sender : Player, @Argument("player") player : Player) {
         Main.getGame().dev.parseDevMessage("${sender.name} force froze ${player.name}.", DevStatus.WARNING)
-        Main.getGame().freezeManager.freezePlayer(player)
+        Main.getGame().freezeManager.freezePlayer(player, null)
     }
 
     @CommandMethod("debug unfreeze <player>")
@@ -43,5 +46,26 @@ class DebugCommands : BaseCommand {
     fun debugUnfreeze(sender : Player, @Argument("player") player : Player) {
         Main.getGame().dev.parseDevMessage("${sender.name} force unfroze ${player.name}.", DevStatus.WARNING)
         Main.getGame().freezeManager.unfreezePlayer(player)
+    }
+
+    @CommandMethod("debug data entrances")
+    @CommandDescription("Debug command to get data.")
+    @CommandPermission("meltdown.debug")
+    fun debugEntranceData(sender : Player) {
+        sender.sendMessage(Component.text("Entrance Data\n${Main.getGame().entranceManager.getEntrancesList()}", NamedTextColor.YELLOW))
+    }
+
+    @CommandMethod("debug data heaters")
+    @CommandDescription("Debug command to get data.")
+    @CommandPermission("meltdown.debug")
+    fun debugHeaterData(sender : Player) {
+        sender.sendMessage(Component.text("Heater Data\n${Main.getGame().heaterManager.getHeaterList()}", NamedTextColor.YELLOW))
+    }
+
+    @CommandMethod("debug data frozen")
+    @CommandDescription("Debug command to get data.")
+    @CommandPermission("meltdown.debug")
+    fun debugFrozenData(sender : Player) {
+        sender.sendMessage(Component.text("Frozen Players\n${Main.getGame().freezeManager.getFrozenPlayers()}", NamedTextColor.YELLOW))
     }
 }

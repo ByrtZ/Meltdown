@@ -6,7 +6,7 @@ class Sounds {
         const val OVERTIME_INTRO_MUSIC = "mcc.overtime_intro"
         const val OVERTIME_MUSIC = "mcc.overtime"
         const val GAME_OVER_MUSIC = "mcc.game_over"
-        const val ROUND_OVER_MUSIC = "music_disc.far"
+        const val ROUND_OVER_MUSIC = ""
     }
     object Timer {
         const val STARTING_123 = "event.123"
@@ -16,7 +16,7 @@ class Sounds {
     object Round {
         const val ROUND_START_PLING = "event.go"
         const val ROUND_END_PLING = "event.roundend"
-        const val ROUND_STARTING = "music_disc.blocks"
+        const val ROUND_STARTING = ""
         const val WIN_ROUND = "ui.toast.challenge_complete"
         const val LOSE_ROUND = "entity.ender_dragon.growl"
         const val DRAW_ROUND = "entity.wither.spawn"
@@ -47,6 +47,7 @@ class Sounds {
     }
     object Score {
         const val ELIMINATION = "event.scoreacquired"
+        const val TEAM_ELIMINATED = "event.teameliminated"
     }
     object Alert {
         const val GENERAL_ALERT = "block.note_block.bit"

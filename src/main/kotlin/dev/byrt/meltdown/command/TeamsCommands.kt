@@ -32,7 +32,7 @@ class TeamsCommands : BaseCommand {
     @CommandPermission("meltdown.jointeam")
     fun setTeam(sender : Player, @Argument("player") player : Player, @Argument("team") team : Teams) {
         if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
-            if(Main.getGame().teamManager.getPlayerTeam(player.uniqueId) == Teams.RED && team == Teams.RED || Main.getGame().teamManager.getPlayerTeam(player.uniqueId) == Teams.BLUE && team == Teams.BLUE || Main.getGame().teamManager.getPlayerTeam(player.uniqueId) == Teams.SPECTATOR && team == Teams.SPECTATOR) {
+            if(Main.getGame().teamManager.getPlayerTeam(player.uniqueId) == team) {
                 sender.sendMessage(Component.text("This player is already on ${team.toString().lowercase()} team.").color(NamedTextColor.RED))
             } else {
                 Main.getGame().teamManager.addToTeam(player, player.uniqueId, team)
@@ -43,6 +43,7 @@ class TeamsCommands : BaseCommand {
         }
     }
 
+    //TODO: REDO SHUFFLE TO SUPPORT 4 TEAMS
     @CommandMethod("teams shuffle")
     @CommandDescription("Automatically assigns everyone online to a team.")
     @CommandPermission("meltdown.autoteam")
@@ -116,6 +117,14 @@ class TeamsCommands : BaseCommand {
                 sender.sendMessage(Component.text("DISPLAYING RED TEAM UUIDS:").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
                 sender.sendMessage(Component.text("${Main.getGame().teamManager.getRedTeam()}"))
             }
+            TeamsListOptions.YELLOW -> {
+                sender.sendMessage(Component.text("DISPLAYING YELLOW TEAM UUIDS:").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true))
+                sender.sendMessage(Component.text("${Main.getGame().teamManager.getYellowTeam()}"))
+            }
+            TeamsListOptions.LIME -> {
+                sender.sendMessage(Component.text("DISPLAYING LIME TEAM UUIDS:").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true))
+                sender.sendMessage(Component.text("${Main.getGame().teamManager.getLimeTeam()}"))
+            }
             TeamsListOptions.BLUE -> {
                 sender.sendMessage(Component.text("DISPLAYING BLUE TEAM UUIDS:").color(NamedTextColor.BLUE).decoration(TextDecoration.BOLD, true))
                 sender.sendMessage(Component.text("${Main.getGame().teamManager.getBlueTeam()}"))
@@ -127,6 +136,10 @@ class TeamsCommands : BaseCommand {
             TeamsListOptions.ALL -> {
                 sender.sendMessage(Component.text("\nDISPLAYING RED TEAM UUIDS:").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
                 sender.sendMessage(Component.text("${Main.getGame().teamManager.getRedTeam()}\n"))
+                sender.sendMessage(Component.text("DISPLAYING YELLOW TEAM UUIDS:").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true))
+                sender.sendMessage(Component.text("${Main.getGame().teamManager.getYellowTeam()}"))
+                sender.sendMessage(Component.text("DISPLAYING LIME TEAM UUIDS:").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true))
+                sender.sendMessage(Component.text("${Main.getGame().teamManager.getLimeTeam()}"))
                 sender.sendMessage(Component.text("\nDISPLAYING BLUE TEAM UUIDS:").color(NamedTextColor.BLUE).decoration(TextDecoration.BOLD, true))
                 sender.sendMessage(Component.text("${Main.getGame().teamManager.getBlueTeam()}\n"))
                 sender.sendMessage(Component.text("\nDISPLAYING SPECTATOR TEAM UUIDS:").decoration(TextDecoration.BOLD, true))
@@ -139,6 +152,8 @@ class TeamsCommands : BaseCommand {
 enum class TeamsListOptions {
     SPECTATOR,
     RED,
+    YELLOW,
+    LIME,
     BLUE,
     ALL
 }

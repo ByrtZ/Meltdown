@@ -8,6 +8,7 @@ import org.bukkit.*
 import org.bukkit.entity.Player
 
 class HeaterManager(private val game : Game) {
+    private var heaterList = ArrayList<Heater>()
     private var latestHeaterId = 0
     fun placeHeater(location : Location, player : Player) {
         player.inventory.remove(Material.NETHERITE_SHOVEL)
@@ -17,12 +18,13 @@ class HeaterManager(private val game : Game) {
     }
 
     fun breakHeater(location : Location, owner : Player) {
-        if(owner.gameMode != GameMode.SPECTATOR) {
+        if(owner.gameMode != GameMode.SPECTATOR && !game.freezeManager.isFrozen(owner)) {
             game.itemManager.giveHeaterItem(owner)
             owner.setCooldown(Material.NETHERITE_SHOVEL, 10 * 20)
         }
         location.block.type = Material.AIR
         location.world.playSound(location, Sounds.Heater.HEATER_BREAK, 1f, 1f)
+        location.world.spawnParticle(Particle.BLOCK_DUST, location.block.x.toDouble(), location.block.y +  0.5, location.block.z.toDouble(), 5, 0.5, 0.5, 0.5, location.block.blockData)
     }
 
     fun isHeaterActive(player : Player) : Boolean {
@@ -34,5 +36,26 @@ class HeaterManager(private val game : Game) {
 
     private fun incrementHeaterId() : Int {
         return latestHeaterId++
+    }
+
+    fun addHeater(heater : Heater) {
+        heaterList.add(heater)
+    }
+
+    fun removeHeater(heater : Heater) {
+        heaterList.remove(heater)
+    }
+
+    fun getPlayerHeater(player : Player) : Heater? {
+        for(heater in heaterList) {
+            if(heater.owner == player.uniqueId) {
+                return heater
+            }
+        }
+        return null
+    }
+
+    fun getHeaterList() : ArrayList<Heater> {
+        return heaterList
     }
 }

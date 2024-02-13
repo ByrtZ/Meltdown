@@ -18,7 +18,7 @@ class PlayerShootBowEvent : Listener {
                 val player = e.entity as Player
                 player.world.playSound(player.location, Sounds.Bow.FROST_BOW_SHOOT, 1.0f, 1.0f)
             } else {
-                e.isCancelled
+                e.isCancelled = true
             }
         } else {
             e.isCancelled = true

@@ -212,10 +212,6 @@ class GameTask(private var game : Game) {
         }
     }
 
-    fun getTimeLeft() : Int {
-        return timeLeft
-    }
-
     fun resetVars() {
         timeLeft = 0
         previousTimeLeft = 0

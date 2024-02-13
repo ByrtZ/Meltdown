@@ -18,10 +18,14 @@ class FreezeArrowHitEvent : Listener {
             if(e.entity is Arrow && e.hitEntity is Player && e.entity.shooter is Player && (e.hitEntity as Player).player?.gameMode == GameMode.SURVIVAL) {
                 val player = e.hitEntity as Player
                 val shooter = e.entity.shooter as Player
-                if(!Main.getGame().freezeManager.getFrozenPlayers().contains(player.uniqueId) && player.fireTicks < 0) {
-                    Main.getGame().freezeManager.freezePlayer(player)
-                    Main.getGame().freezeManager.freezePlayerDisplay(player, shooter)
-                    e.entity.remove()
+                if(!Main.getGame().teamManager.isSpectator(player.uniqueId)) {
+                    if(!Main.getGame().freezeManager.getFrozenPlayers().contains(player.uniqueId) && player.fireTicks < 0) {
+                        Main.getGame().freezeManager.freezePlayer(player, shooter)
+                        e.entity.remove()
+                    } else {
+                        e.entity.remove()
+                        e.isCancelled = true
+                    }
                 } else {
                     e.entity.remove()
                     e.isCancelled = true

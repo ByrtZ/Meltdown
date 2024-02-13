@@ -15,9 +15,13 @@ import java.util.*
 
 class TeamManager(private val game : Game) {
     private var redTeam = ArrayList<UUID>()
+    private var yellowTeam = ArrayList<UUID>()
+    private var limeTeam = ArrayList<UUID>()
     private var blueTeam = ArrayList<UUID>()
     private var spectators = ArrayList<UUID>()
     private var redDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("redDisplay")
+    private var yellowDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("yellowDisplay")
+    private var limeDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("limeDisplay")
     private var blueDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("blueDisplay")
     private var spectatorDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("spectator")
     private var adminDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("admin")
@@ -25,6 +29,8 @@ class TeamManager(private val game : Game) {
     fun addToTeam(player : Player, uuid : UUID, team : Teams) {
         when(team) {
             Teams.RED -> {
+                if(yellowTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.YELLOW) }
+                if(limeTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.LIME) }
                 if(blueTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.BLUE) }
                 if(spectators.contains(uuid)) { removeFromTeam(player, uuid, Teams.SPECTATOR) }
                 redTeam.add(uuid)
@@ -36,8 +42,38 @@ class TeamManager(private val game : Game) {
                     .append(Component.text(".")))
                 game.itemManager.givePlayerTeamBoots(player, Teams.RED)
             }
+            Teams.YELLOW -> {
+                if(redTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.RED) }
+                if(limeTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.LIME) }
+                if(blueTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.BLUE) }
+                if(spectators.contains(uuid)) { removeFromTeam(player, uuid, Teams.SPECTATOR) }
+                yellowTeam.add(uuid)
+                yellowDisplayTeam.addPlayer(Bukkit.getOfflinePlayer(uuid))
+                player.sendMessage(Component.text("You are now on ")
+                    .color(NamedTextColor.WHITE)
+                    .append(Component.text("Yellow Team")
+                        .color(NamedTextColor.YELLOW))
+                    .append(Component.text(".")))
+                game.itemManager.givePlayerTeamBoots(player, Teams.YELLOW)
+            }
+            Teams.LIME -> {
+                if(redTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.RED) }
+                if(yellowTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.LIME) }
+                if(blueTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.BLUE) }
+                if(spectators.contains(uuid)) { removeFromTeam(player, uuid, Teams.SPECTATOR) }
+                limeTeam.add(uuid)
+                limeDisplayTeam.addPlayer(Bukkit.getOfflinePlayer(uuid))
+                player.sendMessage(Component.text("You are now on ")
+                    .color(NamedTextColor.WHITE)
+                    .append(Component.text("Lime Team")
+                        .color(NamedTextColor.GREEN))
+                    .append(Component.text(".")))
+                game.itemManager.givePlayerTeamBoots(player, Teams.LIME)
+            }
             Teams.BLUE -> {
                 if(redTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.RED) }
+                if(yellowTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.YELLOW) }
+                if(limeTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.LIME) }
                 if(spectators.contains(uuid)) { removeFromTeam(player, uuid, Teams.SPECTATOR) }
                 blueTeam.add(uuid)
                 blueDisplayTeam.addPlayer(Bukkit.getOfflinePlayer(uuid))
@@ -50,6 +86,8 @@ class TeamManager(private val game : Game) {
             }
             Teams.SPECTATOR -> {
                 if(redTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.RED) }
+                if(yellowTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.YELLOW) }
+                if(limeTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.LIME) }
                 if(blueTeam.contains(uuid)) { removeFromTeam(player, uuid, Teams.BLUE) }
                 spectators.add(uuid)
                 if(player.isOp) {
@@ -83,6 +121,24 @@ class TeamManager(private val game : Game) {
                         .color(NamedTextColor.BLUE))
                     .append(Component.text(".")))
             }
+            Teams.YELLOW -> {
+                yellowTeam.remove(uuid)
+                yellowDisplayTeam.removePlayer(Bukkit.getOfflinePlayer(uuid))
+                player.sendMessage(Component.text("You are no longer on ")
+                    .color(NamedTextColor.WHITE)
+                    .append(Component.text("Yellow Team")
+                        .color(NamedTextColor.YELLOW))
+                    .append(Component.text(".")))
+            }
+            Teams.LIME -> {
+                limeTeam.remove(uuid)
+                limeDisplayTeam.removePlayer(Bukkit.getOfflinePlayer(uuid))
+                player.sendMessage(Component.text("You are no longer on ")
+                    .color(NamedTextColor.WHITE)
+                    .append(Component.text("Lime Team")
+                        .color(NamedTextColor.GREEN))
+                    .append(Component.text(".")))
+            }
             Teams.SPECTATOR -> {
                 spectators.remove(uuid)
                 spectatorDisplayTeam.removePlayer(Bukkit.getOfflinePlayer(uuid))
@@ -95,12 +151,36 @@ class TeamManager(private val game : Game) {
         var i = 0
         players.shuffled().forEach {
             removeFromTeam(it, it.uniqueId, getPlayerTeam(it.uniqueId))
-            if (i % 2 == 0) {
+            if(i % 2 == 0) {
                 addToTeam(it, it.uniqueId, Teams.RED)
             } else {
                 addToTeam(it, it.uniqueId, Teams.BLUE)
             }
             i++
+        }
+    }
+
+    fun sendTeamMessage(component : Component, team : Teams) {
+        for(player in getTeamPlayers(team)) {
+            player.sendMessage(component)
+        }
+    }
+
+    fun sendTeamFrozenMessage(component : Component, team1 : Teams, team2 : Teams) {
+        for(player in getTeamPlayers(team1) + getTeamPlayers(team2) + getTeamPlayers(Teams.SPECTATOR)) {
+            player.sendMessage(component)
+        }
+    }
+
+    fun sendTeamThawedMessage(component : Component, thawed : Player, team : Teams) {
+        for(player in getTeamPlayers(team) + getTeamPlayers(Teams.SPECTATOR)) {
+            if(player != thawed) {
+                player.sendMessage(component)
+            } else {
+                player.sendMessage(Component.text("[")
+                    .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                    .append(Component.text("] You were unfrozen!")))
+            }
         }
     }
 
@@ -114,6 +194,18 @@ class TeamManager(private val game : Game) {
         redDisplayTeam.suffix(Component.text("").color(NamedTextColor.WHITE))
         redDisplayTeam.displayName(Component.text("Red").color(NamedTextColor.RED))
         redDisplayTeam.setAllowFriendlyFire(false)
+
+        yellowDisplayTeam.color(NamedTextColor.YELLOW)
+        yellowDisplayTeam.prefix(Component.text("\uD007 ").color(NamedTextColor.WHITE))
+        yellowDisplayTeam.suffix(Component.text("").color(NamedTextColor.WHITE))
+        yellowDisplayTeam.displayName(Component.text("Yellow").color(NamedTextColor.YELLOW))
+        yellowDisplayTeam.setAllowFriendlyFire(false)
+
+        limeDisplayTeam.color(NamedTextColor.GREEN)
+        limeDisplayTeam.prefix(Component.text("\uD008 ").color(NamedTextColor.WHITE))
+        limeDisplayTeam.suffix(Component.text("").color(NamedTextColor.WHITE))
+        limeDisplayTeam.displayName(Component.text("Lime").color(NamedTextColor.GREEN))
+        limeDisplayTeam.setAllowFriendlyFire(false)
 
         blueDisplayTeam.color(NamedTextColor.BLUE)
         blueDisplayTeam.prefix(Component.text("\uD005 ").color(NamedTextColor.WHITE))
@@ -134,18 +226,17 @@ class TeamManager(private val game : Game) {
         spectatorDisplayTeam.setAllowFriendlyFire(false)
     }
 
-    fun showDisplayTeamNames() {
-        redDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
-        blueDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
-    }
-
     fun hideDisplayTeamNames() {
         redDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS)
+        yellowDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS)
+        limeDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS)
         blueDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS)
     }
 
     fun destroyDisplayTeams() {
         redDisplayTeam.unregister()
+        yellowDisplayTeam.unregister()
+        limeDisplayTeam.unregister()
         blueDisplayTeam.unregister()
         adminDisplayTeam.unregister()
         spectatorDisplayTeam.unregister()
@@ -154,6 +245,10 @@ class TeamManager(private val game : Game) {
     fun getPlayerTeam(uuid : UUID): Teams {
         return if(redTeam.contains(uuid)) {
             Teams.RED
+        } else if(yellowTeam.contains(uuid)) {
+            Teams.YELLOW
+        } else if(limeTeam.contains(uuid)) {
+            Teams.LIME
         } else if(blueTeam.contains(uuid)) {
             Teams.BLUE
         } else {
@@ -161,25 +256,38 @@ class TeamManager(private val game : Game) {
         }
     }
 
-    fun getTeamNamedTextColor(player : Player) : NamedTextColor {
-        if(isInRedTeam(player.uniqueId)) {
-            return NamedTextColor.RED
+    private fun getTeamPlayers(team : Teams) : List<Player> {
+        val teamPlayers = ArrayList<Player>()
+        when(team) {
+            Teams.RED -> {
+                for(redPlayer in redTeam) {
+                    Bukkit.getPlayer(redPlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.YELLOW -> {
+                for(yellowPlayer in yellowTeam) {
+                    Bukkit.getPlayer(yellowPlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.LIME -> {
+                for(limePlayer in limeTeam) {
+                    Bukkit.getPlayer(limePlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.BLUE -> {
+                for(bluePlayer in blueTeam) {
+                    Bukkit.getPlayer(bluePlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.SPECTATOR -> {
+                for(spectator in spectators) {
+                    Bukkit.getPlayer(spectator)?.let { teamPlayers.add(it) }
+                }
+            }
         }
-        if(isInBlueTeam(player.uniqueId)) {
-            return NamedTextColor.BLUE
-        }
-        return NamedTextColor.GRAY
+        return teamPlayers
     }
 
-    fun getTeamColor(player : Player) : Color {
-        if(isInRedTeam(player.uniqueId)) {
-            return Color.RED
-        }
-        if(isInBlueTeam(player.uniqueId)) {
-            return Color.BLUE
-        }
-        return Color.GRAY
-    }
 
     fun getTeamColor(team : Teams) : Color {
         return when(team) {
@@ -189,6 +297,12 @@ class TeamManager(private val game : Game) {
             Teams.BLUE -> {
                 Color.BLUE
             }
+            Teams.YELLOW -> {
+                Color.YELLOW
+            }
+            Teams.LIME -> {
+                Color.LIME
+            }
             Teams.SPECTATOR -> {
                 Color.GRAY
             }
@@ -197,6 +311,14 @@ class TeamManager(private val game : Game) {
 
     fun isInRedTeam(uuid : UUID): Boolean {
         return redTeam.contains(uuid)
+    }
+
+    fun isInYellowTeam(uuid : UUID): Boolean {
+        return yellowTeam.contains(uuid)
+    }
+
+    fun isInLimeTeam(uuid : UUID): Boolean {
+        return limeTeam.contains(uuid)
     }
 
     fun isInBlueTeam(uuid : UUID): Boolean {
@@ -211,6 +333,14 @@ class TeamManager(private val game : Game) {
         return this.redTeam
     }
 
+    fun getYellowTeam(): ArrayList<UUID> {
+        return this.yellowTeam
+    }
+
+    fun getLimeTeam(): ArrayList<UUID> {
+        return this.limeTeam
+    }
+
     fun getBlueTeam(): ArrayList<UUID> {
         return this.blueTeam
     }
@@ -218,4 +348,5 @@ class TeamManager(private val game : Game) {
     fun getSpectators(): ArrayList<UUID> {
         return this.spectators
     }
+
 }

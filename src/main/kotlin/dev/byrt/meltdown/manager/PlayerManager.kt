@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 
 class PlayerManager(private var game : Game) {
+    //TODO: REWRITE ENTIRE CLASS
     fun setPlayersNotFlying() {
         Bukkit.getOnlinePlayers().stream().filter { player: Player -> player.allowFlight }.forEach {
                 player: Player -> disableFlightPlayers(player)
@@ -28,7 +29,7 @@ class PlayerManager(private var game : Game) {
     }
 
     private fun enableFlightPlayers(player: Player) {
-        if (player.gameMode == GameMode.ADVENTURE || player.gameMode == GameMode.SURVIVAL) {
+        if(player.gameMode == GameMode.ADVENTURE || player.gameMode == GameMode.SURVIVAL) {
             player.velocity = Vector(0.0, 0.5, 0.0)
             player.allowFlight = true
             player.isFlying = true
@@ -73,15 +74,25 @@ class PlayerManager(private var game : Game) {
     private fun teleportPlayers(player : Player) {
         if(game.teamManager.isInRedTeam(player.uniqueId)) {
             for(redPlayerUUID in game.teamManager.getRedTeam()) {
-                val redPlayer = Bukkit.getPlayer(redPlayerUUID)
-                redPlayer!!.teleport(game.locationManager.getRedSpawns()[game.locationManager.getRedSpawnCounter()])
+                Bukkit.getPlayer(redPlayerUUID)?.teleport(game.locationManager.getRedSpawns()[game.locationManager.getRedSpawnCounter()])
                 game.locationManager.incrementSpawnCounter(Teams.RED)
+            }
+        }
+        if(game.teamManager.isInYellowTeam(player.uniqueId)) {
+            for(yellowPlayerUUID in game.teamManager.getYellowTeam()) {
+                Bukkit.getPlayer(yellowPlayerUUID)?.teleport(game.locationManager.getYellowSpawns()[game.locationManager.getYellowSpawnCounter()])
+                game.locationManager.incrementSpawnCounter(Teams.YELLOW)
+            }
+        }
+        if(game.teamManager.isInLimeTeam(player.uniqueId)) {
+            for(limePlayerUUID in game.teamManager.getLimeTeam()) {
+                Bukkit.getPlayer(limePlayerUUID)?.teleport(game.locationManager.getLimeSpawns()[game.locationManager.getLimeSpawnCounter()])
+                game.locationManager.incrementSpawnCounter(Teams.LIME)
             }
         }
         if(game.teamManager.isInBlueTeam(player.uniqueId)) {
             for(bluePlayerUUID in game.teamManager.getBlueTeam()) {
-                val bluePlayer = Bukkit.getPlayer(bluePlayerUUID)
-                bluePlayer!!.teleport(game.locationManager.getBlueSpawns()[game.locationManager.getBlueSpawnCounter()])
+                Bukkit.getPlayer(bluePlayerUUID)?.teleport(game.locationManager.getBlueSpawns()[game.locationManager.getBlueSpawnCounter()])
                 game.locationManager.incrementSpawnCounter(Teams.BLUE)
             }
         }
@@ -117,6 +128,12 @@ class PlayerManager(private var game : Game) {
         Bukkit.getOnlinePlayers().stream().filter { player: Player? -> player?.let {
             game.teamManager.getPlayerTeam(it.uniqueId) } != Teams.SPECTATOR}
             .forEach{ player: Player -> player.gameMode = GameMode.ADVENTURE }
+    }
+
+    fun setAlivePlayersAdventure() {
+        Bukkit.getOnlinePlayers().stream().filter { player: Player? -> player?.let {
+            game.teamManager.getPlayerTeam(it.uniqueId) } != Teams.SPECTATOR}
+            .forEach{ player: Player -> if(player.gameMode != GameMode.SPECTATOR) { player.gameMode = GameMode.ADVENTURE} }
     }
 
     private fun setAllAdventure() {
