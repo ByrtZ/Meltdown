@@ -5,7 +5,6 @@ import cloud.commandframework.annotations.*
 import dev.byrt.meltdown.Main
 import dev.byrt.meltdown.game.GameState
 import dev.byrt.meltdown.state.*
-import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.util.DevStatus
 
 import net.kyori.adventure.key.Key
@@ -43,7 +42,6 @@ class TeamsCommands : BaseCommand {
         }
     }
 
-    //TODO: REDO SHUFFLE TO SUPPORT 4 TEAMS
     @CommandMethod("teams shuffle")
     @CommandDescription("Automatically assigns everyone online to a team.")
     @CommandPermission("meltdown.autoteam")
@@ -51,7 +49,7 @@ class TeamsCommands : BaseCommand {
         if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
             shuffleStartDisplay(sender)
             if(!doesIgnoreAdmins) {
-                shuffle(Main.getPlugin().server.onlinePlayers)
+                Main.getGame().teamManager.shuffle(Main.getPlugin().server.onlinePlayers)
                 Main.getGame().dev.parseDevMessage("All online players successfully split into teams by ${sender.name}.", DevStatus.INFO)
                 shuffleCompleteDisplay(sender)
             } else {
@@ -66,7 +64,7 @@ class TeamsCommands : BaseCommand {
                         sender.sendMessage(Component.text("Unable to shuffle teams due to no non-admin players online.").color(NamedTextColor.RED))
                         shuffleFailDisplay(sender)
                     } else {
-                        shuffle(nonAdmins)
+                        Main.getGame().teamManager.shuffle(nonAdmins)
                         Main.getGame().dev.parseDevMessage("All online non-admin players successfully split into teams by ${sender.name}.", DevStatus.INFO)
                         shuffleCompleteDisplay(sender)
                     }
@@ -77,19 +75,6 @@ class TeamsCommands : BaseCommand {
             }
         } else {
             sender.sendMessage(Component.text("Unable to modify teams in this state.", NamedTextColor.RED))
-        }
-    }
-
-    private fun shuffle(players : Collection<Player>) {
-        var i = 0
-        players.shuffled().forEach {
-            Main.getGame().teamManager.removeFromTeam(it, it.uniqueId, Main.getGame().teamManager.getPlayerTeam(it.uniqueId))
-            if (i % 2 == 0) {
-                Main.getGame().teamManager.addToTeam(it, it.uniqueId, Teams.RED)
-            } else {
-                Main.getGame().teamManager.addToTeam(it, it.uniqueId, Teams.BLUE)
-            }
-            i++
         }
     }
 

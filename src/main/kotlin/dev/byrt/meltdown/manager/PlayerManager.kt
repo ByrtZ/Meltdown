@@ -37,14 +37,12 @@ class PlayerManager(private var game : Game) {
     }
 
     fun giveItemsToPlayers() {
-        Bukkit.getOnlinePlayers().stream().filter { player: Player -> player.gameMode == GameMode.ADVENTURE }
-            .forEach { player: Player -> giveItems(player) }
-    }
-
-    private fun giveItems(player: Player) {
-        if(game.teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
-            game.itemManager.givePlayerKit(player)
+        for(player in Bukkit.getOnlinePlayers()) {
+            if(!game.teamManager.isSpectator(player.uniqueId)) {
+                game.itemManager.givePlayerKit(player)
+            }
         }
+        game.itemManager.distributeTelepickaxe()
     }
 
     fun clearNonBootsItems() {
@@ -56,6 +54,8 @@ class PlayerManager(private var game : Game) {
         player.inventory.remove(Material.NETHERITE_SHOVEL)
         player.inventory.remove(Material.BOW)
         player.inventory.remove(Material.ARROW)
+        player.inventory.remove(Material.NETHERITE_PICKAXE)
+        player.inventory.remove(Material.GRAY_DYE)
         player.inventory.setItemInOffHand(null)
     }
 
@@ -63,6 +63,11 @@ class PlayerManager(private var game : Game) {
         for(player in Bukkit.getOnlinePlayers()) {
             player.inventory.clear()
         }
+    }
+
+    fun clearQueueItem(player : Player) {
+        player.inventory.remove(Material.RED_DYE)
+        player.inventory.setItemInOffHand(null)
     }
 
     fun teleportPlayersToGame() {

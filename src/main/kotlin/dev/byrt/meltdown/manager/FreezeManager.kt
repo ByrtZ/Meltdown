@@ -27,12 +27,14 @@ class FreezeManager(private var game : Game) {
     private var blueFrozenPlayers = ArrayList<Player>()
 
     fun freezePlayer(player : Player, shooter : Player?) {
+        if(frozenPlayers.contains(player.uniqueId)) return
         frozenPlayers.add(player.uniqueId)
-        val freezeLoc = Location(player.world, player.location.blockX.toDouble() + 0.5, player.location.blockY.toDouble(), player.location.blockZ.toDouble() + 0.5, player.location.yaw, player.location.pitch)
+        val freezeLoc = findNearestFreezeLocation(player)
         player.teleport(freezeLoc)
         setFrozenBlocks(player, Material.LIGHT_BLUE_STAINED_GLASS)
         player.damage(0.01)
-        player.playSound(player.location, Sounds.Freeze.FROZEN, 1f, 1f)
+        player.playSound(player.location, Sounds.Freeze.FROZEN_1, 5f, 1f)
+        player.playSound(player.location, Sounds.Freeze.FROZEN_2, 1f, 1f)
         game.playerManager.clearKit(player)
         game.freezeTask.startFreezeLoop(player, freezeLoc, game.teamManager.getPlayerTeam(player.uniqueId))
         game.freezeTask.startFrostVignetteTask(player)
@@ -52,7 +54,7 @@ class FreezeManager(private var game : Game) {
                 .append(Component.text("] You froze "))
                 .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
                 .append(Component.text("!")))
-        shooter.playSound(shooter.location, Sounds.Score.ELIMINATION, 1f, 1f)
+        shooter.playSound(shooter.location, Sounds.Score.ELIMINATION, 1f, 1.25f)
 
         game.teamManager.sendTeamFrozenMessage(
             Component.text("[")
@@ -60,7 +62,8 @@ class FreezeManager(private var game : Game) {
                 .append(Component.text("] "))
                 .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
                 .append(Component.text(" was frozen by "))
-                .append(Component.text(shooter.name).color(game.teamManager.getPlayerTeam(shooter.uniqueId).textColor)),
+                .append(Component.text(shooter.name).color(game.teamManager.getPlayerTeam(shooter.uniqueId).textColor))
+                .append(Component.text(".", NamedTextColor.WHITE)),
             game.teamManager.getPlayerTeam(frozenPlayer.uniqueId),
             game.teamManager.getPlayerTeam(shooter.uniqueId)
         )
@@ -78,6 +81,7 @@ class FreezeManager(private var game : Game) {
     }
 
     fun unfreezePlayer(player : Player) {
+        if(!frozenPlayers.contains(player.uniqueId)) return
         frozenPlayers.remove(player.uniqueId)
         setFrozenBlocks(player, Material.AIR)
         resetFrostVignette(player)
@@ -86,11 +90,15 @@ class FreezeManager(private var game : Game) {
         player.setCooldown(Material.NETHERITE_SHOVEL, 10 * 20)
         player.fireTicks = 4 * 20
 
-        if(game.heaterManager.isHeaterActive(player)) {
-            game.itemManager.giveFrostBowItem(player)
-            game.itemManager.giveFrostArrowItem(player)
+        game.itemManager.giveFrostBowItem(player)
+        game.itemManager.giveFrostArrowItem(player)
+        if(!game.heaterManager.isHeaterActive(player)) {
+            game.itemManager.giveHeaterItem(player)
+        }
+        if(player == game.sharedItemManager.getTeamTelepickaxeOwner(player)) {
+            game.itemManager.giveUsableTelepickaxe(player)
         } else {
-            game.itemManager.givePlayerKit(player)
+            game.itemManager.giveUnusableTelepickaxe(player)
         }
 
         game.teamManager.sendTeamThawedMessage(
@@ -102,6 +110,30 @@ class FreezeManager(private var game : Game) {
             player,
             game.teamManager.getPlayerTeam(player.uniqueId)
         )
+    }
+
+    private fun findNearestFreezeLocation(player : Player) : Location {
+        val searchRadius = 4
+        var closestLocation = player.location
+        var closestDistanceSquared = Double.MAX_VALUE
+        for(x in -searchRadius..searchRadius) {
+            for(y in -searchRadius - 8..searchRadius) {
+                for(z in -searchRadius..searchRadius) {
+                    val targetLocation = player.location.clone().add(x.toDouble(), y.toDouble(), z.toDouble())
+                    val block = targetLocation.block
+                    val blockAbove = targetLocation.clone().add(0.0, 1.0, 0.0).block
+                    val blockBelow = targetLocation.clone().subtract(0.0, 1.0, 0.0).block
+                    if(block.type == Material.AIR && blockAbove.type == Material.AIR && blockBelow.isSolid && !blockBelow.type.name.endsWith("_SLAB")) {
+                        val distanceSquared = player.location.distanceSquared(targetLocation)
+                        if(distanceSquared < closestDistanceSquared) {
+                            closestLocation = targetLocation.clone()
+                            closestDistanceSquared = distanceSquared
+                        }
+                    }
+                }
+            }
+        }
+        return Location(closestLocation.world, closestLocation.blockX.toDouble() + 0.5, closestLocation.blockY.toDouble(), closestLocation.blockZ.toDouble() + 0.5, player.location.yaw, player.location.pitch)
     }
 
     fun setFrozenBlocks(player : Player, material : Material) {
@@ -189,28 +221,4 @@ class FreezeManager(private var game : Game) {
         limeFrozenPlayers.clear()
         blueFrozenPlayers.clear()
     }
-
-    //TODO: To find suitable location to freeze player, loop around each applicable relative blockface to find air and a solid block underneath with two blocks of air above that
-    /*
-    public static Location getGroundLocationAt(Location location)
-    {
-        // Get the world of the location (can be null)
-        final World world = location.getWorld();
-
-        // Get the highest block in this world or null if no world
-        final Block highest = world != null ? world.getHighestBlockAt(location).getRelative(BlockFace.DOWN) : null; // Get the highest block in this world or null if no world
-
-        // If the highest block is not null and under the given location keep it if not get the block at given location
-        Block block = highest != null && highest.getY() < location.getY() ? highest : location.getBlock();
-
-        // Iterate all block under location until we find a solid block or reach Y == 0
-        while(!block.getType().isSolid() && block.getLocation().getY() >= 0)
-        {
-            // Get the block under the current block
-            block = block.getRelative(BlockFace.DOWN);
-        }
-
-        // Create a new Location instance with de Y of the block found or Y of given location if no block found
-        return new Location(location.getWorld(), location.getX(), block.getY() >= 0 ? block.getY() + 1 : location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-    }*/
 }

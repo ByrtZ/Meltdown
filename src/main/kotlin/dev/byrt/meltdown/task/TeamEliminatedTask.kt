@@ -44,16 +44,16 @@ class TeamEliminatedTask(private val game : Game) {
                         player.sendMessage(
                             Component.text("[")
                                 .append(Component.text("☠☠☠", NamedTextColor.RED))
-                                .append(Component.text("] ", NamedTextColor.WHITE))
-                                .append(Component.text("${team.teamGlyph} ${team.teamName} ", team.textColor))
+                                .append(Component.text("] ${team.teamGlyph} ", NamedTextColor.WHITE))
+                                .append(Component.text("${team.teamName} ", team.textColor))
                                 .append(Component.text("have all been eliminated!", NamedTextColor.WHITE)))
-                        player.sendActionBar(Component.text("Team eliminated!", NamedTextColor.RED, TextDecoration.BOLD))
                         if(teamPlayers.contains(player)) {
                             game.freezeTask.cancelFreezeLoop(player)
                             game.heaterManager.getPlayerHeater(player)?.let { game.heaterTask.stopHeaterLoop(it) }
+                            player.sendActionBar(Component.text("Team eliminated!", NamedTextColor.RED, TextDecoration.BOLD))
                         }
                     }
-                    stopEliminateTeamTask(this)
+                    stopEliminateTeamTask(team)
                 }
                 eliminatedTaskTimer--
             }
@@ -62,7 +62,15 @@ class TeamEliminatedTask(private val game : Game) {
         eliminateTeamTasks[team] = eliminateTeamRunnable
     }
 
-    fun stopEliminateTeamTask(eliminatedTask : BukkitRunnable) {
-        eliminatedTask.cancel()
+    fun stopEliminateTeamTask(team : Teams) {
+        eliminateTeamTasks.remove(team)?.cancel()
+    }
+
+    fun clearEliminatedTeamTaskMap() {
+        eliminateTeamTasks.clear()
+    }
+
+    fun getEliminatedTeamTaskMap() : Map<Teams, BukkitRunnable> {
+        return eliminateTeamTasks
     }
 }

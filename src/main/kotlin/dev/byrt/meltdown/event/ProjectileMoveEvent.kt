@@ -18,14 +18,15 @@ class ProjectileMoveEvent : Listener {
         if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
             if(e.entity is Arrow) {
                 val arrow = e.entity as Arrow
-                arrow.location.world.spawnParticle(
+                arrow.world.spawnParticle(
                     Particle.REDSTONE,
-                    arrow.location.x,
-                    arrow.location.y,
-                    arrow.location.z,
-                    3,
-                    Particle.DustOptions(Color.WHITE, 1f)
-                )
+                    arrow.location,
+                    10,
+                    0.25,
+                    0.25,
+                    0.25,
+                    1.0,
+                    Particle.DustOptions(Color.WHITE, 1.0f))
             }
         }
     }

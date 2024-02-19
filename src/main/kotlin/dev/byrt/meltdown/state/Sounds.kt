@@ -2,52 +2,64 @@ package dev.byrt.meltdown.state
 
 class Sounds {
     object Music {
-        const val GAME_MUSIC = "event.music.meltdown"
+        const val GAME_MUSIC = "mcc.meltdown"
         const val OVERTIME_INTRO_MUSIC = "mcc.overtime_intro"
         const val OVERTIME_MUSIC = "mcc.overtime"
         const val GAME_OVER_MUSIC = "mcc.game_over"
         const val ROUND_OVER_MUSIC = ""
     }
     object Timer {
-        const val STARTING_123 = "event.123"
-        const val CLOCK_TICK = "event.clockticknormal"
-        const val CLOCK_TICK_HIGH = "event.clocktickhigh"
+        const val STARTING_123 = "block.note_block.pling"
+        const val CLOCK_TICK = "block.note_block.bass"
+        const val CLOCK_TICK_HIGH = "block.note_block.bass"
     }
     object Round {
-        const val ROUND_START_PLING = "event.go"
-        const val ROUND_END_PLING = "event.roundend"
+        const val ROUND_START_PLING = "block.note_block.pling"
+        const val ROUND_END_PLING = "block.note_block.pling"
+        const val ROUND_END_JINGLE = "block.respawn_anchor.deplete"
         const val ROUND_STARTING = ""
         const val WIN_ROUND = "ui.toast.challenge_complete"
         const val LOSE_ROUND = "entity.ender_dragon.growl"
         const val DRAW_ROUND = "entity.wither.spawn"
-        const val ENTRANCE = "event.meltdown_entrance"
+        const val ENTRANCE = "block.end_portal.spawn"
     }
     object GameOver {
-        const val GAME_OVER_PLING = "event.roundend"
-        const val GAME_OVER_EFFECT_1 = "block.respawn_anchor.deplete"
-        const val GAME_OVER_EFFECT_2 = "ui.toast.challenge_complete"
+        const val GAME_OVER_PLING = "block.note_block.pling"
+        const val GAME_OVER_JINGLE = "block.respawn_anchor.deplete"
+        const val GAME_OVER_COMPLETE = "ui.toast.challenge_complete"
     }
     object Start {
-        const val START_GAME_SUCCESS = "block.end_portal.spawn"
+        const val START_GAME_SUCCESS = "block.respawn_anchor.set_spawn"
         const val START_GAME_FAIL = "entity.enderman.teleport"
     }
+    object Queue {
+        const val QUEUE_JOIN = "block.note_block.flute"
+        const val QUEUE_LEAVE = "block.note_block.didgeridoo"
+        const val QUEUE_FIND_GAME = "block.end_portal.spawn"
+        const val QUEUE_TELEPORT = "block.portal.trigger"
+        const val QUEUE_TICK = "block.note_block.pling"
+    }
     object Bow {
-        const val FROST_BOW_SHOOT = "event.bow"
+        const val FROST_BOW_SHOOT = "entity.player.hurt_freeze"
         const val FROST_ARROW_HIT = "event.bow_hit"
     }
     object Heater {
-        const val HEATER_LOOP = "event.heater_loop_1000ms"
-        const val HEATER_PLACE = "event.heater_place"
-        const val HEATER_BREAK = "event.heater_break"
-        const val HEATER_RECHARGE = "event.heater_recharge"
+        const val HEATER_LOOP = "block.beacon.ambient"
+        const val HEATER_PLACE = "block.anvil.place"
+        const val HEATER_BREAK = "block.anvil.destroy"
+        const val HEATER_RECHARGE = "block.amethyst_block.resonate"
+    }
+    object Telepickaxe {
+        const val CLAIM = "entity.iron_golem.repair"
     }
     object Freeze {
-        const val FROZEN = "event.meltdown_frozen"
-        const val UNFREEZE = "event.meltdown_unfrozen"
+        const val FROZEN_1 = "entity.player.hurt_freeze"
+        const val FROZEN_2 = "entity.generic.extinguish_fire"
+        const val UNFREEZE = "block.lava.extinguish"
     }
     object Score {
-        const val ELIMINATION = "event.scoreacquired"
-        const val TEAM_ELIMINATED = "event.teameliminated"
+        const val ELIMINATION = "entity.player.levelup"
+        const val TEAM_ELIMINATED = "block.beacon.deactivate"
     }
     object Alert {
         const val GENERAL_ALERT = "block.note_block.bit"

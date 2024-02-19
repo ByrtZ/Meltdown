@@ -19,12 +19,12 @@ class TeamManager(private val game : Game) {
     private var limeTeam = ArrayList<UUID>()
     private var blueTeam = ArrayList<UUID>()
     private var spectators = ArrayList<UUID>()
-    private var redDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("redDisplay")
-    private var yellowDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("yellowDisplay")
-    private var limeDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("limeDisplay")
-    private var blueDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("blueDisplay")
-    private var spectatorDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("spectator")
-    private var adminDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("admin")
+    private var redDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("b_redDisplay")
+    private var yellowDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("c_yellowDisplay")
+    private var limeDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("d_limeDisplay")
+    private var blueDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("e_blueDisplay")
+    private var spectatorDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("z_spectator")
+    private var adminDisplayTeam: Team = Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("a_admin")
 
     fun addToTeam(player : Player, uuid : UUID, team : Teams) {
         when(team) {
@@ -151,12 +151,22 @@ class TeamManager(private val game : Game) {
         var i = 0
         players.shuffled().forEach {
             removeFromTeam(it, it.uniqueId, getPlayerTeam(it.uniqueId))
-            if(i % 2 == 0) {
+            if(i == 0) {
                 addToTeam(it, it.uniqueId, Teams.RED)
-            } else {
+            }
+            if(i == 1) {
+                addToTeam(it, it.uniqueId, Teams.YELLOW)
+            }
+            if(i == 2) {
+                addToTeam(it, it.uniqueId, Teams.LIME)
+            }
+            if(i == 3) {
                 addToTeam(it, it.uniqueId, Teams.BLUE)
             }
             i++
+            if(i >= 4) {
+                i = 0
+            }
         }
     }
 
@@ -233,6 +243,13 @@ class TeamManager(private val game : Game) {
         blueDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS)
     }
 
+    fun showDisplayTeamNames() {
+        redDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
+        yellowDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
+        limeDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
+        blueDisplayTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
+    }
+
     fun destroyDisplayTeams() {
         redDisplayTeam.unregister()
         yellowDisplayTeam.unregister()
@@ -256,7 +273,7 @@ class TeamManager(private val game : Game) {
         }
     }
 
-    private fun getTeamPlayers(team : Teams) : List<Player> {
+    fun getTeamPlayers(team : Teams) : List<Player> {
         val teamPlayers = ArrayList<Player>()
         when(team) {
             Teams.RED -> {

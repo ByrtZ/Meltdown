@@ -1,6 +1,5 @@
 package dev.byrt.meltdown.event
 
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -31,8 +30,6 @@ class DamageEvent : Listener {
 
     @EventHandler
     private fun onPlayerHitPlayer(e : EntityDamageByEntityEvent) {
-        if(e.entity is Player) {
-            e.isCancelled = true
-        }
+        e.isCancelled = true
     }
 }

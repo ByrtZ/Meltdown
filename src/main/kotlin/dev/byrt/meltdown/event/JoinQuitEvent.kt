@@ -37,6 +37,10 @@ class JoinQuitEvent : Listener {
     private fun onPlayerQuit(e : PlayerQuitEvent) {
         Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId).let { Main.getGame().teamManager.removeFromTeam(e.player, e.player.uniqueId, it)}
         Main.getGame().musicTask.stopMusicLoop(e.player, Music.NULL)
+        Main.getGame().freezeTask.cancelFreezeLoop(e.player)
+        if(Main.getGame().queue.getQueue().contains(e.player.uniqueId)) {
+            Main.getGame().queue.leaveQueue(e.player)
+        }
         e.quitMessage(Component.text("${e.player.name} left the game.").color(TextColor.fromHexString("#ffff00")))
     }
 }

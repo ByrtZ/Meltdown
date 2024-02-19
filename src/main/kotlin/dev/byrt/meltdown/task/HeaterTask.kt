@@ -22,11 +22,11 @@ class HeaterTask(private val game : Game) {
                 if(heater.location.block.type != Material.NETHERITE_BLOCK) {
                     stopHeaterLoop(heater)
                 } else {
-                    if(heaterAliveTicks % 5 == 0) {
+                    if(heaterAliveTicks % 10 == 0) {
                         heaterParticleCircle(heater.location, heater.team)
                     }
                     if(heaterAliveTicks >= 20) {
-                        heater.location.world.playSound(heater.location, Sounds.Heater.HEATER_LOOP, 1f, 1f)
+                        heater.location.world.playSound(heater.location, Sounds.Heater.HEATER_LOOP, 1f, 2f)
                         heaterAliveTicks = 0
                         heaterAliveSeconds++
                     }

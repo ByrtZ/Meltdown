@@ -22,9 +22,9 @@ class HeaterManager(private val game : Game) {
             game.itemManager.giveHeaterItem(owner)
             owner.setCooldown(Material.NETHERITE_SHOVEL, 10 * 20)
         }
-        location.block.type = Material.AIR
         location.world.playSound(location, Sounds.Heater.HEATER_BREAK, 1f, 1f)
-        location.world.spawnParticle(Particle.BLOCK_DUST, location.block.x.toDouble(), location.block.y +  0.5, location.block.z.toDouble(), 5, 0.5, 0.5, 0.5, location.block.blockData)
+        location.world.spawnParticle(Particle.BLOCK_DUST, location, 8, 0.75, 0.75, 0.75, location.block.blockData)
+        location.block.type = Material.AIR
     }
 
     fun isHeaterActive(player : Player) : Boolean {

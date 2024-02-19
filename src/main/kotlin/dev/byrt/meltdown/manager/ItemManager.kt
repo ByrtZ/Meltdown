@@ -14,6 +14,8 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.LeatherArmorMeta
+import java.util.*
+import kotlin.random.Random
 
 class ItemManager(private val game : Game) {
     fun givePlayerTeamBoots(player : Player, team : Teams) {
@@ -102,6 +104,15 @@ class ItemManager(private val game : Game) {
         player.inventory.addItem(frostBow)
     }
 
+    fun giveFrostArrowItem(player : Player) {
+        val frostArrow = ItemStack(Material.ARROW, 1)
+        val frostArrowMeta: ItemMeta = frostArrow.itemMeta
+        frostArrowMeta.displayName(Component.text("Frost Tipped Arrow").color(NamedTextColor.AQUA).decoration(TextDecoration.ITALIC, false))
+        frostArrowMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS)
+        frostArrow.itemMeta = frostArrowMeta
+        player.inventory.setItem(35, frostArrow)
+    }
+
     fun giveHeaterItem(player : Player) {
         val heater = ItemStack(Material.NETHERITE_SHOVEL, 1)
         val heaterMeta: ItemMeta = heater.itemMeta
@@ -112,12 +123,46 @@ class ItemManager(private val game : Game) {
         player.inventory.addItem(heater)
     }
 
-    fun giveFrostArrowItem(player : Player) {
-        val frostArrow = ItemStack(Material.ARROW, 1)
-        val frostArrowMeta: ItemMeta = frostArrow.itemMeta
-        frostArrowMeta.displayName(Component.text("Frost Tipped Arrow").color(NamedTextColor.AQUA).decoration(TextDecoration.ITALIC, false))
-        frostArrowMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS)
-        frostArrow.itemMeta = frostArrowMeta
-        player.inventory.setItem(35, frostArrow)
+    fun giveUsableTelepickaxe(player : Player) {
+        val telepickaxe = ItemStack(Material.NETHERITE_PICKAXE, 1)
+        val telepickaxeMeta = telepickaxe.itemMeta
+        telepickaxeMeta.displayName(Component.text("Telepickaxe", NamedTextColor.RED).decoration(TextDecoration.ITALIC , false))
+        telepickaxeMeta.isUnbreakable = true
+        telepickaxeMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
+        telepickaxe.itemMeta = telepickaxeMeta
+        player.inventory.addItem(telepickaxe)
+    }
+
+    fun giveUnusableTelepickaxe(player : Player) {
+        val telepickaxe = ItemStack(Material.GRAY_DYE, 1)
+        val telepickaxeMeta = telepickaxe.itemMeta
+        telepickaxeMeta.displayName(Component.text("Telepickaxe", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC , false))
+        telepickaxeMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
+        telepickaxe.itemMeta = telepickaxeMeta
+        player.inventory.addItem(telepickaxe)
+    }
+
+    fun distributeTelepickaxe() {
+        if(game.teamManager.getRedTeam().isNotEmpty()) {
+            game.sharedItemManager.setTeamTelepickaxeOwner(game.teamManager.getTeamPlayers(Teams.RED)[Random.nextInt(game.teamManager.getRedTeam().size)], Teams.RED, true)
+        }
+        if(game.teamManager.getYellowTeam().isNotEmpty()) {
+            game.sharedItemManager.setTeamTelepickaxeOwner(game.teamManager.getTeamPlayers(Teams.YELLOW)[Random.nextInt(game.teamManager.getYellowTeam().size)], Teams.YELLOW, true)
+        }
+        if(game.teamManager.getLimeTeam().isNotEmpty()) {
+            game.sharedItemManager.setTeamTelepickaxeOwner(game.teamManager.getTeamPlayers(Teams.LIME)[Random.nextInt(game.teamManager.getLimeTeam().size)], Teams.LIME, true)
+        }
+        if(game.teamManager.getBlueTeam().isNotEmpty()) {
+            game.sharedItemManager.setTeamTelepickaxeOwner(game.teamManager.getTeamPlayers(Teams.BLUE)[Random.nextInt(game.teamManager.getBlueTeam().size)], Teams.BLUE, true)
+        }
+    }
+
+    fun getQueueItem() : ItemStack {
+        val queueLeaveItem = ItemStack(Material.RED_DYE, 1)
+        val queueLeaveItemMeta: ItemMeta = queueLeaveItem.itemMeta
+        queueLeaveItemMeta.displayName(Component.text("Leave Queue").color(NamedTextColor.RED).decoration(TextDecoration.ITALIC, false))
+        queueLeaveItemMeta.lore(Collections.singletonList(Component.text("Right-Click to leave the queue.", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)) as MutableList<out Component>)
+        queueLeaveItem.itemMeta = queueLeaveItemMeta
+        return queueLeaveItem
     }
 }

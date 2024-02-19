@@ -22,7 +22,7 @@ class MusicTask(private val game : Game) {
                         if(musicTimer == 0) {
                             player.playSound(player.location, Music.MAIN.track, SoundCategory.VOICE, 0.75f, 1f)
                         }
-                        if(musicTimer == 600) {
+                        if(musicTimer == 306) {
                             musicTimer = -1
                         }
                     }

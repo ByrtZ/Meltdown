@@ -93,12 +93,12 @@ class GameManager(private val game : Game) {
     private fun startRound() {
         for(player in Bukkit.getOnlinePlayers()) {
             player.playSound(player.location, Sounds.Round.ROUND_START_PLING, 1f, 1f)
+            player.playSound(player.location, Sounds.Round.ROUND_START_PLING, 1f, 2f)
             player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 1f)
-            player.playSound(player.location, Sounds.Round.ENTRANCE, 1f, 1f)
+            player.playSound(player.location, Sounds.Round.ENTRANCE, 1f, 1.25f)
             game.musicTask.startMusicLoop(player, game.plugin, Music.MAIN)
             player.resetTitle()
         }
-        game.playerManager.giveItemsToPlayers()
         game.playerManager.setPlayersSurvival()
         game.entranceManager.openAllEntrances()
     }
@@ -117,6 +117,7 @@ class GameManager(private val game : Game) {
         game.playerManager.clearNonBootsItems()
         game.teamManager.hideDisplayTeamNames()
         game.entranceManager.resetEntrances()
+        game.playerManager.giveItemsToPlayers()
     }
 
     private fun startOvertime() {
@@ -148,6 +149,9 @@ class GameManager(private val game : Game) {
     private fun gameEnd() {
         for(player in Bukkit.getOnlinePlayers()) {
             player.playSound(player.location, Sounds.GameOver.GAME_OVER_PLING, 1f, 1f)
+            player.playSound(player.location, Sounds.GameOver.GAME_OVER_PLING, 1f, 2f)
+            player.playSound(player.location, Sounds.GameOver.GAME_OVER_JINGLE, 1f, 1f)
+            player.playSound(player.location, Sounds.GameOver.GAME_OVER_COMPLETE, 1f, 1f)
             game.musicTask.stopMusicLoop(player, Music.MAIN)
             game.musicTask.stopMusicLoop(player, Music.OVERTIME)
             player.playSound(player.location, Sounds.Music.GAME_OVER_MUSIC, SoundCategory.VOICE, 0.85f, 1f)
@@ -173,6 +177,8 @@ class GameManager(private val game : Game) {
     private fun roundEnd() {
         for(player in Bukkit.getOnlinePlayers()) {
             player.playSound(player.location, Sounds.Round.ROUND_END_PLING, 1f, 1f)
+            player.playSound(player.location, Sounds.Round.ROUND_END_PLING, 1f, 2f)
+            player.playSound(player.location, Sounds.Round.ROUND_END_JINGLE, 1f, 1f)
             game.musicTask.stopMusicLoop(player, Music.MAIN)
             game.musicTask.stopMusicLoop(player, Music.OVERTIME)
             player.playSound(player.location, Sounds.Music.ROUND_OVER_MUSIC, SoundCategory.VOICE, 0.85f, 1f)
