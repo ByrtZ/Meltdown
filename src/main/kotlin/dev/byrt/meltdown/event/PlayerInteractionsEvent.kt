@@ -1,7 +1,9 @@
 package dev.byrt.meltdown.event
 
 import dev.byrt.meltdown.Main
+import dev.byrt.meltdown.data.HeaterBreakReason
 import dev.byrt.meltdown.game.GameState
+import org.bukkit.Bukkit
 
 import org.bukkit.GameMode
 import org.bukkit.Location
@@ -37,8 +39,8 @@ class PlayerInteractionsEvent : Listener {
                 Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
                 val clickedBlock = e.clickedBlock as Block
                 for(heater in Main.getGame().heaterManager.getHeaterList()) {
-                    if(heater.location == clickedBlock.location) {
-                        clickedBlock.type = Material.AIR
+                    if(heater.location == clickedBlock.location && Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId) != heater.team) {
+                        Bukkit.getPlayer(heater.owner)?.let { Main.getGame().heaterManager.breakHeater(heater.location, it, HeaterBreakReason.ENEMY) }
                     } else {
                         e.isCancelled = true
                     }

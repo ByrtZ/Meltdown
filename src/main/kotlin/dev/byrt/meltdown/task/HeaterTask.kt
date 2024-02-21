@@ -1,6 +1,7 @@
 package dev.byrt.meltdown.task
 
 import dev.byrt.meltdown.data.Heater
+import dev.byrt.meltdown.data.HeaterBreakReason
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
@@ -20,7 +21,7 @@ class HeaterTask(private val game : Game) {
             var heaterAliveTicks = 0
             override fun run() {
                 if(heater.location.block.type != Material.NETHERITE_BLOCK) {
-                    stopHeaterLoop(heater)
+                    stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
                 } else {
                     if(heaterAliveTicks % 10 == 0) {
                         heaterParticleCircle(heater.location, heater.team)
@@ -31,7 +32,7 @@ class HeaterTask(private val game : Game) {
                         heaterAliveSeconds++
                     }
                     if(heaterAliveSeconds == 15) {
-                        stopHeaterLoop(heater)
+                        stopHeaterLoop(heater, HeaterBreakReason.EXPIRED)
                     }
                     heaterAliveTicks++
                 }
@@ -41,10 +42,10 @@ class HeaterTask(private val game : Game) {
         heaterLoopMap[heater] = heaterRunnable
     }
 
-    fun stopHeaterLoop(heater : Heater) {
+    fun stopHeaterLoop(heater : Heater, breakReason: HeaterBreakReason) {
         heaterLoopMap.remove(heater)?.cancel()
         game.heaterManager.removeHeater(heater)
-        Bukkit.getPlayer(heater.owner)?.let { game.heaterManager.breakHeater(heater.location, it) }
+        Bukkit.getPlayer(heater.owner)?.let { game.heaterManager.breakHeater(heater.location, it, breakReason) }
     }
 
     fun getHeaterLoopMap() : Map<Heater, BukkitRunnable> {

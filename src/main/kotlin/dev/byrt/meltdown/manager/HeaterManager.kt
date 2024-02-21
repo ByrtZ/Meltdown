@@ -1,6 +1,7 @@
 package dev.byrt.meltdown.manager
 
 import dev.byrt.meltdown.data.Heater
+import dev.byrt.meltdown.data.HeaterBreakReason
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Sounds
 
@@ -17,13 +18,14 @@ class HeaterManager(private val game : Game) {
         game.heaterTask.startHeaterLoop(Heater(incrementHeaterId(), player.uniqueId, location, game.teamManager.getPlayerTeam(player.uniqueId)))
     }
 
-    fun breakHeater(location : Location, owner : Player) {
+    fun breakHeater(location : Location, owner : Player, breakReason : HeaterBreakReason) {
         if(owner.gameMode != GameMode.SPECTATOR && !game.freezeManager.isFrozen(owner)) {
             game.itemManager.giveHeaterItem(owner)
             owner.setCooldown(Material.NETHERITE_SHOVEL, 10 * 20)
         }
+        owner.sendMessage(breakReason.reason)
         location.world.playSound(location, Sounds.Heater.HEATER_BREAK, 1f, 1f)
-        location.world.spawnParticle(Particle.BLOCK_DUST, location, 8, 0.75, 0.75, 0.75, location.block.blockData)
+        location.world.spawnParticle(Particle.CRIT, location, 5, 0.75, 0.75, 0.75)
         location.block.type = Material.AIR
     }
 

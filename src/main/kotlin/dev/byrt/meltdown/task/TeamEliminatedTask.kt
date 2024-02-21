@@ -1,5 +1,6 @@
 package dev.byrt.meltdown.task
 
+import dev.byrt.meltdown.data.HeaterBreakReason
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
@@ -49,7 +50,7 @@ class TeamEliminatedTask(private val game : Game) {
                                 .append(Component.text("have all been eliminated!", NamedTextColor.WHITE)))
                         if(teamPlayers.contains(player)) {
                             game.freezeTask.cancelFreezeLoop(player)
-                            game.heaterManager.getPlayerHeater(player)?.let { game.heaterTask.stopHeaterLoop(it) }
+                            game.heaterManager.getPlayerHeater(player)?.let { game.heaterTask.stopHeaterLoop(it, HeaterBreakReason.DEATH) }
                             player.sendActionBar(Component.text("Team eliminated!", NamedTextColor.RED, TextDecoration.BOLD))
                         }
                     }
