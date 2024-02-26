@@ -2,6 +2,8 @@ package dev.byrt.meltdown.task
 
 import dev.byrt.meltdown.data.Heater
 import dev.byrt.meltdown.game.Game
+import dev.byrt.meltdown.manager.ScoreModificationMode
+import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
 
 import net.kyori.adventure.text.Component
@@ -20,9 +22,9 @@ import java.util.*
 class FreezeTask(private val game : Game) {
     private var freezeLoopMap  = mutableMapOf<UUID, BukkitRunnable>()
     private var frostVignetteTaskMap = mutableMapOf<UUID, BukkitRunnable>()
-    fun startFreezeLoop(player: Player, frozenLoc: Location, team : Teams) {
+    fun startFreezeLoop(player : Player, freezer : Player?, frozenLoc : Location, team : Teams) {
         val freezeRunnable = object : BukkitRunnable() {
-            var thawTimer = 5
+            var thawTimer = 6
             var isHeating = false
             override fun run() {
                 if(!game.eliminatedTask.getEliminatedTeamTaskMap().containsKey(team)) {
@@ -32,12 +34,14 @@ class FreezeTask(private val game : Game) {
                             if(distance <= Heater.HEATER_RADIUS && heater.team == team) {
                                 isHeating = true
                                 game.freezeManager.removePlayerTeamFrozen(player, team)
+                                game.freezeManager.checkTeamAliveState(team)
                                 break
                             }
                         }
 
                         if(!isHeating) {
                             game.freezeManager.addPlayerTeamFrozen(player, team)
+                            game.freezeManager.checkTeamAliveState(team)
                             player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                             if(thawTimer < 5) {
                                 thawTimer++
@@ -47,7 +51,8 @@ class FreezeTask(private val game : Game) {
                             if(thawTimer < 1) {
                                 player.sendActionBar(Component.text("You have been unfrozen!").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                                 game.freezeManager.removePlayerTeamFrozen(player, team)
-                                stopFreezeLoop(player, false)
+                                game.freezeManager.checkTeamAliveState(team)
+                                stopFreezeLoop(player, freezer, false)
                             } else {
                                 player.sendActionBar(Component.text("You will thaw in ${thawTimer}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
                                 thawTimer--
@@ -56,11 +61,12 @@ class FreezeTask(private val game : Game) {
                     } else {
                         player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                         game.freezeManager.addPlayerTeamFrozen(player, team)
+                        game.freezeManager.checkTeamAliveState(team)
                         if(thawTimer < 5) {
                             thawTimer++
                         }
                         if(!game.freezeManager.getFrozenPlayers().contains(player.uniqueId)) {
-                            stopFreezeLoop(player, true)
+                            stopFreezeLoop(player, freezer, true)
                         }
                     }
                 }
@@ -70,8 +76,22 @@ class FreezeTask(private val game : Game) {
         freezeLoopMap[player.uniqueId] = freezeRunnable
     }
 
-    fun stopFreezeLoop(player : Player, forcefullyThawed : Boolean) {
+    fun stopFreezeLoop(player : Player, freezer : Player?, forcefullyThawed : Boolean) {
         freezeLoopMap.remove(player.uniqueId)?.cancel()
+        if(freezer != null) {
+            game.scoreManager.modifyScore(25, ScoreModificationMode.SUB, game.teamManager.getPlayerTeam(freezer.uniqueId))
+            freezer.sendMessage(
+                Component.text("[")
+                    .append(Component.text("-25"))
+                    .append(Component.text(" coins", NamedTextColor.GOLD))
+                    .append(Component.text("] ", NamedTextColor.WHITE))
+                    .append(Component.text("["))
+                    .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                    .append(Component.text("] "))
+                    .append(Component.text(player.name).color(game.teamManager.getPlayerTeam(player.uniqueId).textColor))
+                    .append(Component.text(" was unfrozen.", NamedTextColor.RED)))
+            freezer.playSound(freezer.location, Sounds.Score.UNDO_ELIMINATION, 1f, 0f)
+        }
         if(!forcefullyThawed) {
             game.freezeManager.unfreezePlayer(player)
         }

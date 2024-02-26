@@ -25,8 +25,14 @@ class HeaterManager(private val game : Game) {
         }
         owner.sendMessage(breakReason.reason)
         location.world.playSound(location, Sounds.Heater.HEATER_BREAK, 1f, 1f)
-        location.world.spawnParticle(Particle.CRIT, location, 5, 0.75, 0.75, 0.75)
+        location.world.spawnParticle(Particle.CRIT, location, 12, 0.75, 0.75, 0.75)
         location.block.type = Material.AIR
+    }
+
+    fun stopAllHeaters() {
+        for(heater in game.heaterTask.getHeaterLoopMap().keys) {
+            game.heaterTask.stopHeaterLoop(heater, HeaterBreakReason.NOT_IN_GAME)
+        }
     }
 
     fun isHeaterActive(player : Player) : Boolean {

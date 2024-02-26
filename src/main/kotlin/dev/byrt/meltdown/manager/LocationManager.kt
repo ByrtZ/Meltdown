@@ -10,7 +10,7 @@ import org.bukkit.World
 class LocationManager(private val game : Game) {
     private val world = game.plugin.server.getWorld("Cheese")!!
     private val spawn = Location(game.plugin.server.getWorld("Cheese"), 0.5, -52.0 ,0.5, 0.0f, 0.0f)
-    private val arenaCentre = Location(game.plugin.server.getWorld("Cheese"), 1000.5, 0.0, 1000.5, 0.0f, 0.0f)
+    private val arenaCentre = Location(game.plugin.server.getWorld("Cheese"), -1999.5, 85.0, -1999.5, 0.0f, 0.0f)
     private var queueNPC = Location(game.plugin.server.getWorld("Cheese"), 6.5, -51.0, 3.5, 90.0f, 10.0f)
 
     private var redSpawns = ArrayList<Location>()
@@ -123,8 +123,8 @@ class LocationManager(private val game : Game) {
                     blueSpawnCounter++
                 }
             } else -> {
-            game.plugin.logger.severe("An error occurred when attempting to increment a spawn location counter.")
-        }
+                game.plugin.logger.severe("An error occurred when attempting to increment a spawn location counter.")
+            }
         }
     }
 

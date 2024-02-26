@@ -20,22 +20,18 @@ class HeaterTask(private val game : Game) {
             var heaterAliveSeconds = 0
             var heaterAliveTicks = 0
             override fun run() {
-                if(heater.location.block.type != Material.NETHERITE_BLOCK) {
-                    stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
-                } else {
-                    if(heaterAliveTicks % 10 == 0) {
-                        heaterParticleCircle(heater.location, heater.team)
-                    }
-                    if(heaterAliveTicks >= 20) {
-                        heater.location.world.playSound(heater.location, Sounds.Heater.HEATER_LOOP, 1f, 2f)
-                        heaterAliveTicks = 0
-                        heaterAliveSeconds++
-                    }
-                    if(heaterAliveSeconds == 15) {
-                        stopHeaterLoop(heater, HeaterBreakReason.EXPIRED)
-                    }
-                    heaterAliveTicks++
+                if(heaterAliveTicks % 10 == 0) {
+                    heaterParticleCircle(heater.location, heater.team)
                 }
+                if(heaterAliveTicks >= 20) {
+                    heater.location.world.playSound(heater.location, Sounds.Heater.HEATER_LOOP, 1f, 2f)
+                    heaterAliveTicks = 0
+                    heaterAliveSeconds++
+                }
+                if(heaterAliveSeconds == 15) {
+                    stopHeaterLoop(heater, HeaterBreakReason.EXPIRED)
+                }
+                heaterAliveTicks++
             }
         }
         heaterRunnable.runTaskTimer(game.plugin, 0L, 1L)

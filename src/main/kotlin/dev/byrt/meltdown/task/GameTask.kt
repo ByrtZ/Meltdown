@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 
@@ -139,6 +140,12 @@ class GameTask(private var game : Game) {
 
                 // IN_GAME state
                 if(game.gameManager.getGameState() == GameState.IN_GAME && game.timerManager.getTimerState() == TimerState.ACTIVE) {
+                    if(timeLeft == 240) {
+                        game.blockManager.setCoinCratesBarriers(Material.AIR)
+                    }
+                    if(timeLeft == 60) {
+                        game.blockManager.setCentreCoinCrateBarriers(Material.AIR)
+                    }
                     if(timeLeft in 11..30 || timeLeft % 60 == 0) {
                         for(player in Bukkit.getOnlinePlayers()) {
                             player.playSound(player.location, Sounds.Timer.CLOCK_TICK, 1f, 1f)

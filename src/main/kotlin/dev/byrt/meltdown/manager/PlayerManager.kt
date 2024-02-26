@@ -30,8 +30,8 @@ class PlayerManager(private var game : Game) {
 
     private fun enableFlightPlayers(player: Player) {
         if(player.gameMode == GameMode.ADVENTURE || player.gameMode == GameMode.SURVIVAL) {
-            player.velocity = Vector(0.0, 0.5, 0.0)
             player.allowFlight = true
+            player.velocity = Vector(0.0, 0.75, 0.0)
             player.isFlying = true
         }
     }

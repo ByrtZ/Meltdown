@@ -12,6 +12,7 @@ enum class DoorType {
 
 enum class DoorStatus {
     OPEN,
-    CLOSED,
+    PRE_MELT_CLOSED,
+    POST_MELT_CLOSED,
     CLOSING
 }

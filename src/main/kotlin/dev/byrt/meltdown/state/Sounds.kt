@@ -59,7 +59,10 @@ class Sounds {
     }
     object Score {
         const val ELIMINATION = "entity.player.levelup"
+        const val UNDO_ELIMINATION = "entity.enderman.teleport"
+        const val FALL_INTO_LAVA = "entity.player.hurt_on_fire"
         const val TEAM_ELIMINATED = "block.beacon.deactivate"
+        const val MINE_COIN_CRATE = "entity.experience_orb.pickup"
     }
     object Alert {
         const val GENERAL_ALERT = "block.note_block.bit"

@@ -12,6 +12,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.SoundCategory
 
 import java.time.Duration
@@ -101,6 +102,7 @@ class GameManager(private val game : Game) {
         }
         game.playerManager.setPlayersSurvival()
         game.entranceManager.openAllEntrances()
+        game.scoreManager.calculatePlacements()
     }
 
     private fun starting() {
@@ -117,7 +119,14 @@ class GameManager(private val game : Game) {
         game.playerManager.clearNonBootsItems()
         game.teamManager.hideDisplayTeamNames()
         game.entranceManager.resetEntrances()
+        game.blockManager.setCoinCrates(Material.RAW_GOLD_BLOCK)
+        game.blockManager.setCoinCratesBarriers(Material.BLUE_STAINED_GLASS)
+        game.blockManager.setCentreCoinCrateBarriers(Material.BLUE_STAINED_GLASS)
         game.playerManager.giveItemsToPlayers()
+        game.scoreManager.calculatePlacements()
+        for(player in Bukkit.getOnlinePlayers()) {
+            player.playSound(player.location, Sounds.Start.START_GAME_SUCCESS, 1f, 1f)
+        }
     }
 
     private fun startOvertime() {
@@ -172,6 +181,8 @@ class GameManager(private val game : Game) {
         game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
         game.freezeManager.resetTeamFrozenLists()
+        game.heaterManager.stopAllHeaters()
+        game.scoreManager.calculatePlacements()
     }
 
     private fun roundEnd() {
@@ -200,22 +211,23 @@ class GameManager(private val game : Game) {
         game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
         game.freezeManager.resetTeamFrozenLists()
+        game.heaterManager.stopAllHeaters()
+        game.scoreManager.calculatePlacements()
         game.roundManager.nextRound()
     }
 
     fun getGameState() : GameState {
-        return this.gameState
+        return gameState
     }
 
     fun setOvertimeState(isActive : Boolean) {
-        this.overtimeActive = isActive
+        overtimeActive = isActive
     }
 
     fun isOvertimeActive() : Boolean {
-        return this.overtimeActive
+        return overtimeActive
     }
 
-    // Dangerous method call, can cause unresolvable issues.
     fun forceState(forcedState : GameState) {
         setGameState(forcedState)
     }

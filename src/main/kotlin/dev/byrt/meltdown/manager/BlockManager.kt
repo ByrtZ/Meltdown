@@ -1,7 +1,12 @@
 package dev.byrt.meltdown.manager
 
 import dev.byrt.meltdown.game.Game
+import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Bukkit
 
 import org.bukkit.Location
 import org.bukkit.Material
@@ -70,6 +75,95 @@ class BlockManager(private val game : Game) {
                 for(z in corner1.blockZ.. corner2.blockZ) {
                     game.locationManager.getWorld().getBlockAt(x, y, z).type = getTeamGlass(team)
                 }
+            }
+        }
+    }
+
+    fun setCoinCrates(material : Material) {
+        for(x in -1948..-1946) {
+            for(y in 70..71) {
+                for(z in -2053..-2051) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+
+        for(x in -2054..-2052) {
+            for(y in 70..71) {
+                for(z in -1949..-1947) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+
+        for(x in -2001..-1999) {
+            for(y in 70..71) {
+                for(z in -2001..-1999) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+    }
+
+    fun setCoinCratesBarriers(material : Material) {
+        for(x in -1949..-1945) {
+            for(y in 70..72) {
+                for(z in -2054..-2050) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+        for(x in -2055..-2051) {
+            for(y in 70..72) {
+                for(z in -1950..-1946) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+        if(material == Material.AIR) {
+            for(player in Bukkit.getOnlinePlayers()) {
+                player.playSound(player.location, Sounds.Alert.GENERAL_ALERT, 1f, 1f)
+                player.sendMessage(
+                    Component.text("[")
+                        .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                        .append(Component.text("] "))
+                        .append(Component.text("Coin crates are now accessible!", NamedTextColor.AQUA, TextDecoration.BOLD)
+                    )
+                )
+            }
+        }
+    }
+
+    fun setCentreCoinCrateBarriers(material : Material) {
+        for(x in -2002..-1998) {
+            for(y in 70..72) {
+                for(z in -2002..-1998) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+        if(material == Material.AIR) {
+            for(player in Bukkit.getOnlinePlayers()) {
+                player.playSound(player.location, Sounds.Alert.GENERAL_ALERT, 1f, 1f)
+                player.sendMessage(
+                    Component.text("[")
+                        .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                        .append(Component.text("] "))
+                        .append(Component.text("Central coin crate is now accessible!", NamedTextColor.AQUA, TextDecoration.BOLD)
+                    )
+                )
             }
         }
     }

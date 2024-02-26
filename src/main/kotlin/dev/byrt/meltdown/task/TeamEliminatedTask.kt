@@ -20,19 +20,18 @@ import kotlin.collections.ArrayList
 
 class TeamEliminatedTask(private val game : Game) {
     private var eliminateTeamTasks = mutableMapOf<Teams, BukkitRunnable>()
-
     fun startEliminateTeamTask(teamPlayers : ArrayList<Player>, team : Teams) {
         val eliminateTeamRunnable = object : BukkitRunnable() {
-            var eliminatedTaskTimer = 5
+            var eliminatedTaskTimer = 4
             override fun run() {
-                if(eliminatedTaskTimer == 5) {
+                if(eliminatedTaskTimer == 4) {
                     for(player in teamPlayers) {
                         player.showTitle(Title.title(
                             Component.text("TEAM FROZEN", NamedTextColor.RED, TextDecoration.BOLD),
                             Component.text(""),
                             Title.Times.times(
                                 Duration.ofMillis(500),
-                                Duration.ofSeconds(4),
+                                Duration.ofSeconds(2),
                                 Duration.ofMillis(250)
                                 )
                             )
@@ -41,6 +40,12 @@ class TeamEliminatedTask(private val game : Game) {
                 }
                 if(eliminatedTaskTimer <= 0) {
                     for(player in Bukkit.getOnlinePlayers()) {
+                        if(teamPlayers.contains(player)) {
+                            game.freezeTask.cancelFreezeLoop(player)
+                            game.heaterManager.getPlayerHeater(player)?.let { game.heaterTask.stopHeaterLoop(it, HeaterBreakReason.DEATH) }
+                            player.sendActionBar(Component.text("Team eliminated!", NamedTextColor.RED, TextDecoration.BOLD))
+                            player.teleport(game.locationManager.getArenaCentre())
+                        }
                         player.playSound(player.location, Sounds.Score.TEAM_ELIMINATED, 1f, 1f)
                         player.sendMessage(
                             Component.text("[")
@@ -48,11 +53,6 @@ class TeamEliminatedTask(private val game : Game) {
                                 .append(Component.text("] ${team.teamGlyph} ", NamedTextColor.WHITE))
                                 .append(Component.text("${team.teamName} ", team.textColor))
                                 .append(Component.text("have all been eliminated!", NamedTextColor.WHITE)))
-                        if(teamPlayers.contains(player)) {
-                            game.freezeTask.cancelFreezeLoop(player)
-                            game.heaterManager.getPlayerHeater(player)?.let { game.heaterTask.stopHeaterLoop(it, HeaterBreakReason.DEATH) }
-                            player.sendActionBar(Component.text("Team eliminated!", NamedTextColor.RED, TextDecoration.BOLD))
-                        }
                     }
                     stopEliminateTeamTask(team)
                 }
@@ -65,6 +65,11 @@ class TeamEliminatedTask(private val game : Game) {
 
     fun stopEliminateTeamTask(team : Teams) {
         eliminateTeamTasks.remove(team)?.cancel()
+        if(game.teamManager.getActiveTeamsSize() > 1) {
+            if(game.freezeManager.getEliminatedTeams().size == game.teamManager.getActiveTeamsSize() - 1) {
+                game.gameManager.nextState()
+            }
+        }
     }
 
     fun clearEliminatedTeamTaskMap() {

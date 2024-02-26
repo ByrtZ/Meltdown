@@ -33,6 +33,7 @@ class Game(val plugin : Main) {
     val whitelistManager = WhitelistManager(this)
     val sharedItemManager = SharedItemManager(this)
     val cooldownManager = CooldownManager(this)
+    val scoreManager = ScoreManager(this)
 
     val gameTask = GameTask(this)
     val musicTask = MusicTask(this)
@@ -52,13 +53,13 @@ class Game(val plugin : Main) {
         if(gameManager.getGameState() == GameState.IDLE) {
             gameManager.nextState()
         } else {
-            dev.parseDevMessage("Unable to start, as game is already running.", DevStatus.SEVERE)
+            dev.parseDevMessage("Unable to start, as game is already running.", DevStatus.ERROR)
         }
     }
 
     fun stopGame() {
         if(gameManager.getGameState() == GameState.IDLE) {
-            dev.parseDevMessage("Unable to stop, as no game is running.", DevStatus.SEVERE)
+            dev.parseDevMessage("Unable to stop, as no game is running.", DevStatus.ERROR)
         } else {
             gameManager.setGameState(GameState.GAME_END)
         }
@@ -86,6 +87,7 @@ class Game(val plugin : Main) {
         roundManager.setRoundState(RoundState.ONE)
         timerManager.setTimerState(TimerState.INACTIVE)
         gameTask.resetVars()
+        scoreManager.resetScores()
         locationManager.resetSpawnCounters()
         playerManager.resetPlayers()
         infoBoardManager.destroyScoreboard()

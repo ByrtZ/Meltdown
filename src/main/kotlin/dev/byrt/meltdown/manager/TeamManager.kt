@@ -194,6 +194,12 @@ class TeamManager(private val game : Game) {
         }
     }
 
+    fun playTeamSound(sound : String, pitch : Float, team : Teams) {
+        for(player in getTeamPlayers(team)) {
+            player.playSound(player.location, sound, 1f, pitch)
+        }
+    }
+
     fun addToAdminDisplay(uuid : UUID) {
         adminDisplayTeam.addPlayer(Bukkit.getOfflinePlayer(uuid))
     }
@@ -257,6 +263,15 @@ class TeamManager(private val game : Game) {
         blueDisplayTeam.unregister()
         adminDisplayTeam.unregister()
         spectatorDisplayTeam.unregister()
+    }
+
+    fun getActiveTeamsSize() : Int {
+        var activeNumberTeams = 0
+        if(redTeam.isNotEmpty()) activeNumberTeams += 1
+        if(yellowTeam.isNotEmpty()) activeNumberTeams += 1
+        if(blueTeam.isNotEmpty()) activeNumberTeams += 1
+        if(limeTeam.isNotEmpty()) activeNumberTeams += 1
+        return activeNumberTeams
     }
 
     fun getPlayerTeam(uuid : UUID): Teams {

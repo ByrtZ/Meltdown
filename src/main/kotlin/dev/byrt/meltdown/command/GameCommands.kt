@@ -25,7 +25,6 @@ import java.time.Duration
 
 @Suppress("unused")
 class GameCommands : BaseCommand {
-    private val startGameSuccessSound: Sound = Sound.sound(Key.key(Sounds.Start.START_GAME_SUCCESS), Sound.Source.MASTER, 1f, 1f)
     private val startGameFailSound: Sound = Sound.sound(Key.key(Sounds.Start.START_GAME_FAIL), Sound.Source.MASTER, 1f, 0f)
     private val reloadStartSound: Sound = Sound.sound(Key.key(Sounds.Command.SHUFFLE_START), Sound.Source.MASTER, 1f, 1f)
     private val reloadCompleteSound: Sound = Sound.sound(Key.key(Sounds.Command.SHUFFLE_COMPLETE), Sound.Source.MASTER, 1f, 2f)
@@ -36,11 +35,10 @@ class GameCommands : BaseCommand {
     @Confirmation
     fun start(sender : Player) {
         if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
-            if(Main.getGame().teamManager.getRedTeam().size >= 1 && Main.getGame().teamManager.getBlueTeam().size >= 1) {
+            if(Main.getGame().teamManager.getRedTeam().size >= 1 && Main.getGame().teamManager.getBlueTeam().size >= 1 && Main.getGame().teamManager.getYellowTeam().size >= 1 && Main.getGame().teamManager.getLimeTeam().size >= 1) {
                 Main.getGame().dev.parseDevMessage("${sender.name} started a Meltdown game!", DevStatus.INFO_SUCCESS)
                 for(player in Bukkit.getOnlinePlayers()) {
                     player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                    player.playSound(startGameSuccessSound)
                 }
                 Main.getGame().startGame()
             } else {
@@ -65,8 +63,7 @@ class GameCommands : BaseCommand {
             Main.getGame().dev.parseDevMessage("${sender.name} forcefully started a Meltdown game!", DevStatus.WARNING)
             Main.getGame().startGame()
             for(player in Bukkit.getOnlinePlayers()) {
-                player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.GOLD).decoration(TextDecoration.BOLD, true))
-                player.playSound(startGameSuccessSound)
+                player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
             }
         } else {
             sender.sendMessage(Component.text("Game already running or restart required.").color(NamedTextColor.RED))
