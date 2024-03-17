@@ -65,6 +65,12 @@ class Queue(private val game : Game) {
         queue.clear()
     }
 
+    fun checkQueueCanStart() {
+        if(queue.size >= minPlayers && !game.queueTask.getQueueActive()) {
+            setQueueState(QueueState.SENDING_PLAYERS_TO_GAME)
+        }
+    }
+
     fun queuedAudience() : Audience {
         return Audience.audience(Bukkit.getOnlinePlayers().filter { p : Player -> queue.contains(p.uniqueId) })
     }

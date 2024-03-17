@@ -16,13 +16,11 @@ import org.bukkit.scheduler.BukkitRunnable
 
 import java.time.Duration
 
-import kotlin.collections.ArrayList
-
 class TeamEliminatedTask(private val game : Game) {
     private var eliminateTeamTasks = mutableMapOf<Teams, BukkitRunnable>()
-    fun startEliminateTeamTask(teamPlayers : ArrayList<Player>, team : Teams) {
+    fun startEliminateTeamTask(teamPlayers : ArrayList<Player>, team : Teams, timer : Int) {
         val eliminateTeamRunnable = object : BukkitRunnable() {
-            var eliminatedTaskTimer = 4
+            var eliminatedTaskTimer = timer
             override fun run() {
                 if(eliminatedTaskTimer == 4) {
                     for(player in teamPlayers) {
@@ -65,11 +63,15 @@ class TeamEliminatedTask(private val game : Game) {
 
     fun stopEliminateTeamTask(team : Teams) {
         eliminateTeamTasks.remove(team)?.cancel()
-        if(game.teamManager.getActiveTeamsSize() > 1) {
-            if(game.freezeManager.getEliminatedTeams().size == game.teamManager.getActiveTeamsSize() - 1) {
+        if(game.teamManager.getActiveTeams().size > 1) {
+            if(game.teamManager.getActiveTeams().size - game.eliminationManager.getEliminatedTeams().size == 1) {
                 game.gameManager.nextState()
             }
         }
+    }
+
+    fun cancelEliminateTeamTask(team : Teams) {
+        eliminateTeamTasks.remove(team)?.cancel()
     }
 
     fun clearEliminatedTeamTaskMap() {

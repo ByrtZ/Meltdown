@@ -4,142 +4,71 @@ import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Teams
 
 class ScoreManager(private val game : Game) {
-    private var redScore = 0
-    private var lastRedScore = 0
-    private var yellowScore = 0
-    private var lastYellowScore = 0
-    private var limeScore = 0
-    private var lastLimeScore = 0
-    private var blueScore = 0
-    private var lastBlueScore = 0
-    private var placements = mutableMapOf<Teams, Int>()
-    private var lastPlacements = mutableMapOf<Teams, Int>()
+    private var placements = HashMap<Teams, Int>()
 
     fun calculatePlacements() {
-        lastPlacements = placements
         placements.clear()
-        placements[Teams.RED] = redScore
-        placements[Teams.YELLOW] = yellowScore
-        placements[Teams.LIME] = limeScore
-        placements[Teams.BLUE] = blueScore
-        placements = placements.toList().sortedBy { (_, scores) -> scores }.reversed().toMap() as MutableMap<Teams, Int>
-        game.infoBoardManager.updateScoreboardScores()
+        placements[Teams.RED] = Teams.RED.score
+        placements[Teams.YELLOW] = Teams.YELLOW.score
+        placements[Teams.LIME] = Teams.LIME.score
+        placements[Teams.BLUE] = Teams.BLUE.score
+        placements = placements.toList().sortedBy { (_, scores) -> scores }.reversed().toMap() as HashMap<Teams, Int>
+        game.infoBoardManager.updatePlacements()
     }
 
     fun modifyScore(score : Int, mode : ScoreModificationMode, team : Teams) {
         when(mode) {
             ScoreModificationMode.ADD -> {
                 if(team == Teams.RED) {
-                    lastRedScore = redScore
-                    redScore += score
+                    Teams.RED.score += score
                 }
                 if(team == Teams.YELLOW) {
-                    lastYellowScore = yellowScore
-                    yellowScore += score
+                    Teams.YELLOW.score += score
                 }
                 if(team == Teams.LIME) {
-                    lastLimeScore = limeScore
-                    limeScore += score
+                    Teams.LIME.score += score
                 }
                 if(team == Teams.BLUE) {
-                    lastBlueScore = blueScore
-                    blueScore += score
+                    Teams.BLUE.score += score
                 }
             }
             ScoreModificationMode.SUB -> {
                 if(team == Teams.RED) {
-                    lastRedScore = redScore
-                    redScore -= score
+                    Teams.RED.score -= score
                 }
                 if(team == Teams.YELLOW) {
-                    lastYellowScore = yellowScore
-                    yellowScore -= score
+                    Teams.YELLOW.score -= score
                 }
                 if(team == Teams.LIME) {
-                    lastLimeScore = limeScore
-                    limeScore -= score
+                    Teams.LIME.score -= score
                 }
                 if(team == Teams.BLUE) {
-                    lastBlueScore = blueScore
-                    blueScore -= score
+                    Teams.BLUE.score -= score
                 }
             }
         }
         calculatePlacements()
     }
 
-    fun getPlacements() : Map<Teams, Int> {
+    fun getPlacements() : HashMap<Teams, Int> {
         return placements
-    }
-
-    fun getLastPlacements() : Map<Teams, Int> {
-        return lastPlacements
     }
 
     fun getTeamScore(team : Teams) : Int {
         return when(team) {
-            Teams.RED -> redScore
-            Teams.YELLOW -> yellowScore
-            Teams.LIME -> limeScore
-            Teams.BLUE -> blueScore
+            Teams.RED -> Teams.RED.score
+            Teams.YELLOW -> Teams.YELLOW.score
+            Teams.LIME -> Teams.LIME.score
+            Teams.BLUE -> Teams.BLUE.score
             Teams.SPECTATOR -> 0
         }
     }
-
-    fun getLastTeamScore(team : Teams) : Int {
-        return when(team) {
-            Teams.RED -> lastRedScore
-            Teams.YELLOW -> lastYellowScore
-            Teams.LIME -> lastLimeScore
-            Teams.BLUE -> lastBlueScore
-            Teams.SPECTATOR -> 0
-        }
-    }
-
-    fun getRedScore() : Int {
-        return redScore
-    }
-
-    fun getYellowScore() : Int {
-        return yellowScore
-    }
-
-    fun getLimeScore() : Int {
-        return limeScore
-    }
-
-    fun getBlueScore() : Int {
-        return blueScore
-    }
-
-    fun getLastRedScore() : Int {
-        return lastRedScore
-    }
-
-    fun getLastYellowScore() : Int {
-        return lastYellowScore
-    }
-
-    fun getLastLimeScore() : Int {
-        return lastLimeScore
-    }
-
-    fun getLastBlueScore() : Int {
-        return lastBlueScore
-    }
-
 
     fun resetScores() {
-        redScore = 0
-        yellowScore = 0
-        limeScore = 0
-        blueScore = 0
-        lastRedScore = 0
-        lastYellowScore = 0
-        lastLimeScore = 0
-        lastBlueScore = 0
+        for(team in Teams.values()) {
+            team.score = 0
+        }
         placements.clear()
-        lastPlacements.clear()
     }
 }
 

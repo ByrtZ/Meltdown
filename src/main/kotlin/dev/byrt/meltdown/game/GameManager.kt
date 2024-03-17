@@ -1,7 +1,10 @@
 package dev.byrt.meltdown.game
 
+import dev.byrt.meltdown.manager.PlayerLifeState
+import dev.byrt.meltdown.manager.TeamLifeState
 import dev.byrt.meltdown.state.RoundState
 import dev.byrt.meltdown.state.Sounds
+import dev.byrt.meltdown.state.Teams
 import dev.byrt.meltdown.state.TimerState
 import dev.byrt.meltdown.task.Music
 import dev.byrt.meltdown.util.DevStatus
@@ -50,6 +53,7 @@ class GameManager(private val game : Game) {
         if(newState == gameState) return
         game.dev.parseDevMessage("Game state updated from $gameState to $newState.", DevStatus.INFO)
         this.gameState = newState
+        game.infoBoardManager.updateStatus()
         when(this.gameState) {
             GameState.IDLE -> {
                 game.reload()
@@ -106,11 +110,6 @@ class GameManager(private val game : Game) {
     }
 
     private fun starting() {
-        if(game.roundManager.getRoundState() == RoundState.ONE) {
-            for(player in Bukkit.getOnlinePlayers()) {
-                player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
-            }
-        }
         game.playerManager.setSpectatorsGameMode()
         game.playerManager.setPlayersNotFlying()
         game.playerManager.teleportPlayersToGame()
@@ -124,8 +123,24 @@ class GameManager(private val game : Game) {
         game.blockManager.setCentreCoinCrateBarriers(Material.BLUE_STAINED_GLASS)
         game.playerManager.giveItemsToPlayers()
         game.scoreManager.calculatePlacements()
+        game.infoBoardManager.updateRound()
+        game.eliminationManager.reset()
         for(player in Bukkit.getOnlinePlayers()) {
-            player.playSound(player.location, Sounds.Start.START_GAME_SUCCESS, 1f, 1f)
+            if(game.teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
+                game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ALIVE)
+            }
+        }
+        for(team in game.teamManager.getActiveTeams()) {
+            game.eliminationManager.changeTeamLifeState(team, TeamLifeState.ALIVE)
+        }
+        if(game.roundManager.getRoundState() == RoundState.ONE) {
+            for(player in Bukkit.getOnlinePlayers()) {
+                player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
+                player.playSound(player.location, Sounds.Start.START_GAME_SUCCESS, 1f, 1f)
+                if(game.teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
+                    game.teamManager.enableTeamGlowing(player, game.teamManager.getPlayerTeam(player.uniqueId))
+                }
+            }
         }
     }
 
@@ -134,7 +149,7 @@ class GameManager(private val game : Game) {
             player.playSound(player.location, Sounds.Alert.OVERTIME_ALERT, 0.35f, 1.25f)
             player.showTitle(Title.title(
                 Component.text("OVERTIME!", NamedTextColor.RED, TextDecoration.BOLD),
-                Component.text("Hunt all the Cheese!"),
+                Component.text("Uh oh... This shouldn't happen!"),
                 Title.Times.times(
                     Duration.ofSeconds(0),
                     Duration.ofSeconds(3),
@@ -147,11 +162,9 @@ class GameManager(private val game : Game) {
                     .append(Component.text("▶").color(NamedTextColor.YELLOW))
                     .append(Component.text("] "))
                     .append(Component.text("OVERTIME: ", NamedTextColor.RED, TextDecoration.BOLD))
-                    .append(Component.text("You can now ", NamedTextColor.WHITE))
-                    .append(Component.text("ONLY", NamedTextColor.WHITE, TextDecoration.BOLD))
-                    .append(Component.text(" gather Cheese, $OVERTIME_TIME seconds remain!\n")
+                    .append(Component.text("Well this is an unfortunate series of events... ", NamedTextColor.WHITE)
+                    )
                 )
-            )
         }
     }
 
@@ -174,13 +187,13 @@ class GameManager(private val game : Game) {
                     )
                 )
             )
-            if(game.freezeManager.getFrozenPlayers().contains(player.uniqueId)) {
+            if(game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
                 game.freezeManager.unfreezePlayer(player)
             }
+            //TODO: INSTA-ELIMINATE FROZEN PLAYERS?
         }
         game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
-        game.freezeManager.resetTeamFrozenLists()
         game.heaterManager.stopAllHeaters()
         game.scoreManager.calculatePlacements()
     }
@@ -204,13 +217,13 @@ class GameManager(private val game : Game) {
                     )
                 )
             )
-            if(game.freezeManager.getFrozenPlayers().contains(player.uniqueId)) {
+            if(game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
                 game.freezeManager.unfreezePlayer(player)
             }
+            //TODO: INSTA-ELIMINATE FROZEN PLAYERS?
         }
         game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
-        game.freezeManager.resetTeamFrozenLists()
         game.heaterManager.stopAllHeaters()
         game.scoreManager.calculatePlacements()
         game.roundManager.nextRound()

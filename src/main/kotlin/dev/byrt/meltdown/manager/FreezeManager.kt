@@ -2,34 +2,20 @@ package dev.byrt.meltdown.manager
 
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Sounds
-import dev.byrt.meltdown.state.Teams
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
 
-import org.bukkit.Bukkit
-import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
 import java.time.Duration
-import java.util.*
-
-import kotlin.collections.ArrayList
 
 class FreezeManager(private var game : Game) {
-    private var frozenPlayers = ArrayList<UUID>()
-    private var redFrozenPlayers = ArrayList<Player>()
-    private var yellowFrozenPlayers = ArrayList<Player>()
-    private var limeFrozenPlayers = ArrayList<Player>()
-    private var blueFrozenPlayers = ArrayList<Player>()
-    private var teamsEliminated = ArrayList<Teams>()
-
     fun freezePlayer(player : Player, shooter : Player?) {
-        if(frozenPlayers.contains(player.uniqueId)) return
-        frozenPlayers.add(player.uniqueId)
+        game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.FROZEN)
         val freezeLoc = findNearestFreezeLocation(player)
         player.teleport(freezeLoc)
         setFrozenBlocks(player, Material.LIGHT_BLUE_STAINED_GLASS)
@@ -39,41 +25,10 @@ class FreezeManager(private var game : Game) {
         game.playerManager.clearKit(player)
         game.freezeTask.startFreezeLoop(player, shooter, freezeLoc, game.teamManager.getPlayerTeam(player.uniqueId))
         game.freezeTask.startFrostVignetteTask(player)
-
-        if(shooter != null) {
-            freezePlayerDisplay(player, shooter)
-        }
+        freezePlayerDisplay(player, shooter)
     }
 
-    private fun freezePlayerDisplay(frozenPlayer : Player, shooter : Player) {
-        shooter.sendMessage(
-            Component.text("[")
-                .append(Component.text("+25"))
-                .append(Component.text(" coins", NamedTextColor.GOLD))
-                .append(Component.text("] ", NamedTextColor.WHITE))
-                .append(Component.text("["))
-                .append(Component.text("▶").color(NamedTextColor.YELLOW))
-                .append(Component.text("] "))
-                .append(Component.text("["))
-                .append(Component.text("\uD83C\uDFF9").color(NamedTextColor.AQUA))
-                .append(Component.text("] You froze "))
-                .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
-                .append(Component.text("!")))
-        shooter.playSound(shooter.location, Sounds.Score.ELIMINATION, 1f, 1.25f)
-        game.scoreManager.modifyScore(25, ScoreModificationMode.ADD, game.teamManager.getPlayerTeam(shooter.uniqueId))
-
-        game.teamManager.sendTeamFrozenMessage(
-            Component.text("[")
-                .append(Component.text("▶").color(NamedTextColor.YELLOW))
-                .append(Component.text("] "))
-                .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
-                .append(Component.text(" was frozen by "))
-                .append(Component.text(shooter.name).color(game.teamManager.getPlayerTeam(shooter.uniqueId).textColor))
-                .append(Component.text(".", NamedTextColor.WHITE)),
-            game.teamManager.getPlayerTeam(frozenPlayer.uniqueId),
-            game.teamManager.getPlayerTeam(shooter.uniqueId)
-        )
-
+    private fun freezePlayerDisplay(frozenPlayer : Player, shooter : Player?) {
         frozenPlayer.showTitle(Title.title(
             Component.text("FROZEN").color(NamedTextColor.AQUA),
             Component.text(""),
@@ -84,11 +39,38 @@ class FreezeManager(private var game : Game) {
                 )
             )
         )
+        if(shooter != null) {
+            game.teamManager.sendTeamFrozenMessage(
+                Component.text("[")
+                    .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                    .append(Component.text("] "))
+                    .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
+                    .append(Component.text(" was frozen by "))
+                    .append(Component.text(shooter.name).color(game.teamManager.getPlayerTeam(shooter.uniqueId).textColor))
+                    .append(Component.text(".", NamedTextColor.WHITE)),
+                game.teamManager.getPlayerTeam(frozenPlayer.uniqueId),
+                game.teamManager.getPlayerTeam(shooter.uniqueId)
+            )
+            shooter.sendMessage(
+                Component.text("[")
+                    .append(Component.text("+25"))
+                    .append(Component.text(" coins", NamedTextColor.GOLD))
+                    .append(Component.text("] ", NamedTextColor.WHITE))
+                    .append(Component.text("["))
+                    .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                    .append(Component.text("] "))
+                    .append(Component.text("["))
+                    .append(Component.text("\uD83C\uDFF9").color(NamedTextColor.GREEN))
+                    .append(Component.text("] You froze "))
+                    .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
+                    .append(Component.text("!")))
+            shooter.playSound(shooter.location, Sounds.Score.ELIMINATION, 1f, 1.25f)
+            game.scoreManager.modifyScore(25, ScoreModificationMode.ADD, game.teamManager.getPlayerTeam(shooter.uniqueId))
+        }
     }
 
     fun unfreezePlayer(player : Player) {
-        if(!frozenPlayers.contains(player.uniqueId)) return
-        frozenPlayers.remove(player.uniqueId)
+        game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ALIVE)
         setFrozenBlocks(player, Material.AIR)
         resetFrostVignette(player)
         player.playSound(player.location, Sounds.Freeze.UNFREEZE, 1f, 1f)
@@ -106,16 +88,6 @@ class FreezeManager(private var game : Game) {
         } else {
             game.itemManager.giveUnusableTelepickaxe(player)
         }
-
-        game.teamManager.sendTeamThawedMessage(
-            Component.text("[")
-                .append(Component.text("▶").color(NamedTextColor.YELLOW))
-                .append(Component.text("] "))
-                .append(Component.text(player.name).color(game.teamManager.getPlayerTeam(player.uniqueId).textColor))
-                .append(Component.text(" was unfrozen.")),
-            player,
-            game.teamManager.getPlayerTeam(player.uniqueId)
-        )
     }
 
     private fun findNearestFreezeLocation(player : Player) : Location {
@@ -149,108 +121,7 @@ class FreezeManager(private var game : Game) {
         playerEyeLoc.block.type = material
     }
 
-    fun resetFrostVignette(player : Player) {
+    private fun resetFrostVignette(player : Player) {
         player.freezeTicks = 0
-    }
-
-    fun getFrozenPlayers() : ArrayList<UUID> {
-        return frozenPlayers
-    }
-
-    fun addPlayerTeamFrozen(player : Player, team : Teams) {
-        when(team) {
-            Teams.RED -> {
-                if(redFrozenPlayers.contains(player)) return
-                redFrozenPlayers.add(player)
-            }
-            Teams.YELLOW -> {
-                if(yellowFrozenPlayers.contains(player)) return
-                yellowFrozenPlayers.add(player)
-            }
-            Teams.LIME -> {
-                if(limeFrozenPlayers.contains(player)) return
-                limeFrozenPlayers.add(player)
-            }
-            Teams.BLUE -> {
-                if(blueFrozenPlayers.contains(player)) return
-                blueFrozenPlayers.add(player)
-            }
-            Teams.SPECTATOR -> {
-                // nuh uh.
-            }
-        }
-    }
-
-    fun removePlayerTeamFrozen(player : Player, team : Teams) {
-        when(team) {
-            Teams.RED -> {
-                if(!redFrozenPlayers.contains(player)) return
-                redFrozenPlayers.remove(player)
-            }
-            Teams.YELLOW -> {
-                if(!yellowFrozenPlayers.contains(player)) return
-                yellowFrozenPlayers.remove(player)
-            }
-            Teams.LIME -> {
-                if(!limeFrozenPlayers.contains(player)) return
-                limeFrozenPlayers.remove(player)
-            }
-            Teams.BLUE -> {
-                if(!blueFrozenPlayers.contains(player)) return
-                blueFrozenPlayers.remove(player)
-            }
-            Teams.SPECTATOR -> {
-                // nuh uh.
-            }
-        }
-    }
-
-    fun checkTeamAliveState(team : Teams) {
-        when(team) {
-            Teams.RED -> {
-                if(redFrozenPlayers.size == game.teamManager.getRedTeam().filter{uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL}.size || game.teamManager.getRedTeam().none { uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL }) {
-                    game.eliminatedTask.startEliminateTeamTask(redFrozenPlayers, team)
-                    teamsEliminated.add(team)
-                }
-            }
-            Teams.YELLOW -> {
-                if(yellowFrozenPlayers.size == game.teamManager.getYellowTeam().filter{uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL}.size || game.teamManager.getYellowTeam().none { uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL }) {
-                    game.eliminatedTask.startEliminateTeamTask(yellowFrozenPlayers, team)
-                    teamsEliminated.add(team)
-                }
-            }
-            Teams.LIME -> {
-                if(limeFrozenPlayers.size == game.teamManager.getLimeTeam().filter{uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL}.size || game.teamManager.getLimeTeam().none { uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL }) {
-                    game.eliminatedTask.startEliminateTeamTask(limeFrozenPlayers, team)
-                    teamsEliminated.add(team)
-                }
-            }
-            Teams.BLUE -> {
-                if(blueFrozenPlayers.size == game.teamManager.getBlueTeam().filter{uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL}.size || game.teamManager.getBlueTeam().none { uuid -> Bukkit.getPlayer(uuid)?.gameMode == GameMode.SURVIVAL }) {
-                    game.eliminatedTask.startEliminateTeamTask(blueFrozenPlayers, team)
-                    teamsEliminated.add(team)
-                }
-            }
-            Teams.SPECTATOR -> {
-                // nuh uh.
-            }
-        }
-    }
-
-    fun isFrozen(player : Player) : Boolean {
-        return frozenPlayers.contains(player.uniqueId)
-    }
-
-    fun getEliminatedTeams() : ArrayList<Teams> {
-        return teamsEliminated
-    }
-
-    fun resetTeamFrozenLists() {
-        redFrozenPlayers.clear()
-        yellowFrozenPlayers.clear()
-        limeFrozenPlayers.clear()
-        blueFrozenPlayers.clear()
-
-        teamsEliminated.clear()
     }
 }

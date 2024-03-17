@@ -67,6 +67,8 @@ class QueueCommands : BaseCommand {
     @CommandPermission("meltdown.queue")
     fun queueSetMax(@Argument("int") int : Int) {
         Main.getGame().queue.setMaxPlayers(int)
+        Main.getGame().queueVisuals.updateQueueStatus()
+        Main.getGame().queue.checkQueueCanStart()
     }
 
     @CommandMethod("queue set min <int>")
@@ -74,5 +76,7 @@ class QueueCommands : BaseCommand {
     @CommandPermission("meltdown.queue")
     fun queueSetMin(@Argument("int") int : Int) {
         Main.getGame().queue.setMinPlayers(int)
+        Main.getGame().queueVisuals.updateQueueStatus()
+        Main.getGame().queue.checkQueueCanStart()
     }
 }

@@ -19,7 +19,7 @@ class FreezeArrowHitEvent : Listener {
                 val player = e.hitEntity as Player
                 val shooter = e.entity.shooter as Player
                 if(!Main.getGame().teamManager.isSpectator(player.uniqueId)) {
-                    if(!Main.getGame().freezeManager.getFrozenPlayers().contains(player.uniqueId) && player.fireTicks < 0) {
+                    if(!Main.getGame().eliminationManager.getFrozenPlayers().contains(player.uniqueId) && player.fireTicks < 0) {
                         Main.getGame().freezeManager.freezePlayer(player, shooter)
                         e.entity.remove()
                     } else {

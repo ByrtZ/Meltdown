@@ -7,11 +7,12 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 
 import org.bukkit.Bukkit
-import org.bukkit.Color
 import org.bukkit.entity.Player
 import org.bukkit.scoreboard.Team
 
 import java.util.*
+
+import kotlin.collections.ArrayList
 
 class TeamManager(private val game : Game) {
     private var redTeam = ArrayList<UUID>()
@@ -200,6 +201,86 @@ class TeamManager(private val game : Game) {
         }
     }
 
+    fun enableTeamGlowing(player : Player, team : Teams) {
+        val teamMates = getTeamMates(player, team)
+        if(teamMates.isNotEmpty()) {
+            for(glower in teamMates) {
+                game.glowingEntities.setGlowing(glower, player)
+            }
+        }
+    }
+
+    fun disableTeamGlowing(player : Player, team : Teams) {
+        for(receiver in getTeamMates(player, team)) {
+            game.glowingEntities.unsetGlowing(player, receiver)
+        }
+    }
+
+    fun getActiveTeams() : ArrayList<Teams> {
+        val activeTeams = ArrayList<Teams>()
+        if(redTeam.isNotEmpty()) activeTeams.add(Teams.RED)
+        if(yellowTeam.isNotEmpty()) activeTeams.add(Teams.YELLOW)
+        if(limeTeam.isNotEmpty()) activeTeams.add(Teams.LIME)
+        if(blueTeam.isNotEmpty()) activeTeams.add(Teams.BLUE)
+        return activeTeams
+    }
+
+    fun getPlayerTeam(uuid : UUID): Teams {
+        return if(redTeam.contains(uuid)) {
+            Teams.RED
+        } else if(yellowTeam.contains(uuid)) {
+            Teams.YELLOW
+        } else if(limeTeam.contains(uuid)) {
+            Teams.LIME
+        } else if(blueTeam.contains(uuid)) {
+            Teams.BLUE
+        } else {
+            Teams.SPECTATOR
+        }
+    }
+
+    fun getTeamPlayers(team : Teams) : ArrayList<Player> {
+        val teamPlayers = ArrayList<Player>()
+        when(team) {
+            Teams.RED -> {
+                for(redPlayer in redTeam) {
+                    Bukkit.getPlayer(redPlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.YELLOW -> {
+                for(yellowPlayer in yellowTeam) {
+                    Bukkit.getPlayer(yellowPlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.LIME -> {
+                for(limePlayer in limeTeam) {
+                    Bukkit.getPlayer(limePlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.BLUE -> {
+                for(bluePlayer in blueTeam) {
+                    Bukkit.getPlayer(bluePlayer)?.let { teamPlayers.add(it) }
+                }
+            }
+            Teams.SPECTATOR -> {
+                for(spectator in spectators) {
+                    Bukkit.getPlayer(spectator)?.let { teamPlayers.add(it) }
+                }
+            }
+        }
+        return teamPlayers
+    }
+
+    private fun getTeamMates(player : Player, team : Teams) : List<Player> {
+        val teamPlayers = ArrayList<Player>()
+        for(teamPlayer in getTeamPlayers(team)) {
+            if(teamPlayer != player) {
+                teamPlayers.add(teamPlayer)
+            }
+        }
+        return teamPlayers
+    }
+
     fun addToAdminDisplay(uuid : UUID) {
         adminDisplayTeam.addPlayer(Bukkit.getOfflinePlayer(uuid))
     }
@@ -265,82 +346,6 @@ class TeamManager(private val game : Game) {
         spectatorDisplayTeam.unregister()
     }
 
-    fun getActiveTeamsSize() : Int {
-        var activeNumberTeams = 0
-        if(redTeam.isNotEmpty()) activeNumberTeams += 1
-        if(yellowTeam.isNotEmpty()) activeNumberTeams += 1
-        if(blueTeam.isNotEmpty()) activeNumberTeams += 1
-        if(limeTeam.isNotEmpty()) activeNumberTeams += 1
-        return activeNumberTeams
-    }
-
-    fun getPlayerTeam(uuid : UUID): Teams {
-        return if(redTeam.contains(uuid)) {
-            Teams.RED
-        } else if(yellowTeam.contains(uuid)) {
-            Teams.YELLOW
-        } else if(limeTeam.contains(uuid)) {
-            Teams.LIME
-        } else if(blueTeam.contains(uuid)) {
-            Teams.BLUE
-        } else {
-            Teams.SPECTATOR
-        }
-    }
-
-    fun getTeamPlayers(team : Teams) : List<Player> {
-        val teamPlayers = ArrayList<Player>()
-        when(team) {
-            Teams.RED -> {
-                for(redPlayer in redTeam) {
-                    Bukkit.getPlayer(redPlayer)?.let { teamPlayers.add(it) }
-                }
-            }
-            Teams.YELLOW -> {
-                for(yellowPlayer in yellowTeam) {
-                    Bukkit.getPlayer(yellowPlayer)?.let { teamPlayers.add(it) }
-                }
-            }
-            Teams.LIME -> {
-                for(limePlayer in limeTeam) {
-                    Bukkit.getPlayer(limePlayer)?.let { teamPlayers.add(it) }
-                }
-            }
-            Teams.BLUE -> {
-                for(bluePlayer in blueTeam) {
-                    Bukkit.getPlayer(bluePlayer)?.let { teamPlayers.add(it) }
-                }
-            }
-            Teams.SPECTATOR -> {
-                for(spectator in spectators) {
-                    Bukkit.getPlayer(spectator)?.let { teamPlayers.add(it) }
-                }
-            }
-        }
-        return teamPlayers
-    }
-
-
-    fun getTeamColor(team : Teams) : Color {
-        return when(team) {
-            Teams.RED -> {
-                Color.RED
-            }
-            Teams.BLUE -> {
-                Color.BLUE
-            }
-            Teams.YELLOW -> {
-                Color.YELLOW
-            }
-            Teams.LIME -> {
-                Color.LIME
-            }
-            Teams.SPECTATOR -> {
-                Color.GRAY
-            }
-        }
-    }
-
     fun isInRedTeam(uuid : UUID): Boolean {
         return redTeam.contains(uuid)
     }
@@ -380,5 +385,4 @@ class TeamManager(private val game : Game) {
     fun getSpectators(): ArrayList<UUID> {
         return this.spectators
     }
-
 }

@@ -21,23 +21,25 @@ class JoinQuitEvent : Listener {
     @EventHandler
     private fun onPlayerJoin(e : PlayerJoinEvent) {
         e.joinMessage(Component.text("${e.player.name} joined the game.").color(TextColor.fromHexString("#ffff00")))
-        Main.getGame().infoBoardManager.showScoreboard()
+        Main.getGame().infoBoardManager.showScoreboard(e.player)
         e.player.teleport(Location(Bukkit.getWorld("Cheese"), 0.5, -52.0 ,0.5, 0.0f, 0.0f))
         e.player.inventory.clear()
         e.player.sendPlayerListHeaderAndFooter(Main.getGame().tabListManager.getTabHeader(), Main.getGame().tabListManager.getTabFooter())
         Main.getGame().teamManager.addToTeam(e.player, e.player.uniqueId, Teams.SPECTATOR)
-        if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
-            e.player.gameMode = GameMode.ADVENTURE
+        e.player.gameMode = if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
+            GameMode.ADVENTURE
         } else {
-            e.player.gameMode = GameMode.SPECTATOR
+            GameMode.SPECTATOR
         }
     }
 
     @EventHandler
     private fun onPlayerQuit(e : PlayerQuitEvent) {
+        Main.getGame().teamManager.disableTeamGlowing(e.player, Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId))
         Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId).let { Main.getGame().teamManager.removeFromTeam(e.player, e.player.uniqueId, it)}
         Main.getGame().musicTask.stopMusicLoop(e.player, Music.NULL)
         Main.getGame().freezeTask.cancelFreezeLoop(e.player)
+        Main.getGame().eliminationManager.onPlayerQuit(e.player)
         if(Main.getGame().queue.getQueue().contains(e.player.uniqueId)) {
             Main.getGame().queue.leaveQueue(e.player)
         }

@@ -8,6 +8,8 @@ import dev.byrt.meltdown.util.*
 import dev.byrt.meltdown.task.*
 import dev.byrt.meltdown.queue.*
 
+import fr.skytasul.glowingentities.GlowingEntities
+
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 
@@ -22,13 +24,19 @@ class Game(val plugin : Main) {
     val playerManager = PlayerManager(this)
     val teamManager = TeamManager(this)
     val itemManager = ItemManager(this)
+
+    val glowingEntities = GlowingEntities(plugin)
+
     val blockManager = BlockManager(this)
     val entranceManager = EntranceManager(this)
+    val coinCrateManager = CoinCrateManager(this)
+
     val infoBoardManager = InfoBoardManager(this)
     val tabListManager = TabListManager(this)
     val locationManager = LocationManager(this)
     val freezeManager = FreezeManager(this)
     val heaterManager = HeaterManager(this)
+    val eliminationManager = EliminationManager(this)
     val configManager = ConfigManager(this)
     val whitelistManager = WhitelistManager(this)
     val sharedItemManager = SharedItemManager(this)
@@ -70,7 +78,9 @@ class Game(val plugin : Main) {
         teamManager.buildDisplayTeams()
         tabListManager.populateMeltdownPuns()
         locationManager.populateSpawns()
-        locationManager.populateEntrances()
+        entranceManager.populateEntrances()
+        coinCrateManager.populateCoinCrates()
+        coinCrateManager.populateCoinCrateBarriers()
         queueVisuals.spawnQueueNPC()
     }
 
@@ -90,10 +100,11 @@ class Game(val plugin : Main) {
         scoreManager.resetScores()
         locationManager.resetSpawnCounters()
         playerManager.resetPlayers()
-        infoBoardManager.destroyScoreboard()
-        infoBoardManager.buildScoreboard()
+        infoBoardManager.updateRound()
+        infoBoardManager.updateStatus()
+        infoBoardManager.updatePlacements()
         entranceManager.resetEntrances()
-        freezeManager.resetTeamFrozenLists()
+        eliminationManager.reset()
         teamManager.showDisplayTeamNames()
         sharedItemManager.clearTelepickaxeOwners()
         queueVisuals.removeQueueNPC()
@@ -101,6 +112,12 @@ class Game(val plugin : Main) {
         queueVisuals.setAllQueueInvisible()
         queue.setMaxPlayers(16)
         queue.setMinPlayers(8)
+
+        for(player in Bukkit.getOnlinePlayers()) {
+            if(teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
+                teamManager.disableTeamGlowing(player, teamManager.getPlayerTeam(player.uniqueId))
+            }
+        }
 
         for(player in Bukkit.getOnlinePlayers()) {
             player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(3), Duration.ofSeconds(1))))

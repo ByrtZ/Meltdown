@@ -48,12 +48,12 @@ class Main : JavaPlugin() {
     }
 
     private fun setupCommands() {
-        val commandManager: PaperCommandManager<CommandSender> = try {
+        val commandManager : PaperCommandManager<CommandSender> = try {
             PaperCommandManager.createNative(
                 this,
                 CommandExecutionCoordinator.simpleCoordinator()
             )
-        } catch (e: Exception) {
+        } catch (e : Exception) {
             logger.severe("Failed to initialize the command manager.")
             server.pluginManager.disablePlugin(this)
             return
@@ -65,16 +65,16 @@ class Main : JavaPlugin() {
 
         // Thanks broccolai <3 https://github.com/broccolai/tickets/commit/e8c227abc298d1a34094708a24601d006ec25937
         commandManager.commandSuggestionProcessor { context, strings ->
-            var input: String = if (context.inputQueue.isEmpty()) {
+            var input : String = if (context.inputQueue.isEmpty()) {
                 ""
             } else {
                 context.inputQueue.peek()
             }
             input = input.lowercase(Locale.getDefault())
-            val suggestions: MutableList<String> = LinkedList()
-            for (suggestion in strings) {
+            val suggestions : MutableList<String> = LinkedList()
+            for(suggestion in strings) {
                 val suggestionLower = suggestion.lowercase(Locale.getDefault())
-                if (suggestionLower.startsWith(input)) {
+                if(suggestionLower.startsWith(input)) {
                     suggestions.add(suggestion)
                 }
             }
@@ -121,12 +121,12 @@ class Main : JavaPlugin() {
         val reflections = Reflections("dev.byrt.meltdown.event")
         val listeners = reflections.getSubTypesOf(Listener::class.java)
 
-        listeners.forEach(Consumer { listener: Class<out Listener> ->
+        listeners.forEach(Consumer { listener : Class<out Listener> ->
             try {
                 val instance = listener.getConstructor().newInstance()
                 server.pluginManager.registerEvents(instance, this)
-            } catch (e: java.lang.Exception) {
-                e.printStackTrace()
+            } catch (e : java.lang.Exception) {
+                    e.printStackTrace()
                 }
             }
         )

@@ -18,8 +18,8 @@ class WhitelistManager(private val game : Game) {
 
     private fun whitelistGroup(group : WhitelistGroup) {
         clearServerWhitelist()
-        Main.getPlugin().server.reloadWhitelist()
-        Main.getPlugin().server.setWhitelist(true)
+        game.plugin.server.reloadWhitelist()
+        game.plugin.server.setWhitelist(true)
         currentWhitelistedGroup = group
         when(group) {
             WhitelistGroup.ADMIN -> {
@@ -48,7 +48,7 @@ class WhitelistManager(private val game : Game) {
     }
 
     private fun clearServerWhitelist() {
-        for(player in Main.getPlugin().server.whitelistedPlayers) {
+        for(player in game.plugin.server.whitelistedPlayers) {
             player.isWhitelisted = false
         }
     }

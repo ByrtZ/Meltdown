@@ -19,6 +19,7 @@ class Rounds(private val game : Game) {
         if(newRound == roundState) return
         game.dev.parseDevMessage("Round state updated from $roundState to $newRound.", DevStatus.INFO)
         this.roundState = newRound
+        game.infoBoardManager.updateRound()
     }
 
     fun getRoundState() : RoundState {

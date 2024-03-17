@@ -3,7 +3,6 @@ package dev.byrt.meltdown.manager
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.game.GameState
 import dev.byrt.meltdown.state.RoundState
-import dev.byrt.meltdown.state.Teams
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -11,251 +10,161 @@ import net.kyori.adventure.text.format.TextDecoration
 
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.entity.Player
 import org.bukkit.scoreboard.*
+
+import java.util.*
 
 @Suppress("DEPRECATION")
 class InfoBoardManager(private val game : Game) {
-    private var scoreboardManager: ScoreboardManager = Bukkit.getScoreboardManager()
-    private var scoreboard: Scoreboard = scoreboardManager.mainScoreboard
-    private lateinit var meltdownBoard: Objective
-    private lateinit var currentGameText: Score
-    private lateinit var currentMapText: Score
-    private lateinit var currentRoundText: Score
-    private lateinit var gameStatusText: Score
-    private lateinit var gameScoreText: Score
-    private lateinit var redScore: Score
-    private lateinit var yellowScore: Score
-    private lateinit var limeScore: Score
-    private lateinit var blueScore: Score
-    private lateinit var blankSpaceOne: Score
-    private lateinit var blankSpaceTwo: Score
+    private var scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+    private var objective = scoreboard.registerNewObjective("${game.plugin.name.lowercase()}-${UUID.randomUUID()}", Criteria.DUMMY, Component.text("Byrt's Server", NamedTextColor.YELLOW, TextDecoration.BOLD))
+    // Game text, map text, score multiplier and blank spaces stay static
+    private var currentRoundLine = scoreboard.registerNewTeam("currentRoundLine")
+    private val currentRoundLineKey = ChatColor.ITALIC.toString()
+
+    private var gameStatusLine = scoreboard.registerNewTeam("gameStatusLine")
+    private val gameStatusLineKey = ChatColor.MAGIC.toString()
+
+    private var firstPlaceLine = scoreboard.registerNewTeam("firstPlaceLine")
+    private val firstPlaceLineKey = ChatColor.UNDERLINE.toString()
+
+    private var secondPlaceLine = scoreboard.registerNewTeam("secondPlaceLine")
+    private val secondPlaceLineKey = ChatColor.LIGHT_PURPLE.toString()
+
+    private var thirdPlaceLine = scoreboard.registerNewTeam("thirdPlaceLine")
+    private val thirdPlaceLineKey = ChatColor.DARK_GREEN.toString()
+
+    private var fourthPlaceLine = scoreboard.registerNewTeam("fourthPlaceLine")
+    private val fourthPlaceLineKey = ChatColor.DARK_GRAY.toString()
 
     fun buildScoreboard() {
-        constructScoreboardInfo()
-        meltdownBoard.displaySlot = DisplaySlot.SIDEBAR
-        currentGameText.score = 9
-        currentMapText.score = 9
-        currentRoundText.score = 8
-        gameStatusText.score = 7
-        blankSpaceOne.score = 6
-        gameScoreText.score = 5
-        redScore.score = 4
-        yellowScore.score = 3
-        limeScore.score = 2
-        blueScore.score = 1
-        blankSpaceTwo.score = 0
+        game.plugin.logger.info("Building scoreboard...")
+        objective.displaySlot = DisplaySlot.SIDEBAR
+
+        // Static game text
+        objective.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game: " + ChatColor.RESET + "Meltdown").score = 9
+
+        // Static map text
+        objective.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Map: " + ChatColor.RESET + "Laboratory").score = 9
+
+        // Modifiable round information
+        currentRoundLine.addEntry(currentRoundLineKey)
+        currentRoundLine.prefix(Component.text("Round: ", NamedTextColor.GREEN, TextDecoration.BOLD))
+        currentRoundLine.suffix(Component.text("None"))
+        objective.getScore(currentRoundLineKey).score = 8
+
+        // Modifiable game status information
+        gameStatusLine.addEntry(gameStatusLineKey)
+        gameStatusLine.prefix(Component.text("Game status: ", NamedTextColor.RED, TextDecoration.BOLD))
+        gameStatusLine.suffix(Component.text("Awaiting players...", NamedTextColor.GRAY))
+        objective.getScore(gameStatusLineKey).score = 7
+
+        // Static blank space
+        objective.getScore("§").score = 6
+
+        // Static score multiplier
+        objective.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game Coins: " + ChatColor.RESET + "(" + ChatColor.YELLOW + "x1.0" + ChatColor.RESET + ")").score = 5
+
+        // Modifiable first placement score
+        firstPlaceLine.addEntry(firstPlaceLineKey)
+        firstPlaceLine.prefix(Component.text(" 1. "))
+        firstPlaceLine.suffix(Component.text("Red Team ", NamedTextColor.RED).append(Component.text("                0c", NamedTextColor.WHITE)))
+        objective.getScore(firstPlaceLineKey).score = 4
+
+        // Modifiable second placement score
+        secondPlaceLine.addEntry(secondPlaceLineKey)
+        secondPlaceLine.prefix(Component.text(" 2. "))
+        secondPlaceLine.suffix(Component.text("Yellow Team ", NamedTextColor.YELLOW).append(Component.text("                0c", NamedTextColor.WHITE)))
+        objective.getScore(secondPlaceLineKey).score = 3
+
+        // Modifiable third placement score
+        thirdPlaceLine.addEntry(thirdPlaceLineKey)
+        thirdPlaceLine.prefix(Component.text(" 3. "))
+        thirdPlaceLine.suffix(Component.text("Lime Team ", NamedTextColor.GREEN).append(Component.text("                0c", NamedTextColor.WHITE)))
+        objective.getScore(thirdPlaceLineKey).score = 2
+
+        // Modifiable fourth placement score
+        fourthPlaceLine.addEntry(fourthPlaceLineKey)
+        fourthPlaceLine.prefix(Component.text(" 4. "))
+        fourthPlaceLine.suffix(Component.text("Blue Team ", NamedTextColor.BLUE).append(Component.text("                0c", NamedTextColor.WHITE)))
+        objective.getScore(fourthPlaceLineKey).score = 1
+
+        // Static blank space
+        objective.getScore("§§").score = 0
+        game.plugin.logger.info("Scoreboard constructed with ID ${objective.name}...")
+    }
+
+    fun updateRound() {
+        if(game.gameManager.getGameState() == GameState.IDLE) {
+            currentRoundLine.suffix(Component.text("None"))
+        } else {
+            currentRoundLine.suffix(Component.text("${game.roundManager.getRoundState().ordinal + 1}/${game.roundManager.getTotalRounds()}", NamedTextColor.WHITE))
+        }
+    }
+
+    fun updateStatus() {
+        when(game.gameManager.getGameState()) {
+            GameState.IDLE -> {
+                gameStatusLine.prefix(Component.text("Game status: ", NamedTextColor.RED, TextDecoration.BOLD))
+                gameStatusLine.suffix(Component.text("Awaiting players...", NamedTextColor.GRAY))
+            }
+            GameState.STARTING -> {
+                if(game.roundManager.getRoundState() == RoundState.ONE) {
+                    gameStatusLine.prefix(Component.text("Game begins: ", NamedTextColor.RED, TextDecoration.BOLD))
+                } else {
+                    gameStatusLine.prefix(Component.text("Round begins: ", NamedTextColor.RED, TextDecoration.BOLD))
+                }
+            }
+            GameState.IN_GAME -> {
+                gameStatusLine.prefix(Component.text("Time left: ", NamedTextColor.RED, TextDecoration.BOLD))
+            }
+            GameState.ROUND_END -> {
+                gameStatusLine.prefix(Component.text("Next round: ", NamedTextColor.RED, TextDecoration.BOLD))
+            }
+            GameState.GAME_END -> {
+                gameStatusLine.prefix(Component.text("Game ending: ", NamedTextColor.RED, TextDecoration.BOLD))
+            }
+            GameState.OVERTIME -> {
+                gameStatusLine.prefix(Component.text("OVERTIME: ", NamedTextColor.RED, TextDecoration.BOLD))
+            }
+        }
+    }
+
+    fun updateTimer() {
+        gameStatusLine.suffix(Component.text(game.gameTask.getDisplayTimeLeft(), NamedTextColor.WHITE))
+    }
+
+    fun updatePlacements() {
+        if(game.gameManager.getGameState() == GameState.IDLE) {
+            firstPlaceLine.suffix(Component.text("Red Team ", NamedTextColor.RED).append(Component.text("                0c", NamedTextColor.WHITE)))
+            secondPlaceLine.suffix(Component.text("Yellow Team ", NamedTextColor.YELLOW).append(Component.text("                0c", NamedTextColor.WHITE)))
+            thirdPlaceLine.suffix(Component.text("Lime Team ", NamedTextColor.GREEN).append(Component.text("                0c", NamedTextColor.WHITE)))
+            fourthPlaceLine.suffix(Component.text("Blue Team ", NamedTextColor.BLUE).append(Component.text("                0c", NamedTextColor.WHITE)))
+        } else {
+            val placements = game.scoreManager.getPlacements().keys.toTypedArray()
+            val first = placements[0]
+            val second = placements[1]
+            val third = placements[2]
+            val fourth = placements[3]
+            firstPlaceLine.suffix(Component.text("${first.teamName} ", first.textColor).append(Component.text("                ${game.scoreManager.getTeamScore(first)}c", NamedTextColor.WHITE)))
+            secondPlaceLine.suffix(Component.text("${second.teamName} ", second.textColor).append(Component.text("                ${game.scoreManager.getTeamScore(second)}c", NamedTextColor.WHITE)))
+            thirdPlaceLine.suffix(Component.text("${third.teamName} ", third.textColor).append(Component.text("                ${game.scoreManager.getTeamScore(third)}c", NamedTextColor.WHITE)))
+            fourthPlaceLine.suffix(Component.text("${fourth.teamName} ", fourth.textColor).append(Component.text("                ${game.scoreManager.getTeamScore(fourth)}c", NamedTextColor.WHITE)))
+        }
+    }
+
+    fun showScoreboard(player : Player) {
+        player.scoreboard = scoreboard
     }
 
     fun destroyScoreboard() {
-        meltdownBoard.displaySlot = null
-        meltdownBoard.unregister()
-    }
-
-    private fun constructScoreboardInfo() {
-        meltdownBoard = scoreboard.registerNewObjective(
-            "meltdown_board",
-            Criteria.DUMMY,
-            Component.text("Byrt's Server").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true)
-        )
-
-        currentGameText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game: " + ChatColor.RESET + "Meltdown")
-        currentMapText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Map: " + ChatColor.WHITE + "Laboratory")
-        currentRoundText = meltdownBoard.getScore(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "None")
-        gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game status: " + ChatColor.RESET + "Waiting...")
-        gameScoreText = meltdownBoard.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game Coins: " + ChatColor.RESET + "(" + ChatColor.YELLOW + "x1.0" + ChatColor.RESET + ")")
-        redScore = meltdownBoard.getScore(" 1. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                0c")
-        yellowScore = meltdownBoard.getScore(" 2. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                0c")
-        limeScore = meltdownBoard.getScore(" 3. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                0c")
-        blueScore = meltdownBoard.getScore(" 4. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
-        blankSpaceOne = meltdownBoard.getScore("§")
-        blankSpaceTwo = meltdownBoard.getScore("§§")
-    }
-
-    fun showScoreboard() {
-        meltdownBoard.displaySlot = DisplaySlot.SIDEBAR
-    }
-
-    fun updateScoreboardTimer(displayTime : String, previousDisplayTime : String, gameState : GameState) {
-        if(gameState == GameState.STARTING) {
-            meltdownBoard.scoreboard!!.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game status: " + ChatColor.RESET + "Waiting...")
-            meltdownBoard.scoreboard!!.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game over!")
-            meltdownBoard.scoreboard!!.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Next round: " + ChatColor.RESET + previousDisplayTime)
-            meltdownBoard.scoreboard!!.resetScores(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "None")
-
-            if(game.roundManager.getRoundState() == RoundState.ONE) {
-                meltdownBoard.scoreboard!!.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game begins: " + ChatColor.RESET + "" + previousDisplayTime)
-                gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game begins: " + ChatColor.RESET + "" + displayTime)
-                gameStatusText.score = 7
-            } else {
-                meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Round begins: " + ChatColor.RESET + previousDisplayTime)
-                gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Round begins: " + ChatColor.RESET + "" + displayTime)
-                gameStatusText.score = 7
-            }
-
-            meltdownBoard.scoreboard?.resetScores(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "None")
-            meltdownBoard.scoreboard?.resetScores(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "${game.roundManager.getRoundState().ordinal}/${game.roundManager.getTotalRounds()}")
-            currentRoundText = meltdownBoard.getScore(ChatColor.GREEN.toString() + "" + ChatColor.BOLD + "Round: " + ChatColor.RESET + "${game.roundManager.getRoundState().ordinal + 1}/${game.roundManager.getTotalRounds()}")
-            currentRoundText.score = 8
-        }
-        if(gameState == GameState.IN_GAME) {
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game begins: " + ChatColor.RESET + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Round begins: " + ChatColor.RESET + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + previousDisplayTime)
-            gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + displayTime)
-            gameStatusText.score = 7
-        }
-        if(gameState == GameState.OVERTIME) {
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + previousDisplayTime)
-            gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + displayTime)
-            gameStatusText.score = 7
-        }
-        if(gameState == GameState.ROUND_END) {
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Next round: " + ChatColor.RESET + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + previousDisplayTime)
-            gameStatusText = meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Next round: " + ChatColor.RESET + "" + displayTime)
-            gameStatusText.score = 7
-        }
-        if(gameState == GameState.GAME_END) {
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Time left: " + ChatColor.RESET + "" + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "OVERTIME: " + ChatColor.RESET + "" + previousDisplayTime)
-            meltdownBoard.scoreboard?.resetScores(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game ending: " + ChatColor.RESET + previousDisplayTime)
-
-            gameStatusText = if (displayTime == "00:00") {
-                meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game over!")
-            } else {
-                meltdownBoard.getScore(ChatColor.RED.toString() + "" + ChatColor.BOLD + "Game ending: " + ChatColor.RESET + "" + displayTime)
-            }
-            gameStatusText.score = 7
-        }
-    }
-
-    //TODO: BAND-AID FIX, NEEDS SEVERE REWRITE
-    fun updateScoreboardScores() {
-        val redPlacement = game.scoreManager.getPlacements().keys.indexOf(Teams.RED) + 1
-        val yellowPlacement = game.scoreManager.getPlacements().keys.indexOf(Teams.YELLOW) + 1
-        val limePlacement = game.scoreManager.getPlacements().keys.indexOf(Teams.LIME) + 1
-        val bluePlacement = game.scoreManager.getPlacements().keys.indexOf(Teams.BLUE) + 1
-
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                0c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                0c")
-
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getLastRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getLastYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLastLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getLastBlueScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getLastRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getLastYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLastLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getLastBlueScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getLastRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getLastYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLastLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getLastBlueScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getLastRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getLastYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLastLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getLastBlueScore()}c")
-
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 1. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 2. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 3. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-        meltdownBoard.scoreboard?.resetScores(" 4. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-
-        //FIRST PLACE
-        if(redPlacement == 1) {
-            redScore = meltdownBoard.getScore(" 1. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-            redScore.score = 4
-        }
-        if(yellowPlacement == 1) {
-            yellowScore = meltdownBoard.getScore(" 1. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-            yellowScore.score = 4
-        }
-        if(limePlacement == 1) {
-            limeScore = meltdownBoard.getScore(" 1. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-            limeScore.score = 4
-        }
-        if(bluePlacement == 1) {
-            blueScore = meltdownBoard.getScore(" 1. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-            blueScore.score = 4
-        }
-        //SECOND PLACE
-        if(redPlacement == 2) {
-            redScore = meltdownBoard.getScore(" 2. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-            redScore.score = 3
-        }
-        if(yellowPlacement == 2) {
-            yellowScore = meltdownBoard.getScore(" 2. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-            yellowScore.score = 3
-        }
-        if(limePlacement == 2) {
-            limeScore = meltdownBoard.getScore(" 2. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-            limeScore.score = 3
-        }
-        if(bluePlacement == 2) {
-            blueScore = meltdownBoard.getScore(" 2. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-            blueScore.score = 3
-        }
-        //THIRD PLACE
-        if(redPlacement == 3) {
-            redScore = meltdownBoard.getScore(" 3. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-            redScore.score = 2
-        }
-        if(yellowPlacement == 3) {
-            yellowScore = meltdownBoard.getScore(" 3. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-            yellowScore.score = 2
-        }
-        if(limePlacement == 3) {
-            limeScore = meltdownBoard.getScore(" 3. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-            limeScore.score = 2
-        }
-        if(bluePlacement == 3) {
-            blueScore = meltdownBoard.getScore(" 3. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-            blueScore.score = 2
-        }
-        //FOURTH PLACE
-        if(redPlacement == 4) {
-            redScore = meltdownBoard.getScore(" 4. " + ChatColor.RED.toString() + "Red Team " + ChatColor.RESET + "                ${game.scoreManager.getRedScore()}c")
-            redScore.score = 1
-        }
-        if(yellowPlacement == 4) {
-            yellowScore = meltdownBoard.getScore(" 4. " + ChatColor.YELLOW.toString() + "Yellow Team " + ChatColor.RESET + "                ${game.scoreManager.getYellowScore()}c")
-            yellowScore.score = 1
-        }
-        if(limePlacement == 4) {
-            limeScore = meltdownBoard.getScore(" 4. " + ChatColor.GREEN.toString() + "Lime Team " + ChatColor.RESET + "                ${game.scoreManager.getLimeScore()}c")
-            limeScore.score = 1
-        }
-        if(bluePlacement == 4) {
-            blueScore = meltdownBoard.getScore(" 4. " + ChatColor.BLUE.toString() + "Blue Team " + ChatColor.RESET + "                ${game.scoreManager.getBlueScore()}c")
-            blueScore.score = 1
-        }
+        currentRoundLine.unregister()
+        gameStatusLine.unregister()
+        firstPlaceLine.unregister()
+        secondPlaceLine.unregister()
+        thirdPlaceLine.unregister()
+        fourthPlaceLine.unregister()
+        objective.unregister()
     }
 }

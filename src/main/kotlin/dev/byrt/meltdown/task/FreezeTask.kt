@@ -2,6 +2,8 @@ package dev.byrt.meltdown.task
 
 import dev.byrt.meltdown.data.Heater
 import dev.byrt.meltdown.game.Game
+import dev.byrt.meltdown.game.GameState
+import dev.byrt.meltdown.manager.PlayerLifeState
 import dev.byrt.meltdown.manager.ScoreModificationMode
 import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
@@ -10,7 +12,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
-import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
@@ -21,37 +22,41 @@ import java.util.*
 
 class FreezeTask(private val game : Game) {
     private var freezeLoopMap  = mutableMapOf<UUID, BukkitRunnable>()
+    private var isHeatingList = ArrayList<UUID>()
     private var frostVignetteTaskMap = mutableMapOf<UUID, BukkitRunnable>()
     fun startFreezeLoop(player : Player, freezer : Player?, frozenLoc : Location, team : Teams) {
         val freezeRunnable = object : BukkitRunnable() {
             var thawTimer = 6
-            var isHeating = false
             override fun run() {
-                if(!game.eliminatedTask.getEliminatedTeamTaskMap().containsKey(team)) {
+                if(!game.eliminationManager.getEliminatedTeams().contains(team)) {
                     if(game.heaterTask.getHeaterLoopMap().isNotEmpty()) {
                         for((heater, _) in game.heaterTask.getHeaterLoopMap()) {
-                            val distance = frozenLoc.distance(heater.location)
-                            if(distance <= Heater.HEATER_RADIUS && heater.team == team) {
-                                isHeating = true
-                                game.freezeManager.removePlayerTeamFrozen(player, team)
-                                game.freezeManager.checkTeamAliveState(team)
-                                break
+                            if(heater.team == team) {
+                                val distance = frozenLoc.distance(heater.location)
+                                if(distance <= Heater.HEATER_RADIUS) {
+                                    isHeatingList.add(player.uniqueId)
+                                    game.eliminationManager.checkTeamStatus(team)
+                                    break
+                                } else {
+                                    isHeatingList.remove(player.uniqueId)
+                                    game.eliminationManager.checkTeamStatus(team)
+                                }
                             }
                         }
 
-                        if(!isHeating) {
-                            game.freezeManager.addPlayerTeamFrozen(player, team)
-                            game.freezeManager.checkTeamAliveState(team)
+                        if(!isHeatingList.contains(player.uniqueId)) {
+                            isHeatingList.remove(player.uniqueId)
+                            game.eliminationManager.checkTeamStatus(team)
                             player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                             if(thawTimer < 5) {
                                 thawTimer++
                             }
                         } else {
                             player.world.spawnParticle(Particle.FLAME, player.location, 10, 0.75, 0.75, 0.75, 0.1)
+                            isHeatingList.add(player.uniqueId)
                             if(thawTimer < 1) {
                                 player.sendActionBar(Component.text("You have been unfrozen!").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                                game.freezeManager.removePlayerTeamFrozen(player, team)
-                                game.freezeManager.checkTeamAliveState(team)
+                                game.eliminationManager.checkTeamStatus(team)
                                 stopFreezeLoop(player, freezer, false)
                             } else {
                                 player.sendActionBar(Component.text("You will thaw in ${thawTimer}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
@@ -60,15 +65,17 @@ class FreezeTask(private val game : Game) {
                         }
                     } else {
                         player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                        game.freezeManager.addPlayerTeamFrozen(player, team)
-                        game.freezeManager.checkTeamAliveState(team)
+                        isHeatingList.remove(player.uniqueId)
+                        game.eliminationManager.checkTeamStatus(team)
                         if(thawTimer < 5) {
                             thawTimer++
                         }
-                        if(!game.freezeManager.getFrozenPlayers().contains(player.uniqueId)) {
+                        if(!game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
                             stopFreezeLoop(player, freezer, true)
                         }
                     }
+                } else {
+                    player.sendActionBar(Component.text("Better luck next time.").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
                 }
             }
         }
@@ -78,19 +85,31 @@ class FreezeTask(private val game : Game) {
 
     fun stopFreezeLoop(player : Player, freezer : Player?, forcefullyThawed : Boolean) {
         freezeLoopMap.remove(player.uniqueId)?.cancel()
-        if(freezer != null) {
-            game.scoreManager.modifyScore(25, ScoreModificationMode.SUB, game.teamManager.getPlayerTeam(freezer.uniqueId))
-            freezer.sendMessage(
+        if(game.gameManager.getGameState() == GameState.IN_GAME && !game.eliminationManager.getEliminatedPlayers().contains(player)) {
+            game.teamManager.sendTeamThawedMessage(
                 Component.text("[")
-                    .append(Component.text("-25"))
-                    .append(Component.text(" coins", NamedTextColor.GOLD))
-                    .append(Component.text("] ", NamedTextColor.WHITE))
-                    .append(Component.text("["))
                     .append(Component.text("▶").color(NamedTextColor.YELLOW))
                     .append(Component.text("] "))
                     .append(Component.text(player.name).color(game.teamManager.getPlayerTeam(player.uniqueId).textColor))
-                    .append(Component.text(" was unfrozen.", NamedTextColor.RED)))
-            freezer.playSound(freezer.location, Sounds.Score.UNDO_ELIMINATION, 1f, 0f)
+                    .append(Component.text(" was unfrozen.")),
+                player,
+                game.teamManager.getPlayerTeam(player.uniqueId)
+            )
+
+            if(freezer != null) {
+                game.scoreManager.modifyScore(25, ScoreModificationMode.SUB, game.teamManager.getPlayerTeam(freezer.uniqueId))
+                freezer.sendMessage(
+                    Component.text("[")
+                        .append(Component.text("-25"))
+                        .append(Component.text(" coins", NamedTextColor.GOLD))
+                        .append(Component.text("] ", NamedTextColor.WHITE))
+                        .append(Component.text("["))
+                        .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                        .append(Component.text("] "))
+                        .append(Component.text(player.name).color(game.teamManager.getPlayerTeam(player.uniqueId).textColor))
+                        .append(Component.text(" was unfrozen.", NamedTextColor.RED)))
+                freezer.playSound(freezer.location, Sounds.Score.UNDO_ELIMINATION, 1f, 0f)
+            }
         }
         if(!forcefullyThawed) {
             game.freezeManager.unfreezePlayer(player)
@@ -98,13 +117,15 @@ class FreezeTask(private val game : Game) {
     }
 
     fun cancelFreezeLoop(player : Player) {
-        freezeLoopMap.remove(player.uniqueId)?.cancel()
         game.freezeManager.setFrozenBlocks(player, Material.AIR)
-        game.freezeManager.getFrozenPlayers().remove(player.uniqueId)
         game.playerManager.clearKit(player)
-        stopFrostVignetteTask(player)
-        game.freezeManager.resetFrostVignette(player)
-        player.gameMode = GameMode.SPECTATOR
+        stopResetFrostVignetteTask(player)
+        stopFreezeLoop(player, null, true)
+        game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ELIMINATED)
+    }
+
+    fun getHeatingList() : ArrayList<UUID> {
+        return isHeatingList
     }
 
     fun startFrostVignetteTask(player : Player) {
@@ -113,7 +134,7 @@ class FreezeTask(private val game : Game) {
             override fun run() {
                 player.freezeTicks = freezeTicks
                 freezeTicks += 2
-                if(freezeTicks >= 200 || !game.freezeManager.isFrozen(player)) {
+                if(freezeTicks >= 200 || !game.eliminationManager.isFrozen(player)) {
                     player.freezeTicks = Int.MAX_VALUE
                     stopFrostVignetteTask(player)
                 }
@@ -125,5 +146,10 @@ class FreezeTask(private val game : Game) {
 
     fun stopFrostVignetteTask(player : Player) {
         frostVignetteTaskMap[player.uniqueId]?.cancel()
+    }
+
+    private fun stopResetFrostVignetteTask(player : Player) {
+        frostVignetteTaskMap[player.uniqueId]?.cancel()
+        player.freezeTicks = 0
     }
 }

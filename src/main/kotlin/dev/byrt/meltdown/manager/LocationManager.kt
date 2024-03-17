@@ -1,6 +1,5 @@
 package dev.byrt.meltdown.manager
 
-import dev.byrt.meltdown.data.Entrance
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Teams
 
@@ -43,54 +42,6 @@ class LocationManager(private val game : Game) {
         /*blueSpawns.add(Location(world, -2133.5, 70.0, -2001.5, -90.0f, 0.0f))
         blueSpawns.add(Location(world, -2133.5, 70.0, -1999.5, -90.0f, 0.0f))
         blueSpawns.add(Location(world, -2132.5, 70.0, -1998.5, -90.0f, 0.0f))*/
-    }
-
-    fun populateEntrances() {
-        game.plugin.logger.info("Populating entrances..")
-        /**Red entrance**/
-        game.entranceManager.addEntrance(Entrance(
-            game.entranceManager.incrementEntranceId(),
-            Teams.RED, world,
-            -2002, -1998,
-            70,
-            -2129, -2129,
-            Location(world, -2002.0, 70.0, -2129.0),
-            Location(world, -1998.0, 73.0, -2129.0)
-            )
-        )
-        /**Yellow entrance**/
-        game.entranceManager.addEntrance(Entrance(
-            game.entranceManager.incrementEntranceId(),
-            Teams.YELLOW, world,
-            -1871, -1871,
-            70,
-            -2002, -1998,
-            Location(world, -1871.0, 70.0, -2002.0),
-            Location(world, -1871.0, 73.0, -1998.0)
-            )
-        )
-        /**Lime entrance**/
-        game.entranceManager.addEntrance(Entrance(
-            game.entranceManager.incrementEntranceId(),
-            Teams.LIME, world,
-            -2002, -1998,
-            70,
-            -1871, -1871,
-            Location(world, -2002.0, 70.0, -1871.0),
-            Location(world, -1998.0, 73.0, -1871.0)
-            )
-        )
-        /**Blue entrance**/
-        game.entranceManager.addEntrance(Entrance(
-            game.entranceManager.incrementEntranceId(),
-            Teams.BLUE, world,
-            -2129, -2129,
-            70,
-            -2002, -1998,
-            Location(world, -2129.0, 70.0, -2002.0),
-            Location(world, -2129.0, 73.0, -1998.0)
-            )
-        )
     }
 
     fun incrementSpawnCounter(team : Teams) {

@@ -66,6 +66,15 @@ class DebugCommands : BaseCommand {
     @CommandDescription("Debug command to get data.")
     @CommandPermission("meltdown.debug")
     fun debugFrozenData(sender : Player) {
-        sender.sendMessage(Component.text("Frozen Players\n${Main.getGame().freezeManager.getFrozenPlayers()}", NamedTextColor.YELLOW))
+        sender.sendMessage(Component.text("Frozen Players\n${Main.getGame().eliminationManager.getFrozenPlayers()}", NamedTextColor.YELLOW))
+    }
+
+    @CommandMethod("debug data lifestates")
+    @CommandDescription("Debug command to get data.")
+    @CommandPermission("meltdown.debug")
+    fun debugLifestateData(sender : Player) {
+        sender.sendMessage(Component.text("Players Alive:\n${Main.getGame().eliminationManager.getAlivePlayers()}\nTeams Alive:\n${Main.getGame().eliminationManager.getAliveTeams()}", NamedTextColor.GREEN))
+        sender.sendMessage(Component.text("Players Frozen:\n${Main.getGame().eliminationManager.getFrozenPlayers()}", NamedTextColor.AQUA))
+        sender.sendMessage(Component.text("Players Eliminated:\n${Main.getGame().eliminationManager.getEliminatedPlayers()}\nTeams Eliminated:\n${Main.getGame().eliminationManager.getEliminatedTeams()}", NamedTextColor.RED))
     }
 }

@@ -31,26 +31,27 @@ class PlayerInteractionsEvent : Listener {
                 e.player.inventory.itemInMainHand.type == Material.NETHERITE_SHOVEL
                 && e.player.gameMode == GameMode.SURVIVAL &&
                 !e.player.hasCooldown(Material.NETHERITE_SHOVEL) &&
-                !Main.getGame().freezeManager.isFrozen(e.player) &&
+                !Main.getGame().eliminationManager.isFrozen(e.player) &&
                 Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
                     Main.getGame().heaterManager.placeHeater(Location(e.clickedBlock?.world, e.clickedBlock?.location!!.x, e.clickedBlock?.location!!.y + 1, e.clickedBlock?.location!!.z),e.player)
             }
-            if(e.action == Action.LEFT_CLICK_BLOCK && e.clickedBlock?.type == Material.NETHERITE_BLOCK && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().freezeManager.isFrozen(e.player) && Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
-            val clickedBlock = e.clickedBlock as Block
-            for (heater in Main.getGame().heaterManager.getHeaterList()) {
-                if (heater.location == clickedBlock.location && Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId) != heater.team) {
-                    Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
-                } else if ((heater.location == clickedBlock.location && heater.owner == e.player.uniqueId)) {
-                    Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.SELF)
-                } else {
-                        e.isCancelled = true
+            if(e.action == Action.LEFT_CLICK_BLOCK && e.clickedBlock?.type == Material.NETHERITE_BLOCK && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().eliminationManager.isFrozen(e.player) && Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
+                val clickedBlock = e.clickedBlock as Block
+
+                for(heater in Main.getGame().heaterManager.getHeaterList()) {
+                    if(heater.location == clickedBlock.location && Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId) != heater.team) {
+                        Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
+                    } else if ((heater.location == clickedBlock.location && heater.owner == e.player.uniqueId)) {
+                        Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.SELF)
+                    } else {
+                            e.isCancelled = true
                     }
                 }
             }
-            if (e.action.isRightClick && e.player.gameMode == GameMode.SURVIVAL && e.player.inventory.itemInMainHand.type == Material.GRAY_DYE && !e.player.hasCooldown(Material.GRAY_DYE) && (Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME)) {
+            if(e.action.isRightClick && e.player.gameMode == GameMode.SURVIVAL && e.player.inventory.itemInMainHand.type == Material.GRAY_DYE && !e.player.hasCooldown(Material.GRAY_DYE) && (Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME)) {
                 Main.getGame().sharedItemManager.setTeamTelepickaxeOwner(e.player, Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId), false)
             }
-            if (e.action.isRightClick
+            if(e.action.isRightClick
                 && e.clickedBlock?.blockData is Openable
                 || e.clickedBlock?.blockData is Directional
                 || e.clickedBlock?.blockData is Orientable
@@ -62,7 +63,7 @@ class PlayerInteractionsEvent : Listener {
                 e.isCancelled = true
             }
         } else {
-            if (Main.getGame().gameManager.getGameState() == GameState.IDLE && e.action.isRightClick && e.player.inventory.itemInMainHand.type == Material.RED_DYE) {
+            if(Main.getGame().gameManager.getGameState() == GameState.IDLE && e.action.isRightClick && e.player.inventory.itemInMainHand.type == Material.RED_DYE) {
                 Main.getGame().queue.leaveQueue(e.player)
                 e.isCancelled = true
             } else {

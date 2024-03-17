@@ -7,6 +7,7 @@ import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
 
 import org.bukkit.*
+import org.bukkit.block.BlockFace
 import org.bukkit.scheduler.BukkitRunnable
 
 import kotlin.math.cos
@@ -22,6 +23,9 @@ class HeaterTask(private val game : Game) {
             override fun run() {
                 if(heaterAliveTicks % 10 == 0) {
                     heaterParticleCircle(heater.location, heater.team)
+                    if(heater.location.block.getRelative(BlockFace.DOWN).type == Material.AIR) {
+                        stopHeaterLoop(heater, HeaterBreakReason.EXPIRED)
+                    }
                 }
                 if(heaterAliveTicks >= 20) {
                     heater.location.world.playSound(heater.location, Sounds.Heater.HEATER_LOOP, 1f, 2f)
@@ -60,7 +64,7 @@ class HeaterTask(private val game : Game) {
                         location.y + 0.25,
                         location.z + z + 0.5,
                         1,
-                        Particle.DustOptions(game.teamManager.getTeamColor(team), 1.25f)
+                        Particle.DustOptions(team.color, 1.25f)
                     )
                     if(i == 20) {
                         cancel()

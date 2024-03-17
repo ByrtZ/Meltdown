@@ -18,6 +18,7 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("cloud.commandframework:cloud-paper:1.8.4")
     implementation("cloud.commandframework:cloud-annotations:1.8.4")
+    implementation("io.github.skytasul:glowingentities:1.3.2")
 }
 
 java {

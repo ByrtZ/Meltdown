@@ -14,7 +14,7 @@ class PlayerShootBowEvent : Listener {
     @EventHandler
     private fun onBowShoot(e : EntityShootBowEvent) {
         if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
-            if(e.entity is Player && !Main.getGame().freezeManager.isFrozen(e.entity as Player)) {
+            if(e.entity is Player && !Main.getGame().eliminationManager.isFrozen(e.entity as Player)) {
                 val player = e.entity as Player
                 player.world.playSound(player.location, Sounds.Bow.FROST_BOW_SHOOT, 1.0f, 1.0f)
             } else {

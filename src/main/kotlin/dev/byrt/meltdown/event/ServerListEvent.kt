@@ -13,6 +13,6 @@ class ServerListEvent : Listener {
     private fun onServerListPing(e : PaperServerListPingEvent) {
         e.setHidePlayers(false)
         e.version = "Byrtrium v1"
-        e.motd(Component.text("§4■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§6§l Byrt's Server§r§4 ■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§r\n§8v1.0.0§f ● §b§lMeltdown§f ●§e It's gaming time."))
+        e.motd(Component.text("§4■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§6§l Byrt's Server§r§4 ■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§c■§4■§r\n§8v1.0.0§f ● §b§lMeltdown§f ●§e Hey you, FREEZE!"))
     }
 }

@@ -16,7 +16,7 @@ data class Heater(val id : Int, val owner : UUID, val location : Location, val t
 
 enum class HeaterBreakReason(val reasonName : String, val reason : Component) {
     SELF("Self", Component.text("[").append(Component.text("▶").color(NamedTextColor.YELLOW)).append(Component.text("] ").append(Component.text("You retrieved your heater.", NamedTextColor.WHITE)))),
-    NOT_IN_GAME("Not in game", Component.text("[").append(Component.text("▶").color(NamedTextColor.YELLOW)).append(Component.text("] ").append(Component.text("Your heater returned itself to you using dark magic!", NamedTextColor.LIGHT_PURPLE)))),
+    NOT_IN_GAME("Not in game", Component.text("[").append(Component.text("▶").color(NamedTextColor.YELLOW)).append(Component.text("] ").append(Component.text("Your heater returned itself to you using dark magic.", NamedTextColor.LIGHT_PURPLE)))),
     EXPIRED("Expired", Component.text("[").append(Component.text("▶").color(NamedTextColor.YELLOW)).append(Component.text("] ").append(Component.text("Your heater has expired.", NamedTextColor.RED)))),
     ENEMY("Enemy", Component.text("[").append(Component.text("▶").color(NamedTextColor.YELLOW)).append(Component.text("] ").append(Component.text("Your heater was broken by an enemy.", NamedTextColor.RED)))),
     DEATH("Death", Component.text("[").append(Component.text("▶").color(NamedTextColor.YELLOW)).append(Component.text("] ").append(Component.text("Your heater was sad that you died, so it did too.", NamedTextColor.RED))))

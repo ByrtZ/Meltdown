@@ -23,20 +23,16 @@ class GameTask(private var game : Game) {
     private var gameRunnableList = mutableMapOf<Int, BukkitRunnable>()
     private var currentGameTaskId = 0
     private var timeLeft = 0
-    private var previousTimeLeft = 0
-    private var displayTime: String = "00:00"
-    private var previousDisplayTime: String = "00:00"
+    private var displayTime = "00:00"
 
     fun gameLoop() {
         val gameRunnable = object : BukkitRunnable() {
             override fun run() {
-                // Formatting variables
-                previousTimeLeft = timeLeft + 1
+                // Formatted time remaining as mm:ss
                 displayTime = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60)
-                previousDisplayTime = String.format("%02d:%02d", previousTimeLeft / 60, previousTimeLeft % 60)
 
                 // Update scoreboard timer
-                game.infoBoardManager.updateScoreboardTimer(displayTime, previousDisplayTime, game.gameManager.getGameState())
+                game.infoBoardManager.updateTimer()
 
                 // Game/round starting front end
                 if(game.gameManager.getGameState() == GameState.STARTING && game.timerManager.getTimerState() == TimerState.ACTIVE) {
@@ -208,10 +204,10 @@ class GameTask(private var game : Game) {
         gameRunnableList.remove(currentGameTaskId)?.cancel()
     }
 
-    fun setTimeLeft(setTimeLeft: Int, sender : Player?) {
-        val setTimerTimeLeft = String.format("%02d:%02d", setTimeLeft / 60, setTimeLeft % 60)
-        game.infoBoardManager.updateScoreboardTimer(setTimerTimeLeft, displayTime, game.gameManager.getGameState())
+    fun setTimeLeft(setTimeLeft : Int, sender : Player?) {
         timeLeft = setTimeLeft
+        displayTime = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60)
+        game.infoBoardManager.updateTimer()
         if(sender != null) {
             game.dev.parseDevMessage("Timer updated to $timeLeft seconds by ${sender.name}.", DevStatus.INFO)
         } else {
@@ -219,10 +215,16 @@ class GameTask(private var game : Game) {
         }
     }
 
+    fun getTimeLeft() : Int {
+        return timeLeft
+    }
+
+    fun getDisplayTimeLeft() : String {
+        return displayTime
+    }
+
     fun resetVars() {
         timeLeft = 0
-        previousTimeLeft = 0
         displayTime = "00:00"
-        previousDisplayTime = "00:00"
     }
 }

@@ -1,5 +1,6 @@
 package dev.byrt.meltdown.manager
 
+import dev.byrt.meltdown.data.CoinCrateLocation
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
@@ -80,31 +81,13 @@ class BlockManager(private val game : Game) {
     }
 
     fun setCoinCrates(material : Material) {
-        for(x in -1948..-1946) {
-            for(y in 70..71) {
-                for(z in -2053..-2051) {
-                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
-                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
-                    }
-                }
-            }
-        }
-
-        for(x in -2054..-2052) {
-            for(y in 70..71) {
-                for(z in -1949..-1947) {
-                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
-                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
-                    }
-                }
-            }
-        }
-
-        for(x in -2001..-1999) {
-            for(y in 70..71) {
-                for(z in -2001..-1999) {
-                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
-                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+        for(coinCrate in game.coinCrateManager.getCoinCrates()) {
+            for(x in coinCrate.corner1.blockX..coinCrate.corner2.blockX) {
+                for(y in coinCrate.corner1.blockY..coinCrate.corner2.blockY) {
+                    for(z in coinCrate.corner1.blockZ..coinCrate.corner2.blockZ) {
+                        if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR) {
+                            game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                        }
                     }
                 }
             }
@@ -112,20 +95,15 @@ class BlockManager(private val game : Game) {
     }
 
     fun setCoinCratesBarriers(material : Material) {
-        for(x in -1949..-1945) {
-            for(y in 70..72) {
-                for(z in -2054..-2050) {
-                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
-                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
-                    }
-                }
-            }
-        }
-        for(x in -2055..-2051) {
-            for(y in 70..72) {
-                for(z in -1950..-1946) {
-                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
-                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+        for(coinCrateBarrier in game.coinCrateManager.getCoinCrateBarriers()) {
+            if(coinCrateBarrier.coinCrateLocation == CoinCrateLocation.CORNER) {
+                for(x in coinCrateBarrier.corner1.blockX..coinCrateBarrier.corner2.blockX) {
+                    for(y in coinCrateBarrier.corner1.blockY..coinCrateBarrier.corner2.blockY) {
+                        for(z in coinCrateBarrier.corner1.blockZ..coinCrateBarrier.corner2.blockZ) {
+                            if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
+                                game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                            }
+                        }
                     }
                 }
             }
@@ -145,11 +123,15 @@ class BlockManager(private val game : Game) {
     }
 
     fun setCentreCoinCrateBarriers(material : Material) {
-        for(x in -2002..-1998) {
-            for(y in 70..72) {
-                for(z in -2002..-1998) {
-                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
-                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+        for(coinCrateBarrier in game.coinCrateManager.getCoinCrateBarriers()) {
+            if(coinCrateBarrier.coinCrateLocation == CoinCrateLocation.CENTRE) {
+                for(x in coinCrateBarrier.corner1.blockX..coinCrateBarrier.corner2.blockX) {
+                    for(y in coinCrateBarrier.corner1.blockY..coinCrateBarrier.corner2.blockY) {
+                        for(z in coinCrateBarrier.corner1.blockZ..coinCrateBarrier.corner2.blockZ) {
+                            if(game.locationManager.getWorld().getBlockAt(x, y, z).type != Material.RAW_GOLD_BLOCK) {
+                                game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                            }
+                        }
                     }
                 }
             }
