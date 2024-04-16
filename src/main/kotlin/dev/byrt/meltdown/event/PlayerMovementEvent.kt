@@ -28,6 +28,7 @@ class PlayerMovementEvent : Listener {
                 e.to = to
             }
             if(e.player.location.block.type == Material.LAVA && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().teamManager.isSpectator(e.player.uniqueId)) {
+                Main.getGame().eliminationManager.changePlayerLifeState(e.player, PlayerLifeState.ELIMINATED)
                 e.player.playSound(e.player.location, Sounds.Score.FALL_INTO_LAVA, 1f, 1f)
                 for(player in Bukkit.getOnlinePlayers()) {
                     player.sendMessage(
@@ -38,7 +39,6 @@ class PlayerMovementEvent : Listener {
                             .append(Component.text(" fell into molten lava!", NamedTextColor.WHITE))
                     )
                 }
-                Main.getGame().eliminationManager.changePlayerLifeState(e.player, PlayerLifeState.ELIMINATED)
             }
         }
     }

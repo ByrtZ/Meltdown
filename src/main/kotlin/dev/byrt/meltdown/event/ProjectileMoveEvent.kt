@@ -4,6 +4,7 @@ import dev.byrt.meltdown.Main
 import dev.byrt.meltdown.game.GameState
 
 import io.papermc.paper.event.entity.EntityMoveEvent
+import org.bukkit.Color
 
 import org.bukkit.Particle
 import org.bukkit.entity.Arrow
@@ -17,13 +18,12 @@ class ProjectileMoveEvent : Listener {
         if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
             if(e.entity is Arrow) {
                 val arrow = e.entity as Arrow
-                arrow.world.spawnParticle(
-                    Particle.SNOWFLAKE,
+                arrow.location.world.spawnParticle(
+                    Particle.REDSTONE,
                     arrow.location,
-                    10,
-                    0.25,
-                    0.25,
-                    0.25)
+                    1,
+                    Particle.DustOptions(Color.WHITE, 0.75f)
+                )
             }
         }
     }

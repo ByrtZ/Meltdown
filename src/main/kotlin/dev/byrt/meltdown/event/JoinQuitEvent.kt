@@ -39,7 +39,9 @@ class JoinQuitEvent : Listener {
         Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId).let { Main.getGame().teamManager.removeFromTeam(e.player, e.player.uniqueId, it)}
         Main.getGame().musicTask.stopMusicLoop(e.player, Music.NULL)
         Main.getGame().freezeTask.cancelFreezeLoop(e.player)
-        Main.getGame().eliminationManager.onPlayerQuit(e.player)
+        if(Main.getGame().gameManager.getGameState() != GameState.IDLE) {
+            Main.getGame().eliminationManager.onPlayerQuit(e.player)
+        }
         if(Main.getGame().queue.getQueue().contains(e.player.uniqueId)) {
             Main.getGame().queue.leaveQueue(e.player)
         }

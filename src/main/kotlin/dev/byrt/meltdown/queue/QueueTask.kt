@@ -49,8 +49,14 @@ class QueueTask(private val game : Game) {
                     }
                     if(queueTimerSeconds in 1..3){
                         game.queueVisuals.getQueueStatus().name(
-                            Component.text("Teleporting in $queueTimerSeconds!").color(
-                                TextColor.fromHexString("#ffff00")))
+                            Component.text("Teleporting ").color(TextColor.fromHexString("#ffff00")).decoration(
+                                        TextDecoration.BOLD, false)
+                                .append(
+                                    Component.text("(${game.queue.getQueue().size}/${game.queue.getMaxPlayers()}) ", NamedTextColor.WHITE).decoration(
+                                        TextDecoration.BOLD, false))
+                                .append(
+                                    Component.text("in $queueTimerSeconds!").color(TextColor.fromHexString("#ffff00")).decoration(
+                                        TextDecoration.BOLD, false)))
                         game.queueVisuals.removeQueueItemFromQueuers()
                     }
                     if(queueTimerSeconds == 0) {

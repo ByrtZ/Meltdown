@@ -1,14 +1,16 @@
 package dev.byrt.meltdown.manager
 
 import dev.byrt.meltdown.data.CoinCrateLocation
+import dev.byrt.meltdown.data.Door
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
+
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import org.bukkit.Bukkit
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -146,6 +148,63 @@ class BlockManager(private val game : Game) {
                         .append(Component.text("Central coin crate is now accessible!", NamedTextColor.AQUA, TextDecoration.BOLD)
                     )
                 )
+            }
+        }
+    }
+
+    fun doorCloseStageOne(door : Door, material : Material) {
+        for(x in door.corner2.blockX.downTo(door.corner1.blockX)) {
+            for(z in door.corner2.blockZ.downTo(door.corner1.blockZ)) {
+                if(game.locationManager.getWorld().getBlockAt(x, door.corner2.blockY, z).type == Material.AIR || game.locationManager.getWorld().getBlockAt(x, door.corner2.blockY, z).type == Material.LIGHT_BLUE_STAINED_GLASS) {
+                    game.locationManager.getWorld().getBlockAt(x, door.corner2.blockY, z).type = material
+                }
+            }
+        }
+    }
+
+    fun doorCloseStageTwo(door : Door, material : Material) {
+        for(x in door.corner2.blockX.downTo(door.corner1.blockX)) {
+            for(z in door.corner2.blockZ.downTo(door.corner1.blockZ)) {
+                if(game.locationManager.getWorld().getBlockAt(x, door.corner2.blockY - 1, z).type == Material.AIR || game.locationManager.getWorld().getBlockAt(x, door.corner2.blockY - 1, z).type == Material.LIGHT_BLUE_STAINED_GLASS) {
+                    game.locationManager.getWorld().getBlockAt(x, door.corner2.blockY - 1, z).type = material
+                }
+            }
+        }
+    }
+
+    fun doorCloseStageThree(door : Door, material : Material) {
+        for(x in door.corner2.blockX.downTo(door.corner1.blockX)) {
+            for(y in (door.corner2.blockY - 2).downTo(door.corner2.blockY - 3)) {
+                for(z in door.corner2.blockZ.downTo(door.corner1.blockZ)) {
+                    if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR  || game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.LIGHT_BLUE_STAINED_GLASS) {
+                        game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                    }
+                }
+            }
+        }
+    }
+
+    fun setDoor(door : Door, material : Material) {
+        if(material != Material.AIR) {
+            for(x in door.corner1.blockX..door.corner2.blockX) {
+                for(y in door.corner1.blockY..door.corner2.blockY) {
+                    for(z in door.corner1.blockZ..door.corner2.blockZ) {
+                        if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.AIR || game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.NETHERITE_BLOCK || game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.QUARTZ_PILLAR || game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.LIGHT_BLUE_STAINED_GLASS) {
+                            game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                        }
+                    }
+                }
+            }
+        }
+        if(material == Material.AIR) {
+            for(x in door.corner1.blockX..door.corner2.blockX) {
+                for(y in door.corner1.blockY..door.corner2.blockY) {
+                    for(z in door.corner1.blockZ..door.corner2.blockZ) {
+                        if(game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.NETHERITE_BLOCK || game.locationManager.getWorld().getBlockAt(x, y, z).type == Material.QUARTZ_PILLAR) {
+                            game.locationManager.getWorld().getBlockAt(x, y, z).type = material
+                        }
+                    }
+                }
             }
         }
     }

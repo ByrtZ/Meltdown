@@ -6,8 +6,14 @@ data class Door(val id : Int, val corner1 : Location, val corner2 : Location, va
 
 enum class DoorType {
     CENTRE,
-    DIVIDER,
-    GENERIC
+    CORNER_NW,
+    COIN_CORNER_NE,
+    CORNER_SE,
+    COIN_CORNER_SW,
+    SPAWN_RED,
+    SPAWN_YELLOW,
+    SPAWN_LIME,
+    SPAWN_BLUE
 }
 
 enum class DoorStatus {

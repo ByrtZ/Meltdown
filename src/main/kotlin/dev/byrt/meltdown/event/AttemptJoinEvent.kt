@@ -1,6 +1,7 @@
 package dev.byrt.meltdown.event
 
 import dev.byrt.meltdown.Main
+import dev.byrt.meltdown.manager.WhitelistGroup
 import dev.byrt.meltdown.util.DevStatus
 
 import org.bukkit.Bukkit
@@ -12,9 +13,11 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 class AttemptJoinEvent : Listener {
     @EventHandler
     private fun onAttemptLogin(e : AsyncPlayerPreLoginEvent) {
-        if(!Bukkit.getWhitelistedPlayers().contains(Bukkit.getOfflinePlayer(e.uniqueId))) {
-            Main.getGame().dev.parseDevMessage("Player '${e.name}' (${e.uniqueId}) attempted to join but is not whitelisted.", DevStatus.SEVERE)
-            Main.getGame().dev.parseTempWhitelistPrompt(e.name)
+        if(Main.getGame().whitelistManager.getWhitelistedGroup() != WhitelistGroup.OFF) {
+            if(!Bukkit.getWhitelistedPlayers().contains(Bukkit.getOfflinePlayer(e.uniqueId))) {
+                Main.getGame().dev.parseDevMessage("Player '${e.name}' (${e.uniqueId}) attempted to join but is not whitelisted.", DevStatus.SEVERE)
+                Main.getGame().dev.parseTempWhitelistPrompt(e.name)
+            }
         }
     }
 }

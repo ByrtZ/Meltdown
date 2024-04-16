@@ -3,6 +3,7 @@ package dev.byrt.meltdown.manager
 import dev.byrt.meltdown.game.Game
 import dev.byrt.meltdown.game.GameState
 import dev.byrt.meltdown.state.RoundState
+import io.papermc.paper.scoreboard.numbers.NumberFormat
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -41,9 +42,10 @@ class InfoBoardManager(private val game : Game) {
     fun buildScoreboard() {
         game.plugin.logger.info("Building scoreboard...")
         objective.displaySlot = DisplaySlot.SIDEBAR
+        objective.numberFormat(NumberFormat.blank())
 
         // Static game text
-        objective.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game: " + ChatColor.RESET + "Meltdown").score = 9
+        objective.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Game: " + ChatColor.RESET + "Meltdown").score = 10
 
         // Static map text
         objective.getScore(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "Map: " + ChatColor.RESET + "Laboratory").score = 9

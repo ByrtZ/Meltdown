@@ -22,7 +22,7 @@ class TeamEliminatedTask(private val game : Game) {
         val eliminateTeamRunnable = object : BukkitRunnable() {
             var eliminatedTaskTimer = timer
             override fun run() {
-                if(eliminatedTaskTimer == 4) {
+                if(eliminatedTaskTimer == 4 * 20) {
                     for(player in teamPlayers) {
                         player.showTitle(Title.title(
                             Component.text("TEAM FROZEN", NamedTextColor.RED, TextDecoration.BOLD),
@@ -57,7 +57,7 @@ class TeamEliminatedTask(private val game : Game) {
                 eliminatedTaskTimer--
             }
         }
-        eliminateTeamRunnable.runTaskTimer(game.plugin, 0L, 20L)
+        eliminateTeamRunnable.runTaskTimer(game.plugin, 0L, 1L)
         eliminateTeamTasks[team] = eliminateTeamRunnable
     }
 

@@ -17,6 +17,7 @@ class EliminationManager(private val game : Game) {
     private var eliminatedTeams = ArrayList<Teams>()
 
     fun changePlayerLifeState(player : Player, lifeState : PlayerLifeState) {
+       if(game.teamManager.isSpectator(player.uniqueId)) return
        when(lifeState) {
            PlayerLifeState.ALIVE -> {
                if(alivePlayers.contains(player.uniqueId)) return
@@ -41,6 +42,7 @@ class EliminationManager(private val game : Game) {
     }
 
     fun changeTeamLifeState(team : Teams, lifeState : TeamLifeState) {
+        if(team == Teams.SPECTATOR) return
         when(lifeState) {
             TeamLifeState.ALIVE -> {
                 if(!eliminatedTeams.contains(team) && aliveTeams.contains(team)) return
@@ -51,16 +53,18 @@ class EliminationManager(private val game : Game) {
                 if(eliminatedTeams.contains(team) && !aliveTeams.contains(team)) return
                 aliveTeams.remove(team)
                 eliminatedTeams.add(team)
-                eliminateTeam(team, if(game.gameTask.getTimeLeft() < 10) TeamEliminationType.INSTANT else TeamEliminationType.FROZEN)
+                eliminateTeam(team, if(game.gameTask.getTimeLeft() < 10 || !getFullTeamStatus(team).containsValue(PlayerLifeState.FROZEN)) TeamEliminationType.INSTANT else TeamEliminationType.FROZEN)
             }
         }
     }
 
     fun onPlayerQuit(player : Player) {
-        alivePlayers.remove(player.uniqueId)
-        frozenPlayers.remove(player.uniqueId)
-        eliminatedPlayers.remove(player.uniqueId)
-        eliminatePlayer(player)
+        if(!game.teamManager.isSpectator(player.uniqueId)) {
+            alivePlayers.remove(player.uniqueId)
+            frozenPlayers.remove(player.uniqueId)
+            eliminatedPlayers.remove(player.uniqueId)
+            eliminatePlayer(player)
+        }
     }
 
     private fun eliminatePlayer(player : Player) {
@@ -83,7 +87,7 @@ class EliminationManager(private val game : Game) {
             val teamStatus = getFullTeamStatus(team)
             val canBeEliminatedList = ArrayList<Boolean>()
             for(teamMateStatus in teamStatus) {
-                if(teamMateStatus.value != PlayerLifeState.ALIVE && (teamMateStatus.value == PlayerLifeState.FROZEN || teamMateStatus.value != PlayerLifeState.ELIMINATED) && !game.freezeTask.getHeatingList().contains(teamMateStatus.key.uniqueId)) {
+                if(teamMateStatus.value != PlayerLifeState.ALIVE && (teamMateStatus.value == PlayerLifeState.FROZEN || teamMateStatus.value == PlayerLifeState.ELIMINATED) && !game.freezeTask.getHeatingList().contains(teamMateStatus.key.uniqueId)) {
                     canBeEliminatedList.add(true)
                 } else {
                     canBeEliminatedList.add(false)
@@ -110,7 +114,7 @@ class EliminationManager(private val game : Game) {
         if(alivePlayers.contains(player.uniqueId)) return PlayerLifeState.ALIVE
         if(frozenPlayers.contains(player.uniqueId)) return PlayerLifeState.FROZEN
         if(eliminatedPlayers.contains(player.uniqueId)) return PlayerLifeState.ELIMINATED
-        return PlayerLifeState.ELIMINATED // Return if non-existant
+        return PlayerLifeState.ELIMINATED // Return if non-existent
     }
 
     fun getFrozenPlayers() : ArrayList<UUID> {

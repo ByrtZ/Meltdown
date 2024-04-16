@@ -171,6 +171,12 @@ class TeamManager(private val game : Game) {
         }
     }
 
+    fun sendGlobalMessage(component : Component) {
+        for(player in Bukkit.getOnlinePlayers()) {
+            player.sendMessage(component)
+        }
+    }
+
     fun sendTeamMessage(component : Component, team : Teams) {
         for(player in getTeamPlayers(team)) {
             player.sendMessage(component)
@@ -223,6 +229,26 @@ class TeamManager(private val game : Game) {
         if(limeTeam.isNotEmpty()) activeTeams.add(Teams.LIME)
         if(blueTeam.isNotEmpty()) activeTeams.add(Teams.BLUE)
         return activeTeams
+    }
+
+    fun isTeamActive(team : Teams) : Boolean {
+        return when(team) {
+            Teams.RED -> {
+                redTeam.size > 0
+            }
+            Teams.YELLOW -> {
+                yellowTeam.size > 0
+            }
+            Teams.LIME -> {
+                limeTeam.size > 0
+            }
+            Teams.BLUE -> {
+                blueTeam.size > 0
+            }
+            Teams.SPECTATOR -> {
+                false
+            }
+        }
     }
 
     fun getPlayerTeam(uuid : UUID): Teams {

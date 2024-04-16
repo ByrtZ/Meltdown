@@ -20,7 +20,6 @@ import org.bukkit.entity.Player
 @Suppress("unused")
 class Announce : BaseCommand {
     private val mm = MiniMessage.miniMessage()
-
     @CommandMethod("announce <text>")
     @CommandDescription("Puts a formatted announcement message in chat.")
     @CommandPermission("meltdown.announce")
@@ -29,14 +28,14 @@ class Announce : BaseCommand {
         val rawAnnounceMessage = text.joinToString(" ")
         for(player in Bukkit.getServer().onlinePlayers) {
             player.playSound(player.location, Sounds.Alert.GENERAL_ALERT, 1.0f, 1.0f)
-            player.sendMessage(Component.text("\n-----------------------------------------------------\n\n", NamedTextColor.GREEN, TextDecoration.STRIKETHROUGH))
+            player.sendMessage(Component.text("\n---------------------------------------------------\n\n", NamedTextColor.GREEN, TextDecoration.STRIKETHROUGH))
             player.sendMessage(
                 Component.text("[", NamedTextColor.WHITE).decoration(TextDecoration.STRIKETHROUGH, false)
                     .append(Component.text("▶").color(NamedTextColor.YELLOW))
                     .append(Component.text("] ", NamedTextColor.WHITE))
                     .append(mm.deserialize(rawAnnounceMessage))
             )
-            player.sendMessage(Component.text("\n\n-----------------------------------------------------\n", NamedTextColor.GREEN, TextDecoration.STRIKETHROUGH))
+            player.sendMessage(Component.text("\n\n---------------------------------------------------\n", NamedTextColor.GREEN, TextDecoration.STRIKETHROUGH))
         }
     }
 }

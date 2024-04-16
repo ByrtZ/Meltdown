@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityExplodeEvent
 @Suppress("unused")
 class ExplosionEvent : Listener {
     @EventHandler
-    private fun onTNTExplode(e : EntityExplodeEvent) {
+    private fun onExplosion(e : EntityExplodeEvent) {
         e.blockList().clear()
     }
 }

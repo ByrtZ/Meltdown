@@ -2,6 +2,7 @@ package dev.byrt.meltdown.game
 
 import dev.byrt.meltdown.Main
 import dev.byrt.meltdown.arena.*
+import dev.byrt.meltdown.lobby.*
 import dev.byrt.meltdown.manager.*
 import dev.byrt.meltdown.state.*
 import dev.byrt.meltdown.util.*
@@ -30,6 +31,9 @@ class Game(val plugin : Main) {
     val blockManager = BlockManager(this)
     val entranceManager = EntranceManager(this)
     val coinCrateManager = CoinCrateManager(this)
+    val doorManager = DoorManager(this)
+    val roomManager = RoomManager(this)
+    val meltingManager = MeltingManager(this)
 
     val infoBoardManager = InfoBoardManager(this)
     val tabListManager = TabListManager(this)
@@ -48,12 +52,17 @@ class Game(val plugin : Main) {
     val heaterTask = HeaterTask(this)
     val freezeTask = FreezeTask(this)
     val eliminatedTask = TeamEliminatedTask(this)
+    val meltingRoomTask = MeltingRoomTask(this)
 
     val queue = Queue(this)
     val queueVisuals = QueueVisuals(this)
     val queueTask = QueueTask(this)
 
+    val admin = Admin(this)
     val dev = Dev(this)
+
+    val lobbyItems = LobbyItems(this)
+    val lobbySecret = LobbySecret(this)
 
     private var buildMode = false
 
@@ -81,18 +90,28 @@ class Game(val plugin : Main) {
         entranceManager.populateEntrances()
         coinCrateManager.populateCoinCrates()
         coinCrateManager.populateCoinCrateBarriers()
+        doorManager.populateDoors()
+        roomManager.populateRooms()
+        doorManager.resetDoors()
         queueVisuals.spawnQueueNPC()
     }
 
     fun cleanUp() {
-        entranceManager.resetEntrances()
-        queueVisuals.removeQueueNPC()
+        lobbySecret.reset()
+        admin.reset()
         teamManager.destroyDisplayTeams()
         infoBoardManager.destroyScoreboard()
+        entranceManager.resetEntrances()
+        queueVisuals.removeQueueNPC()
         configManager.saveWhitelistConfig()
     }
 
     fun reload() {
+        for(player in Bukkit.getOnlinePlayers()) {
+            if(teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
+                teamManager.disableTeamGlowing(player, teamManager.getPlayerTeam(player.uniqueId))
+            }
+        }
         gameManager.setGameState(GameState.IDLE)
         roundManager.setRoundState(RoundState.ONE)
         timerManager.setTimerState(TimerState.INACTIVE)
@@ -104,6 +123,7 @@ class Game(val plugin : Main) {
         infoBoardManager.updateStatus()
         infoBoardManager.updatePlacements()
         entranceManager.resetEntrances()
+        doorManager.resetDoors()
         eliminationManager.reset()
         teamManager.showDisplayTeamNames()
         sharedItemManager.clearTelepickaxeOwners()
@@ -112,13 +132,6 @@ class Game(val plugin : Main) {
         queueVisuals.setAllQueueInvisible()
         queue.setMaxPlayers(16)
         queue.setMinPlayers(8)
-
-        for(player in Bukkit.getOnlinePlayers()) {
-            if(teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
-                teamManager.disableTeamGlowing(player, teamManager.getPlayerTeam(player.uniqueId))
-            }
-        }
-
         for(player in Bukkit.getOnlinePlayers()) {
             player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(3), Duration.ofSeconds(1))))
             Main.getGame().teamManager.addToTeam(player, player.uniqueId, Teams.SPECTATOR)

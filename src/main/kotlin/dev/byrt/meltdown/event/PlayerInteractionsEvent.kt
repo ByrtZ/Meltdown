@@ -37,14 +37,15 @@ class PlayerInteractionsEvent : Listener {
             }
             if(e.action == Action.LEFT_CLICK_BLOCK && e.clickedBlock?.type == Material.NETHERITE_BLOCK && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().eliminationManager.isFrozen(e.player) && Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
                 val clickedBlock = e.clickedBlock as Block
-
-                for(heater in Main.getGame().heaterManager.getHeaterList()) {
-                    if(heater.location == clickedBlock.location && Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId) != heater.team) {
-                        Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
-                    } else if ((heater.location == clickedBlock.location && heater.owner == e.player.uniqueId)) {
-                        Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.SELF)
-                    } else {
+                if(Main.getGame().heaterManager.getHeaterList().isNotEmpty()) {
+                    for(heater in Main.getGame().heaterManager.getHeaterList()) {
+                        if(heater.location == clickedBlock.location && Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId) != heater.team) {
+                            Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
+                        } else if ((heater.location == clickedBlock.location && heater.owner == e.player.uniqueId)) {
+                            Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.SELF)
+                        } else {
                             e.isCancelled = true
+                        }
                     }
                 }
             }
@@ -66,7 +67,22 @@ class PlayerInteractionsEvent : Listener {
             if(Main.getGame().gameManager.getGameState() == GameState.IDLE && e.action.isRightClick && e.player.inventory.itemInMainHand.type == Material.RED_DYE) {
                 Main.getGame().queue.leaveQueue(e.player)
                 e.isCancelled = true
-            } else {
+            }
+            if(Main.getGame().gameManager.getGameState() == GameState.IDLE && e.action.isRightClick) {
+                if(e.player.inventory.itemInMainHand.type == Material.GOLDEN_HORSE_ARMOR) {
+                    Main.getGame().lobbyItems.useRocketLauncher(e.player)
+                    e.isCancelled = true
+                }
+                if(e.player.inventory.itemInMainHand.type == Material.BLAZE_ROD) {
+                    Main.getGame().lobbyItems.useLightningWand(e.player)
+                    e.isCancelled = true
+                }
+                if(e.player.inventory.itemInMainHand.type == Material.DIAMOND_SHOVEL) {
+                    Main.getGame().lobbyItems.useTeleportSpoon(e.player)
+                    e.isCancelled = true
+                }
+            }
+            if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
                 e.isCancelled = !(e.player.isOp && Main.getGame().getBuildMode())
             }
         }

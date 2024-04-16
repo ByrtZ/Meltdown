@@ -57,10 +57,16 @@ class Sounds {
         const val FROZEN_2 = "entity.generic.extinguish_fire"
         const val UNFREEZE = "block.lava.extinguish"
     }
+    object Melting {
+        const val BEGIN_MELTING = "item.trident.thunder"
+        const val MELTING_LOOP = "block.amethyst_block.resonate"
+    }
     object Score {
         const val ELIMINATION = "entity.player.levelup"
         const val UNDO_ELIMINATION = "entity.enderman.teleport"
         const val FALL_INTO_LAVA = "entity.player.hurt_on_fire"
+        const val SQUASHED_BY_DOOR = "entity.iron_golem.death"
+        const val MELTED_BY_MELTDOWN = "entity.blaze.death"
         const val TEAM_ELIMINATED = "block.beacon.deactivate"
         const val MINE_COIN_CRATE = "entity.experience_orb.pickup"
     }

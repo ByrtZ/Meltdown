@@ -118,6 +118,7 @@ class GameManager(private val game : Game) {
         game.playerManager.clearNonBootsItems()
         game.teamManager.hideDisplayTeamNames()
         game.entranceManager.resetEntrances()
+        game.doorManager.resetDoors()
         game.blockManager.setCoinCrates(Material.RAW_GOLD_BLOCK)
         game.blockManager.setCoinCratesBarriers(Material.BLUE_STAINED_GLASS)
         game.blockManager.setCentreCoinCrateBarriers(Material.BLUE_STAINED_GLASS)
@@ -254,6 +255,7 @@ class GameManager(private val game : Game) {
         const val OVERTIME_TIME = 30
     }
 }
+
 enum class GameState {
     IDLE,
     STARTING,

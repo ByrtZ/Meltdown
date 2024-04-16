@@ -80,6 +80,7 @@ class FreezeManager(private var game : Game) {
 
         game.itemManager.giveFrostBowItem(player)
         game.itemManager.giveFrostArrowItem(player)
+        game.itemManager.giveMapItem(player)
         if(!game.heaterManager.isHeaterActive(player)) {
             game.itemManager.giveHeaterItem(player)
         }
@@ -117,8 +118,10 @@ class FreezeManager(private var game : Game) {
     fun setFrozenBlocks(player : Player, material : Material) {
         val playerLoc = Location(player.world, player.location.blockX.toDouble(), player.location.blockY.toDouble(), player.location.blockZ.toDouble())
         val playerEyeLoc = Location(player.world, player.eyeLocation.blockX.toDouble(), player.eyeLocation.blockY.toDouble(), player.eyeLocation.blockZ.toDouble())
-        playerLoc.block.type = material
-        playerEyeLoc.block.type = material
+        if(material == Material.LIGHT_BLUE_STAINED_GLASS || material == Material.AIR && playerLoc.block.type == Material.LIGHT_BLUE_STAINED_GLASS && playerEyeLoc.block.type == Material.LIGHT_BLUE_STAINED_GLASS) {
+            playerLoc.block.type = material
+            playerEyeLoc.block.type = material
+        }
     }
 
     private fun resetFrostVignette(player : Player) {

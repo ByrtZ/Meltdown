@@ -31,7 +31,7 @@ class PlayerManager(private var game : Game) {
     private fun enableFlightPlayers(player: Player) {
         if(player.gameMode == GameMode.ADVENTURE || player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = true
-            player.velocity = Vector(0.0, 0.75, 0.0)
+            player.velocity = Vector(0.0, 1.25, 0.0)
             player.isFlying = true
         }
     }
@@ -56,6 +56,7 @@ class PlayerManager(private var game : Game) {
         player.inventory.remove(Material.ARROW)
         player.inventory.remove(Material.NETHERITE_PICKAXE)
         player.inventory.remove(Material.GRAY_DYE)
+        player.inventory.remove(Material.FILLED_MAP)
         player.inventory.setItemInOffHand(null)
     }
 

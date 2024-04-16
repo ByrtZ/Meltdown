@@ -32,28 +32,28 @@ class FreezeTask(private val game : Game) {
                     if(game.heaterTask.getHeaterLoopMap().isNotEmpty()) {
                         for((heater, _) in game.heaterTask.getHeaterLoopMap()) {
                             if(heater.team == team) {
-                                val distance = frozenLoc.distance(heater.location)
-                                if(distance <= Heater.HEATER_RADIUS) {
-                                    isHeatingList.add(player.uniqueId)
+                                val distance = frozenLoc.distanceSquared(heater.location)
+                                if(distance <= Heater.HEATER_RADIUS * Heater.HEATER_RADIUS) {
+                                    if(!isHeatingList.contains(player.uniqueId)) isHeatingList.add(player.uniqueId)
                                     game.eliminationManager.checkTeamStatus(team)
                                     break
                                 } else {
-                                    isHeatingList.remove(player.uniqueId)
+                                    if(isHeatingList.contains(player.uniqueId)) isHeatingList.remove(player.uniqueId)
                                     game.eliminationManager.checkTeamStatus(team)
                                 }
                             }
                         }
-
+                        if(!game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
+                            stopFreezeLoop(player, freezer, true)
+                        }
                         if(!isHeatingList.contains(player.uniqueId)) {
-                            isHeatingList.remove(player.uniqueId)
                             game.eliminationManager.checkTeamStatus(team)
                             player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                            if(thawTimer < 5) {
+                            if(thawTimer < 6) {
                                 thawTimer++
                             }
                         } else {
                             player.world.spawnParticle(Particle.FLAME, player.location, 10, 0.75, 0.75, 0.75, 0.1)
-                            isHeatingList.add(player.uniqueId)
                             if(thawTimer < 1) {
                                 player.sendActionBar(Component.text("You have been unfrozen!").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                                 game.eliminationManager.checkTeamStatus(team)
@@ -67,7 +67,7 @@ class FreezeTask(private val game : Game) {
                         player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                         isHeatingList.remove(player.uniqueId)
                         game.eliminationManager.checkTeamStatus(team)
-                        if(thawTimer < 5) {
+                        if(thawTimer < 6) {
                             thawTimer++
                         }
                         if(!game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {

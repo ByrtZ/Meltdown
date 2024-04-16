@@ -77,4 +77,25 @@ class DebugCommands : BaseCommand {
         sender.sendMessage(Component.text("Players Frozen:\n${Main.getGame().eliminationManager.getFrozenPlayers()}", NamedTextColor.AQUA))
         sender.sendMessage(Component.text("Players Eliminated:\n${Main.getGame().eliminationManager.getEliminatedPlayers()}\nTeams Eliminated:\n${Main.getGame().eliminationManager.getEliminatedTeams()}", NamedTextColor.RED))
     }
+
+    @CommandMethod("admin toggle_hud")
+    @CommandDescription("Admin command to show the debug information HUD.")
+    @CommandPermission("meltdown.admin")
+    fun toggleAdminHud(sender : Player) {
+        if(Main.getGame().admin.getAdminHudUsers()[sender.uniqueId] == false || Main.getGame().admin.getAdminHudUsers()[sender.uniqueId] == null) {
+            Main.getGame().admin.showAdminHud(sender)
+            sender.sendMessage(Component.text("\uD002 ").append(Component.text("Enabled admin HUD.", NamedTextColor.GREEN)))
+        } else {
+            Main.getGame().admin.removeAdminHudUser(sender)
+            sender.sendMessage(Component.text("\uD002 ").append(Component.text("Disabled admin HUD.", NamedTextColor.RED)))
+        }
+    }
+
+    @CommandMethod("debug door open all")
+    @CommandDescription("Debug command to change doors.")
+    @CommandPermission("meltdown.debug")
+    fun debugOpenAllDoors(sender : Player) {
+        Main.getGame().doorManager.openAllDoors()
+        Main.getGame().dev.parseDevMessage("All doors opened by ${sender.name}.", DevStatus.INFO)
+    }
 }

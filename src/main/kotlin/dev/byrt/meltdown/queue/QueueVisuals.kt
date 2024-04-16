@@ -15,25 +15,24 @@ import org.bukkit.entity.Player
 
 class QueueVisuals(private val game : Game) {
     private var queueBackground = BossBar.bossBar(Component.text("\uD006"), 0.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS)
-    private var queueTitle = BossBar.bossBar(Component.text("MELTDOWN", NamedTextColor.GOLD, TextDecoration.BOLD), 0.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS)
+    private var queueTitle = BossBar.bossBar(Component.text("MELTDOWN", NamedTextColor.AQUA, TextDecoration.BOLD), 0.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS)
     private var queueStatus = BossBar.bossBar(Component.text("Inactive Queue").color(TextColor.fromHexString("#ffff00")), 0.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS)
 
     fun spawnQueueNPC() {
+        removeQueueNPC()
         val npcLoc = game.locationManager.getQueueNPCLoc()
         val npc : Chicken = npcLoc.world.spawn(npcLoc, Chicken::class.java)
         npc.isInvulnerable = true
         npc.isSilent = true
         npc.eggLayTime = Int.MAX_VALUE
         npc.addScoreboardTag("meltdown.queue.npc")
-        npc.customName(
-            Component.text("Meltdown", NamedTextColor.AQUA, TextDecoration.BOLD).append(Component.text(": Click to Queue!", NamedTextColor.DARK_AQUA)).decoration(
-                TextDecoration.BOLD, false))
+        npc.customName(Component.text("Meltdown", NamedTextColor.AQUA, TextDecoration.BOLD).append(Component.text(": Click to Queue!", NamedTextColor.DARK_AQUA)).decoration(TextDecoration.BOLD, false))
         npc.isCustomNameVisible = true
         npc.setAI(false)
     }
 
     fun removeQueueNPC() {
-        for(queueNPC in game.locationManager.getSpawn().world.getEntitiesByClass(Chicken::class.java)) {
+        for(queueNPC in game.locationManager.getWorld().getEntitiesByClass(Chicken::class.java)) {
             if(queueNPC.scoreboardTags.contains("meltdown.queue.npc")) {
                 queueNPC.remove()
             }
