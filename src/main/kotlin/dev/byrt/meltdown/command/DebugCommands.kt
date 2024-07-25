@@ -8,6 +8,7 @@ import cloud.commandframework.annotations.Argument
 import cloud.commandframework.annotations.CommandDescription
 import cloud.commandframework.annotations.CommandMethod
 import cloud.commandframework.annotations.CommandPermission
+import cloud.commandframework.types.tuples.Triplet
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -66,16 +67,16 @@ class DebugCommands : BaseCommand {
     @CommandDescription("Debug command to get data.")
     @CommandPermission("meltdown.debug")
     fun debugFrozenData(sender : Player) {
-        sender.sendMessage(Component.text("Frozen Players\n${Main.getGame().eliminationManager.getFrozenPlayers()}", NamedTextColor.YELLOW))
+        sender.sendMessage(Component.text("Frozen Players\n${Main.getGame().lifestates.getFrozenPlayers()}", NamedTextColor.YELLOW))
     }
 
     @CommandMethod("debug data lifestates")
     @CommandDescription("Debug command to get data.")
     @CommandPermission("meltdown.debug")
     fun debugLifestateData(sender : Player) {
-        sender.sendMessage(Component.text("Players Alive:\n${Main.getGame().eliminationManager.getAlivePlayers()}\nTeams Alive:\n${Main.getGame().eliminationManager.getAliveTeams()}", NamedTextColor.GREEN))
-        sender.sendMessage(Component.text("Players Frozen:\n${Main.getGame().eliminationManager.getFrozenPlayers()}", NamedTextColor.AQUA))
-        sender.sendMessage(Component.text("Players Eliminated:\n${Main.getGame().eliminationManager.getEliminatedPlayers()}\nTeams Eliminated:\n${Main.getGame().eliminationManager.getEliminatedTeams()}", NamedTextColor.RED))
+        sender.sendMessage(Component.text("Players Alive:\n${Main.getGame().lifestates.getAlivePlayers()}\nTeams Alive:\n${Main.getGame().lifestates.getAliveTeams()}", NamedTextColor.GREEN))
+        sender.sendMessage(Component.text("Players Frozen:\n${Main.getGame().lifestates.getFrozenPlayers()}", NamedTextColor.AQUA))
+        sender.sendMessage(Component.text("Players Eliminated:\n${Main.getGame().lifestates.getEliminatedPlayers()}\nTeams Eliminated:\n${Main.getGame().lifestates.getEliminatedTeams()}", NamedTextColor.RED))
     }
 
     @CommandMethod("admin toggle_hud")
@@ -97,5 +98,13 @@ class DebugCommands : BaseCommand {
     fun debugOpenAllDoors(sender : Player) {
         Main.getGame().doorManager.openAllDoors()
         Main.getGame().dev.parseDevMessage("All doors opened by ${sender.name}.", DevStatus.INFO)
+    }
+
+    @CommandMethod("debug melt <x, y, z>")
+    @CommandDescription("Debug command to test melting.")
+    @CommandPermission("meltdown.debug")
+    fun debugMelting(sender : Player, @Argument("x, y, z") coords : Triplet<Int, Int, Int>) {
+        Main.getGame().dev.parseDevMessage("Melting started at ${coords.first}, ${coords.second}, ${coords.third} by ${sender.name}.", DevStatus.INFO)
+
     }
 }

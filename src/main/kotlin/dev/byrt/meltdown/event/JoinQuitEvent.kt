@@ -6,7 +6,6 @@ import dev.byrt.meltdown.state.Teams
 import dev.byrt.meltdown.task.Music
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextColor
 
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -20,7 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 class JoinQuitEvent : Listener {
     @EventHandler
     private fun onPlayerJoin(e : PlayerJoinEvent) {
-        e.joinMessage(Component.text("${e.player.name} joined the game.").color(TextColor.fromHexString("#ffff00")))
+        e.joinMessage(Component.text(""))
         Main.getGame().infoBoardManager.showScoreboard(e.player)
         e.player.teleport(Location(Bukkit.getWorld("Cheese"), 0.5, -52.0 ,0.5, 0.0f, 0.0f))
         e.player.inventory.clear()
@@ -40,11 +39,11 @@ class JoinQuitEvent : Listener {
         Main.getGame().musicTask.stopMusicLoop(e.player, Music.NULL)
         Main.getGame().freezeTask.cancelFreezeLoop(e.player)
         if(Main.getGame().gameManager.getGameState() != GameState.IDLE) {
-            Main.getGame().eliminationManager.onPlayerQuit(e.player)
+            Main.getGame().lifestates.onPlayerQuit(e.player)
         }
         if(Main.getGame().queue.getQueue().contains(e.player.uniqueId)) {
             Main.getGame().queue.leaveQueue(e.player)
         }
-        e.quitMessage(Component.text("${e.player.name} left the game.").color(TextColor.fromHexString("#ffff00")))
+        e.quitMessage(Component.text(""))
     }
 }

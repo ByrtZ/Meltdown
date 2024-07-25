@@ -31,14 +31,15 @@ class PlayerInteractionsEvent : Listener {
                 e.player.inventory.itemInMainHand.type == Material.NETHERITE_SHOVEL
                 && e.player.gameMode == GameMode.SURVIVAL &&
                 !e.player.hasCooldown(Material.NETHERITE_SHOVEL) &&
-                !Main.getGame().eliminationManager.isFrozen(e.player) &&
-                Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
+                !Main.getGame().lifestates.isFrozen(e.player) &&
+                (Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME)) {
                     Main.getGame().heaterManager.placeHeater(Location(e.clickedBlock?.world, e.clickedBlock?.location!!.x, e.clickedBlock?.location!!.y + 1, e.clickedBlock?.location!!.z),e.player)
             }
-            if(e.action == Action.LEFT_CLICK_BLOCK && e.clickedBlock?.type == Material.NETHERITE_BLOCK && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().eliminationManager.isFrozen(e.player) && Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
+            if(e.action == Action.LEFT_CLICK_BLOCK && e.clickedBlock?.type == Material.NETHERITE_BLOCK && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().lifestates.isFrozen(e.player) && (Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME)) {
                 val clickedBlock = e.clickedBlock as Block
-                if(Main.getGame().heaterManager.getHeaterList().isNotEmpty()) {
-                    for(heater in Main.getGame().heaterManager.getHeaterList()) {
+                val heaterList = Main.getGame().heaterManager.getHeaterList()
+                if(heaterList.isNotEmpty()) {
+                    for(heater in heaterList) {
                         if(heater.location == clickedBlock.location && Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId) != heater.team) {
                             Main.getGame().heaterTask.stopHeaterLoop(heater, HeaterBreakReason.ENEMY)
                         } else if ((heater.location == clickedBlock.location && heater.owner == e.player.uniqueId)) {
@@ -47,6 +48,8 @@ class PlayerInteractionsEvent : Listener {
                             e.isCancelled = true
                         }
                     }
+                } else {
+                    e.isCancelled = true
                 }
             }
             if(e.action.isRightClick && e.player.gameMode == GameMode.SURVIVAL && e.player.inventory.itemInMainHand.type == Material.GRAY_DYE && !e.player.hasCooldown(Material.GRAY_DYE) && (Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME)) {
@@ -69,6 +72,9 @@ class PlayerInteractionsEvent : Listener {
                 e.isCancelled = true
             }
             if(Main.getGame().gameManager.getGameState() == GameState.IDLE && e.action.isRightClick) {
+                if(e.player.inventory.itemInMainHand.type == Material.FISHING_ROD) {
+                    e.isCancelled = false
+                }
                 if(e.player.inventory.itemInMainHand.type == Material.GOLDEN_HORSE_ARMOR) {
                     Main.getGame().lobbyItems.useRocketLauncher(e.player)
                     e.isCancelled = true
@@ -79,6 +85,10 @@ class PlayerInteractionsEvent : Listener {
                 }
                 if(e.player.inventory.itemInMainHand.type == Material.DIAMOND_SHOVEL) {
                     Main.getGame().lobbyItems.useTeleportSpoon(e.player)
+                    e.isCancelled = true
+                }
+                if(e.player.inventory.itemInMainHand.type == Material.BONE) {
+                    Main.getGame().lobbyItems.useCowWand(e.player)
                     e.isCancelled = true
                 }
             }

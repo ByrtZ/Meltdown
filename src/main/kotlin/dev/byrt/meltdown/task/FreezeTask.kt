@@ -26,37 +26,37 @@ class FreezeTask(private val game : Game) {
     private var frostVignetteTaskMap = mutableMapOf<UUID, BukkitRunnable>()
     fun startFreezeLoop(player : Player, freezer : Player?, frozenLoc : Location, team : Teams) {
         val freezeRunnable = object : BukkitRunnable() {
-            var thawTimer = 6
+            var thawTimer = 6 * 20
             override fun run() {
-                if(!game.eliminationManager.getEliminatedTeams().contains(team)) {
+                if(!game.lifestates.getEliminatedTeams().contains(team)) {
                     if(game.heaterTask.getHeaterLoopMap().isNotEmpty()) {
                         for((heater, _) in game.heaterTask.getHeaterLoopMap()) {
                             if(heater.team == team) {
                                 val distance = frozenLoc.distanceSquared(heater.location)
                                 if(distance <= Heater.HEATER_RADIUS * Heater.HEATER_RADIUS) {
                                     if(!isHeatingList.contains(player.uniqueId)) isHeatingList.add(player.uniqueId)
-                                    game.eliminationManager.checkTeamStatus(team)
+                                    game.lifestates.checkTeamStatus(team)
                                     break
                                 } else {
                                     if(isHeatingList.contains(player.uniqueId)) isHeatingList.remove(player.uniqueId)
-                                    game.eliminationManager.checkTeamStatus(team)
+                                    game.lifestates.checkTeamStatus(team)
                                 }
                             }
                         }
-                        if(!game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
+                        if(!game.lifestates.getFrozenPlayers().contains(player.uniqueId)) {
                             stopFreezeLoop(player, freezer, true)
                         }
                         if(!isHeatingList.contains(player.uniqueId)) {
-                            game.eliminationManager.checkTeamStatus(team)
+                            game.lifestates.checkTeamStatus(team)
                             player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                            if(thawTimer < 6) {
+                            if(thawTimer < 6 * 20) {
                                 thawTimer++
                             }
                         } else {
                             player.world.spawnParticle(Particle.FLAME, player.location, 10, 0.75, 0.75, 0.75, 0.1)
-                            if(thawTimer < 1) {
+                            if(thawTimer < 1 * 20) {
                                 player.sendActionBar(Component.text("You have been unfrozen!").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                                game.eliminationManager.checkTeamStatus(team)
+                                game.lifestates.checkTeamStatus(team)
                                 stopFreezeLoop(player, freezer, false)
                             } else {
                                 player.sendActionBar(Component.text("You will thaw in ${thawTimer}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
@@ -66,11 +66,11 @@ class FreezeTask(private val game : Game) {
                     } else {
                         player.sendActionBar(Component.text("You are frozen.").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                         isHeatingList.remove(player.uniqueId)
-                        game.eliminationManager.checkTeamStatus(team)
-                        if(thawTimer < 6) {
+                        game.lifestates.checkTeamStatus(team)
+                        if(thawTimer < 6 * 20) {
                             thawTimer++
                         }
-                        if(!game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
+                        if(!game.lifestates.getFrozenPlayers().contains(player.uniqueId)) {
                             stopFreezeLoop(player, freezer, true)
                         }
                     }
@@ -79,13 +79,13 @@ class FreezeTask(private val game : Game) {
                 }
             }
         }
-        freezeRunnable.runTaskTimer(game.plugin, 0L, 20L)
+        freezeRunnable.runTaskTimer(game.plugin, 0L, 1L)
         freezeLoopMap[player.uniqueId] = freezeRunnable
     }
 
     fun stopFreezeLoop(player : Player, freezer : Player?, forcefullyThawed : Boolean) {
         freezeLoopMap.remove(player.uniqueId)?.cancel()
-        if(game.gameManager.getGameState() == GameState.IN_GAME && !game.eliminationManager.getEliminatedPlayers().contains(player)) {
+        if(game.gameManager.getGameState() == GameState.IN_GAME && !game.lifestates.getEliminatedPlayers().contains(player) && !game.lifestates.getEliminatedTeams().contains(game.teamManager.getPlayerTeam(player.uniqueId))) {
             game.teamManager.sendTeamThawedMessage(
                 Component.text("[")
                     .append(Component.text("▶").color(NamedTextColor.YELLOW))
@@ -121,7 +121,7 @@ class FreezeTask(private val game : Game) {
         game.playerManager.clearKit(player)
         stopResetFrostVignetteTask(player)
         stopFreezeLoop(player, null, true)
-        game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ELIMINATED)
+        game.lifestates.changePlayerLifeState(player, PlayerLifeState.ELIMINATED)
     }
 
     fun getHeatingList() : ArrayList<UUID> {
@@ -134,7 +134,7 @@ class FreezeTask(private val game : Game) {
             override fun run() {
                 player.freezeTicks = freezeTicks
                 freezeTicks += 2
-                if(freezeTicks >= 200 || !game.eliminationManager.isFrozen(player)) {
+                if(freezeTicks >= 200 || !game.lifestates.isFrozen(player)) {
                     player.freezeTicks = Int.MAX_VALUE
                     stopFrostVignetteTask(player)
                 }

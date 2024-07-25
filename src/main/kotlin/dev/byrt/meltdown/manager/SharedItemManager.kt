@@ -31,7 +31,7 @@ class SharedItemManager(private val game : Game) {
 
         for(teamPlayer in game.teamManager.getTeamPlayers(team)) {
             teamPlayer.setCooldown(Material.GRAY_DYE, 12 * 20)
-            if(!game.eliminationManager.isFrozen(teamPlayer) && teamPlayer.gameMode != GameMode.SPECTATOR) {
+            if(!game.lifestates.isFrozen(teamPlayer) && teamPlayer.gameMode != GameMode.SPECTATOR) {
                 if(teamPlayer.uniqueId != telepickaxeOwners[team]) {
                     teamPlayer.inventory.remove(Material.NETHERITE_PICKAXE)
                     game.itemManager.giveUnusableTelepickaxe(teamPlayer)

@@ -9,7 +9,7 @@ import org.bukkit.entity.Player
 
 import java.util.UUID
 
-class EliminationManager(private val game : Game) {
+class Lifestates(private val game : Game) {
     private var alivePlayers = ArrayList<UUID>()
     private var aliveTeams = ArrayList<Teams>()
     private var frozenPlayers = ArrayList<UUID>()
@@ -102,7 +102,7 @@ class EliminationManager(private val game : Game) {
     private fun eliminateTeam(team : Teams, eliminationType : TeamEliminationType) {
         when(eliminationType) {
             TeamEliminationType.FROZEN -> {
-                game.eliminatedTask.startEliminateTeamTask(game.teamManager.getTeamPlayers(team), team, 4)
+                game.eliminatedTask.startEliminateTeamTask(game.teamManager.getTeamPlayers(team), team, 4 * 20)
             }
             TeamEliminationType.INSTANT -> {
                 game.eliminatedTask.startEliminateTeamTask(game.teamManager.getTeamPlayers(team), team, 0)

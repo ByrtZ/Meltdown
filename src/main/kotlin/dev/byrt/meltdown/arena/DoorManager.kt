@@ -19,6 +19,7 @@ class DoorManager(private val game : Game) {
     private var latestDoorId = 0
 
     fun populateDoors() {
+        game.plugin.logger.info("Populating doors..")
         // Spawn room door (Red)
         addDoor(
             Door(

@@ -40,8 +40,8 @@ class DamageEvent : Listener {
             if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
                 if(e.entity is Player) {
                     val playerSquished = e.entity as Player
-                    if(playerSquished.location.block.type == Material.NETHERITE_BLOCK && !Main.getGame().teamManager.isSpectator(playerSquished.uniqueId) && !Main.getGame().eliminationManager.getEliminatedPlayers().contains(playerSquished)) {
-                        Main.getGame().eliminationManager.changePlayerLifeState(playerSquished, PlayerLifeState.ELIMINATED)
+                    if(playerSquished.location.block.type == Material.NETHERITE_BLOCK && !Main.getGame().teamManager.isSpectator(playerSquished.uniqueId) && !Main.getGame().lifestates.getEliminatedPlayers().contains(playerSquished)) {
+                        Main.getGame().lifestates.changePlayerLifeState(playerSquished, PlayerLifeState.ELIMINATED)
                         playerSquished.playSound(playerSquished.location, Sounds.Score.SQUASHED_BY_DOOR, 1f, 0f)
                         for(player in Bukkit.getOnlinePlayers()) {
                             player.sendMessage(

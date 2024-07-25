@@ -58,7 +58,7 @@ class Admin(private val game : Game) {
                         .append(Component.text("H", NamedTextColor.GOLD))
                         .append(Component.text(";[${game.heaterManager.getHeaterList().size}], ", NamedTextColor.WHITE))
                         .append(Component.text("F", NamedTextColor.AQUA))
-                        .append(Component.text(";[${game.eliminationManager.getFrozenPlayers().size}], ", NamedTextColor.WHITE))
+                        .append(Component.text(";[${game.lifestates.getFrozenPlayers().size}], ", NamedTextColor.WHITE))
                         .append(Component.text("E", NamedTextColor.GREEN))
                         .append(Component.text(";[${game.entranceManager.getEntrancesList().size}], ", NamedTextColor.WHITE))
                         .append(Component.text("RM", NamedTextColor.LIGHT_PURPLE))

@@ -137,26 +137,25 @@ class GameTask(private var game : Game) {
 
                 // IN_GAME state
                 if(game.gameManager.getGameState() == GameState.IN_GAME && game.timerManager.getTimerState() == TimerState.ACTIVE) {
-                    if(timeLeft == 280) {
+                    if(timeLeft == 270) {
                         game.roomManager.beginMeltingRoomType(RoomType.SPAWN)
                     }
-                    if(timeLeft == 240) {
+                    if(timeLeft == 230) {
                         game.blockManager.setCoinCratesBarriers(Material.AIR)
                     }
-                    if(timeLeft == 220) {
+                    if(timeLeft == 200) {
                         game.roomManager.beginMeltingRoomType(RoomType.CORNER)
                     }
                     if(timeLeft == 150) {
                         game.doorManager.openCentreDoors()
                     }
-                    //TODO: ~160s coin drop in centre adjacent rooms?
-                    if(timeLeft == 130) {
+                    if(timeLeft == 120) {
                         game.roomManager.beginMeltingRoomType(RoomType.CENTRE_ADJACENT)
                     }
                     if(timeLeft == 60) {
                         game.blockManager.setCentreCoinCrateBarriers(Material.AIR)
                     }
-                    if(timeLeft == MeltingRoomTask.MELTING_TIME) {
+                    if(timeLeft == 0) {
                         game.roomManager.beginMeltingRoomType(RoomType.CENTRE)
                     }
                     if(timeLeft in 11..30 || timeLeft % 60 == 0) {
@@ -166,7 +165,7 @@ class GameTask(private var game : Game) {
                     }
                     if(timeLeft in 0..10) {
                         for(player in Bukkit.getOnlinePlayers()) {
-                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 1f)
+                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 2f)
                         }
                     }
                 }
@@ -184,7 +183,7 @@ class GameTask(private var game : Game) {
                     }
                     if(timeLeft in 0..10) {
                         for(player in Bukkit.getOnlinePlayers()) {
-                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 1f)
+                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 2f)
                         }
                     }
                 }

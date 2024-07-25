@@ -19,7 +19,7 @@ class HeaterManager(private val game : Game) {
     }
 
     fun breakHeater(location : Location, owner : Player, breakReason : HeaterBreakReason) {
-        if(owner.gameMode != GameMode.SPECTATOR && !game.eliminationManager.isFrozen(owner)) {
+        if(owner.gameMode != GameMode.SPECTATOR && !game.lifestates.isFrozen(owner)) {
             game.itemManager.giveHeaterItem(owner)
             owner.setCooldown(Material.NETHERITE_SHOVEL, 10 * 20)
         }

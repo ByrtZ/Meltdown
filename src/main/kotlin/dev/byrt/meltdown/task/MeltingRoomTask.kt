@@ -20,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable
 class MeltingRoomTask(private val game : Game) {
     private var meltingRoomTaskMap = mutableMapOf<Room, BukkitRunnable>()
     fun startMeltingTask(room : Room) {
-        var quarterSeconds = 0
+        var ticks = 0
         var seconds = 0
         val meltingBackground = BossBar.bossBar(Component.text("\uD006"), 0.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS)
         val meltingTitle = BossBar.bossBar(Component.text("MELTING ROOM", NamedTextColor.RED, TextDecoration.BOLD), 0.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS)
@@ -43,12 +43,12 @@ class MeltingRoomTask(private val game : Game) {
         val meltingRoomRunnable = object : BukkitRunnable() {
             override fun run() {
                 if(game.gameManager.getGameState() == GameState.IN_GAME || game.gameManager.getGameState() == GameState.OVERTIME) {
-                    if(quarterSeconds % 2 == 0) {
+                    if(ticks < 10) {
                         meltingTitle.name(Component.text(if(seconds <= MELTING_TIME - 8) "MELTING ROOM" else "MELTDOWN IMMINENT", NamedTextColor.DARK_RED, TextDecoration.BOLD))
                     } else {
                         meltingTitle.name(Component.text(if(seconds <= MELTING_TIME - 8) "MELTING ROOM" else "MELTDOWN IMMINENT", NamedTextColor.RED, TextDecoration.BOLD))
                     }
-                    if(quarterSeconds >= 4) {
+                    if(ticks >= 20) {
                         meltingStatus.name(Component.text("Room melting in ", NamedTextColor.GOLD).append(Component.text("${(MELTING_TIME - 1) - seconds}s", NamedTextColor.WHITE)).append(Component.text("!", NamedTextColor.GOLD)))
                         for(player in Bukkit.getOnlinePlayers()) {
                             if(isPlayerInRoom(room, player)) {
@@ -62,10 +62,10 @@ class MeltingRoomTask(private val game : Game) {
                                 meltingStatus.removeViewer(player)
                             }
                         }
-                        quarterSeconds = 0
+                        ticks = 0
                         seconds++
                     }
-                    if(seconds == MELTING_TIME - 8 && quarterSeconds == 0) {
+                    if(seconds == MELTING_TIME - 8 && ticks == 0) {
                         for(door in room.doors) {
                             game.blockManager.doorCloseStageOne(door, Material.NETHERITE_BLOCK)
                         }
@@ -81,12 +81,12 @@ class MeltingRoomTask(private val game : Game) {
                             }
                         }
                     }
-                    if(seconds == MELTING_TIME - 4 && quarterSeconds == 0) {
+                    if(seconds == MELTING_TIME - 4 && ticks == 0) {
                         for(door in room.doors) {
                             game.blockManager.doorCloseStageTwo(door, Material.NETHERITE_BLOCK)
                         }
                     }
-                    if(seconds == MELTING_TIME && quarterSeconds == 0) {
+                    if(seconds == MELTING_TIME && ticks == 0) {
                         for(door in room.doors) {
                             game.blockManager.doorCloseStageThree(door, Material.NETHERITE_BLOCK)
                         }
@@ -96,9 +96,10 @@ class MeltingRoomTask(private val game : Game) {
                                 meltingTitle.removeViewer(player)
                                 meltingStatus.removeViewer(player)
                             }
-                            if(!game.teamManager.isSpectator(player.uniqueId) && !game.eliminationManager.getEliminatedPlayers().contains(player)) {
+                            if(!game.teamManager.isSpectator(player.uniqueId) && !game.lifestates.getEliminatedPlayers().contains(player)) {
                                 if(isPlayerInRoom(room, player)) {
-                                    game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ELIMINATED)
+                                    game.freezeTask.cancelFreezeLoop(player)
+                                    game.lifestates.changePlayerLifeState(player, PlayerLifeState.ELIMINATED)
                                     player.playSound(player.location, Sounds.Score.MELTED_BY_MELTDOWN, 1.0f, 0.75f)
                                     game.teamManager.sendGlobalMessage(Component.text("[")
                                         .append(Component.text("▶").color(NamedTextColor.YELLOW))
@@ -112,7 +113,7 @@ class MeltingRoomTask(private val game : Game) {
                         }
                         stopMeltingTask(room)
                     }
-                    quarterSeconds++
+                    ticks++
                 } else {
                     for(player in Bukkit.getOnlinePlayers()) {
                         if(isPlayerInRoom(room, player)) {
@@ -125,7 +126,7 @@ class MeltingRoomTask(private val game : Game) {
                 }
             }
         }
-        meltingRoomRunnable.runTaskTimer(game.plugin, 0L, 5L)
+        meltingRoomRunnable.runTaskTimer(game.plugin, 0L, 1L)
         meltingRoomTaskMap[room] = meltingRoomRunnable
     }
 

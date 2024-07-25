@@ -21,14 +21,14 @@ class PlayerMovementEvent : Listener {
     @EventHandler
     private fun onPlayerMove(e : PlayerMoveEvent) {
         if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
-            if(Main.getGame().eliminationManager.getFrozenPlayers().contains(e.player.uniqueId)) {
+            if(Main.getGame().lifestates.getFrozenPlayers().contains(e.player.uniqueId)) {
                 val to = e.from
                 to.pitch = e.to.pitch
                 to.yaw = e.to.yaw
                 e.to = to
             }
             if(e.player.location.block.type == Material.LAVA && e.player.gameMode == GameMode.SURVIVAL && !Main.getGame().teamManager.isSpectator(e.player.uniqueId)) {
-                Main.getGame().eliminationManager.changePlayerLifeState(e.player, PlayerLifeState.ELIMINATED)
+                Main.getGame().lifestates.changePlayerLifeState(e.player, PlayerLifeState.ELIMINATED)
                 e.player.playSound(e.player.location, Sounds.Score.FALL_INTO_LAVA, 1f, 1f)
                 for(player in Bukkit.getOnlinePlayers()) {
                     player.sendMessage(

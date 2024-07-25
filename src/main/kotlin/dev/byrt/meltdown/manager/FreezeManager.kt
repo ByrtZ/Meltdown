@@ -15,7 +15,7 @@ import java.time.Duration
 
 class FreezeManager(private var game : Game) {
     fun freezePlayer(player : Player, shooter : Player?) {
-        game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.FROZEN)
+        game.lifestates.changePlayerLifeState(player, PlayerLifeState.FROZEN)
         val freezeLoc = findNearestFreezeLocation(player)
         player.teleport(freezeLoc)
         setFrozenBlocks(player, Material.LIGHT_BLUE_STAINED_GLASS)
@@ -70,7 +70,7 @@ class FreezeManager(private var game : Game) {
     }
 
     fun unfreezePlayer(player : Player) {
-        game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ALIVE)
+        game.lifestates.changePlayerLifeState(player, PlayerLifeState.ALIVE)
         setFrozenBlocks(player, Material.AIR)
         resetFrostVignette(player)
         player.playSound(player.location, Sounds.Freeze.UNFREEZE, 1f, 1f)

@@ -64,7 +64,7 @@ class TeamEliminatedTask(private val game : Game) {
     fun stopEliminateTeamTask(team : Teams) {
         eliminateTeamTasks.remove(team)?.cancel()
         if(game.teamManager.getActiveTeams().size > 1) {
-            if(game.teamManager.getActiveTeams().size - game.eliminationManager.getEliminatedTeams().size == 1) {
+            if(game.teamManager.getActiveTeams().size - game.lifestates.getEliminatedTeams().size == 1) {
                 game.gameManager.nextState()
             }
         }

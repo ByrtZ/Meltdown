@@ -22,7 +22,7 @@ import java.time.Duration
 
 class GameManager(private val game : Game) {
     private var gameState = GameState.IDLE
-    private var overtimeActive = false
+    private var overtimeActive = true
 
     fun nextState() {
         when(this.gameState) {
@@ -30,7 +30,15 @@ class GameManager(private val game : Game) {
             GameState.STARTING -> { setGameState(GameState.IN_GAME) }
             GameState.IN_GAME -> {
                 if(overtimeActive) {
-                    setGameState(GameState.OVERTIME)
+                    if(game.lifestates.getAliveTeams().size <= 1) {
+                        if(game.roundManager.getRoundState().ordinal + 1 >= game.roundManager.getTotalRounds()) {
+                            setGameState(GameState.GAME_END)
+                        } else {
+                            setGameState(GameState.ROUND_END)
+                        }
+                    } else {
+                        setGameState(GameState.OVERTIME)
+                    }
                 } else if(game.roundManager.getRoundState().ordinal + 1 >= game.roundManager.getTotalRounds()) {
                     setGameState(GameState.GAME_END)
                 } else {
@@ -119,20 +127,22 @@ class GameManager(private val game : Game) {
         game.teamManager.hideDisplayTeamNames()
         game.entranceManager.resetEntrances()
         game.doorManager.resetDoors()
+        game.coinCrateManager.clearCoinCrates()
+        game.coinCrateManager.distributeRandomCoinCrates()
         game.blockManager.setCoinCrates(Material.RAW_GOLD_BLOCK)
         game.blockManager.setCoinCratesBarriers(Material.BLUE_STAINED_GLASS)
         game.blockManager.setCentreCoinCrateBarriers(Material.BLUE_STAINED_GLASS)
         game.playerManager.giveItemsToPlayers()
         game.scoreManager.calculatePlacements()
         game.infoBoardManager.updateRound()
-        game.eliminationManager.reset()
+        game.lifestates.reset()
         for(player in Bukkit.getOnlinePlayers()) {
             if(game.teamManager.getPlayerTeam(player.uniqueId) != Teams.SPECTATOR) {
-                game.eliminationManager.changePlayerLifeState(player, PlayerLifeState.ALIVE)
+                game.lifestates.changePlayerLifeState(player, PlayerLifeState.ALIVE)
             }
         }
         for(team in game.teamManager.getActiveTeams()) {
-            game.eliminationManager.changeTeamLifeState(team, TeamLifeState.ALIVE)
+            game.lifestates.changeTeamLifeState(team, TeamLifeState.ALIVE)
         }
         if(game.roundManager.getRoundState() == RoundState.ONE) {
             for(player in Bukkit.getOnlinePlayers()) {
@@ -147,25 +157,14 @@ class GameManager(private val game : Game) {
 
     private fun startOvertime() {
         for(player in Bukkit.getOnlinePlayers()) {
-            player.playSound(player.location, Sounds.Alert.OVERTIME_ALERT, 0.35f, 1.25f)
-            player.showTitle(Title.title(
-                Component.text("OVERTIME!", NamedTextColor.RED, TextDecoration.BOLD),
-                Component.text("Uh oh... This shouldn't happen!"),
-                Title.Times.times(
-                    Duration.ofSeconds(0),
-                    Duration.ofSeconds(3),
-                    Duration.ofSeconds(1)
-                    )
-                )
-            )
             player.sendMessage(
-                Component.text("\n[")
+                Component.text("[")
                     .append(Component.text("▶").color(NamedTextColor.YELLOW))
                     .append(Component.text("] "))
                     .append(Component.text("OVERTIME: ", NamedTextColor.RED, TextDecoration.BOLD))
-                    .append(Component.text("Well this is an unfortunate series of events... ", NamedTextColor.WHITE)
-                    )
+                    .append(Component.text("Battle until the laboratory collapses!", NamedTextColor.WHITE)
                 )
+            )
         }
     }
 
@@ -188,7 +187,7 @@ class GameManager(private val game : Game) {
                     )
                 )
             )
-            if(game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
+            if(game.lifestates.getFrozenPlayers().contains(player.uniqueId)) {
                 game.freezeManager.unfreezePlayer(player)
             }
             //TODO: INSTA-ELIMINATE FROZEN PLAYERS?
@@ -196,6 +195,7 @@ class GameManager(private val game : Game) {
         game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
         game.heaterManager.stopAllHeaters()
+        game.scoreManager.calculateRoundPlacement()
         game.scoreManager.calculatePlacements()
     }
 
@@ -218,7 +218,7 @@ class GameManager(private val game : Game) {
                     )
                 )
             )
-            if(game.eliminationManager.getFrozenPlayers().contains(player.uniqueId)) {
+            if(game.lifestates.getFrozenPlayers().contains(player.uniqueId)) {
                 game.freezeManager.unfreezePlayer(player)
             }
             //TODO: INSTA-ELIMINATE FROZEN PLAYERS?
@@ -226,6 +226,7 @@ class GameManager(private val game : Game) {
         game.playerManager.setAlivePlayersAdventure()
         game.playerManager.setPlayersFlying()
         game.heaterManager.stopAllHeaters()
+        game.scoreManager.calculateRoundPlacement()
         game.scoreManager.calculatePlacements()
         game.roundManager.nextRound()
     }
@@ -252,7 +253,7 @@ class GameManager(private val game : Game) {
         const val IN_GAME_TIME = 300
         const val ROUND_END_TIME = 15
         const val GAME_END_TIME = 30
-        const val OVERTIME_TIME = 30
+        const val OVERTIME_TIME = Int.MAX_VALUE
     }
 }
 

@@ -128,13 +128,17 @@ class InfoBoardManager(private val game : Game) {
                 gameStatusLine.prefix(Component.text("Game ending: ", NamedTextColor.RED, TextDecoration.BOLD))
             }
             GameState.OVERTIME -> {
-                gameStatusLine.prefix(Component.text("OVERTIME: ", NamedTextColor.RED, TextDecoration.BOLD))
+                gameStatusLine.prefix(Component.text("OVERTIME", NamedTextColor.RED, TextDecoration.BOLD))
             }
         }
     }
 
     fun updateTimer() {
-        gameStatusLine.suffix(Component.text(game.gameTask.getDisplayTimeLeft(), NamedTextColor.WHITE))
+        if(game.gameManager.getGameState() == GameState.OVERTIME) {
+            gameStatusLine.suffix(Component.text("", NamedTextColor.WHITE))
+        } else {
+            gameStatusLine.suffix(Component.text(game.gameTask.getDisplayTimeLeft(), NamedTextColor.WHITE))
+        }
     }
 
     fun updatePlacements() {

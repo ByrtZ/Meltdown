@@ -12,6 +12,7 @@ class RoomManager(private val game : Game) {
     private var latestRoomId = 0
 
     fun populateRooms() {
+        game.plugin.logger.info("Populating rooms..")
         // Spawn rooms
         // Red spawn
         addRoom(

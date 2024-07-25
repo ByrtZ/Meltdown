@@ -6,6 +6,9 @@ import dev.byrt.meltdown.data.CoinCrateLocation
 import dev.byrt.meltdown.game.Game
 
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 
 class CoinCrateManager(private val game : Game) {
     private var coinCrateList = ArrayList<CoinCrate>()
@@ -94,6 +97,44 @@ class CoinCrateManager(private val game : Game) {
 
     private fun removeCoinCrateBarrier(coinCrateBarrier : CoinCrateBarrier) {
         coinCrateBarrierList.remove(coinCrateBarrier)
+    }
+
+    fun distributeRandomCoinCrates() {
+        for(room in game.roomManager.getRoomsList()) {
+            var blockCount = 0
+            val cratePlaceableBlocks = mutableListOf<Block>()
+            for(x in room.corner1.blockX..room.corner2.blockX) {
+                for(y in room.corner1.blockY..room.corner2.blockY) {
+                    for(z in room.corner1.blockZ..room.corner2.blockZ) {
+                        val block = game.locationManager.getWorld().getBlockAt(x, y, z)
+                        if(block.type == Material.POLISHED_ANDESITE && block.getRelative(BlockFace.UP).type == Material.AIR) {
+                            blockCount++
+                            cratePlaceableBlocks.add(block.getRelative(BlockFace.UP))
+                        }
+                    }
+                }
+            }
+            val cratesToPlace = cratePlaceableBlocks.shuffled().take(6)
+            for(crate in cratesToPlace) {
+                crate.type = Material.RAW_GOLD_BLOCK
+                game.plugin.logger.info("Placed random crate in room of type ${room.roomType} at ${crate.location.blockX}, ${crate.location.blockY}, ${crate.location.blockZ}")
+            }
+        }
+    }
+
+    fun clearCoinCrates() {
+        for(room in game.roomManager.getRoomsList()) {
+            for(x in room.corner1.blockX..room.corner2.blockX) {
+                for(y in room.corner1.blockY..room.corner2.blockY) {
+                    for(z in room.corner1.blockZ..room.corner2.blockZ) {
+                        val block = game.locationManager.getWorld().getBlockAt(x, y, z)
+                        if(block.type == Material.RAW_GOLD_BLOCK) {
+                            block.type = Material.AIR
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun incrementCoinCrateBarrierId() : Int {

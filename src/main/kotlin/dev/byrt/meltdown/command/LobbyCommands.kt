@@ -63,6 +63,9 @@ class LobbyCommands : BaseCommand {
                 LobbyCustomItem.TELEPORT_SPOON -> {
                     Main.getGame().lobbyItems.createTeleportSpoon(player)
                 }
+                LobbyCustomItem.COW_WAND -> {
+                    Main.getGame().lobbyItems.createCowWand(player)
+                }
             }
         }
     }
@@ -132,6 +135,15 @@ class LobbyCommands : BaseCommand {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    @CommandMethod("fishington roll_random_drop")
+    @CommandDescription("Rolls a random drop.")
+    @CommandPermission("meltdown.lobby")
+    fun fishingtonRollRandomDrop(sender : Player) {
+        if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
+            sender.inventory.addItem(Main.getGame().lobbyFishing.rollRandomDrop())
         }
     }
 }

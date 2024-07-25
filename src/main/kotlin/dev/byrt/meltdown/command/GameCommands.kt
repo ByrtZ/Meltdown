@@ -36,15 +36,11 @@ class GameCommands : BaseCommand {
     fun start(sender : Player) {
         if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
             if(Main.getGame().teamManager.getRedTeam().size >= 1 && Main.getGame().teamManager.getBlueTeam().size >= 1 && Main.getGame().teamManager.getYellowTeam().size >= 1 && Main.getGame().teamManager.getLimeTeam().size >= 1) {
-                if(Main.getGame().gameManager.isOvertimeActive()) {
-                    Main.getGame().dev.parseDevMessage("Overtime must be disabled in order to start a game.", DevStatus.ERROR)
-                } else {
-                    Main.getGame().dev.parseDevMessage("${sender.name} started a Meltdown game!", DevStatus.INFO_SUCCESS)
-                    for(player in Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                    }
-                    Main.getGame().startGame()
+                Main.getGame().dev.parseDevMessage("${sender.name} started a Meltdown game!", DevStatus.INFO_SUCCESS)
+                for(player in Bukkit.getOnlinePlayers()) {
+                    player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                 }
+                Main.getGame().startGame()
             } else {
                 sender.sendMessage(Component.text("There are not enough players on teams to start a Meltdown game.").color(NamedTextColor.RED))
                 sender.playSound(startGameFailSound)
@@ -64,15 +60,11 @@ class GameCommands : BaseCommand {
     @Confirmation
     fun forceStartGame(sender : Player) {
         if(Main.getGame().gameManager.getGameState() == GameState.IDLE) {
-            if(Main.getGame().gameManager.isOvertimeActive()) {
-                Main.getGame().dev.parseDevMessage("Overtime must be disabled in order to start a game.", DevStatus.ERROR)
-            } else {
-                Main.getGame().dev.parseDevMessage("${sender.name} force started a Meltdown game!", DevStatus.INFO_SUCCESS)
-                for(player in Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
-                }
-                Main.getGame().startGame()
+            Main.getGame().dev.parseDevMessage("${sender.name} force started a Meltdown game!", DevStatus.INFO_SUCCESS)
+            for(player in Bukkit.getOnlinePlayers()) {
+                player.sendMessage(Component.text("\nA Meltdown game is starting!\n").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
             }
+            Main.getGame().startGame()
         } else {
             sender.sendMessage(Component.text("Game already running or restart required.").color(NamedTextColor.RED))
             sender.playSound(startGameFailSound)
@@ -126,7 +118,6 @@ class GameCommands : BaseCommand {
             } else {
                 Main.getGame().gameManager.setOvertimeState(true)
                 Main.getGame().dev.parseDevMessage("Overtime enabled for next game by ${sender.name}.", DevStatus.INFO_SUCCESS)
-                Main.getGame().dev.parseDevMessage("WARNING! Overtime is unconfigured for this game mode and therefore must be disabled in order to start a game.", DevStatus.SEVERE)
                 sender.playSound(reloadCompleteSound)
             }
         } else {

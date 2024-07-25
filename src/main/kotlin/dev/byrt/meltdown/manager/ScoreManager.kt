@@ -1,7 +1,11 @@
 package dev.byrt.meltdown.manager
 
 import dev.byrt.meltdown.game.Game
+import dev.byrt.meltdown.state.Sounds
 import dev.byrt.meltdown.state.Teams
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 
 class ScoreManager(private val game : Game) {
     private var placements = HashMap<Teams, Int>()
@@ -48,6 +52,48 @@ class ScoreManager(private val game : Game) {
             }
         }
         calculatePlacements()
+    }
+
+    fun calculateRoundPlacement() {
+        var placementScore = 50
+        var roundPlacement = game.teamManager.getActiveTeams().size
+        for(team in game.lifestates.getEliminatedTeams() + game.lifestates.getAliveTeams()) {
+            game.teamManager.sendTeamMessage(
+                Component.text("[")
+                    .append(Component.text("+${placementScore}"))
+                    .append(Component.text(" coins", NamedTextColor.GOLD))
+                    .append(Component.text("] ", NamedTextColor.WHITE))
+                    .append(Component.text("["))
+                    .append(Component.text("▶").color(NamedTextColor.YELLOW))
+                    .append(Component.text("] "))
+                    .append(Component.text("Your team placed ${roundPlacement}${placementSuffix(roundPlacement)} this round!", NamedTextColor.GREEN, TextDecoration.BOLD)),
+                team
+            )
+            game.teamManager.playTeamSound(Sounds.Score.ELIMINATION, 1.25f, team)
+            game.teamManager.playTeamSound(Sounds.Score.ELIMINATION, 1f, team)
+            modifyScore(placementScore, ScoreModificationMode.ADD, team)
+            placementScore += 50
+            roundPlacement--
+        }
+    }
+
+    private fun placementSuffix(int : Int) : String {
+        when(int) {
+            4 -> {
+                return "th"
+            }
+            3 -> {
+                return "rd"
+            }
+            2 -> {
+                return "nd"
+            }
+            1 -> {
+                return "st"
+            } else -> {
+                return "null"
+            }
+        }
     }
 
     fun getPlacements() : HashMap<Teams, Int> {

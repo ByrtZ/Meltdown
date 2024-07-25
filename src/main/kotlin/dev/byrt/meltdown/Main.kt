@@ -40,6 +40,7 @@ class Main : JavaPlugin() {
         setupEventListeners()
         setupConfigs()
         setupPluginMessageListener()
+        game.lobbyFishing.setup()
     }
 
     override fun onDisable() {

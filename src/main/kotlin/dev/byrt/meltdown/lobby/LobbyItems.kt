@@ -14,9 +14,11 @@ import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.Block
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Cow
 import org.bukkit.entity.Creeper
 import org.bukkit.entity.Fireball
 import org.bukkit.entity.Player
+import org.bukkit.entity.TNTPrimed
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
@@ -162,10 +164,46 @@ class LobbyItems(private val game : Game) {
         player.inventory.addItem(ItemStack(teleportSpoon))
         player.sendMessage(Component.text("You received a ${LobbyCustomItem.TELEPORT_SPOON} from an unknown source.").color(NamedTextColor.GREEN))
     }
+
+    fun createCowWand(player : Player) {
+        val cowWand = ItemStack(Material.BONE)
+        val cowWandMeta = cowWand.itemMeta
+        val cowWandRarity = ItemRarity.SPECIAL
+        val cowWandType = ItemType.UTILITY
+        cowWandMeta.displayName(Component.text("Beefinator 1000").color(TextColor.fromHexString(cowWandRarity.rarityColour)).decoration(TextDecoration.ITALIC, false))
+        val cowWandLore = listOf(
+            Component.text("${cowWandRarity.rarityGlyph}${cowWandType.typeGlyph}", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false),
+            Component.text("moo.", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)
+        )
+        cowWandMeta.lore(cowWandLore)
+        cowWandMeta.isUnbreakable = true
+        cowWandMeta.addEnchant(Enchantment.MENDING, 1, false)
+        cowWandMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
+        cowWand.itemMeta = cowWandMeta
+        player.inventory.addItem(ItemStack(cowWand))
+        player.sendMessage(Component.text("You received a ${LobbyCustomItem.COW_WAND} from an unknown source.").color(NamedTextColor.GREEN))
+    }
+
+    fun useCowWand(player : Player) {
+        val cow = player.world.spawn(player.eyeLocation, Cow::class.java)
+        cow.isInvulnerable = true
+        cow.velocity = player.eyeLocation.direction.multiply(6.0)
+        player.world.playSound(player.location, "entity.firework_rocket.blast", 0.75f, 0f)
+        object : BukkitRunnable() {
+            override fun run() {
+                cow.isInvulnerable = false
+                if(!cow.isDead) cow.damage(20.0)
+                val tnt = player.world.spawn(cow.location, TNTPrimed::class.java)
+                tnt.fuseTicks = 0
+
+            }
+        }.runTaskLater(game.plugin, 10L)
+    }
 }
 
 enum class LobbyCustomItem {
     ROCKET_LAUNCHER,
     LIGHTNING_WAND,
-    TELEPORT_SPOON
+    TELEPORT_SPOON,
+    COW_WAND
 }

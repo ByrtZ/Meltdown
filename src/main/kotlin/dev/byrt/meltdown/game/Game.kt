@@ -40,7 +40,7 @@ class Game(val plugin : Main) {
     val locationManager = LocationManager(this)
     val freezeManager = FreezeManager(this)
     val heaterManager = HeaterManager(this)
-    val eliminationManager = EliminationManager(this)
+    val lifestates = Lifestates(this)
     val configManager = ConfigManager(this)
     val whitelistManager = WhitelistManager(this)
     val sharedItemManager = SharedItemManager(this)
@@ -63,6 +63,7 @@ class Game(val plugin : Main) {
 
     val lobbyItems = LobbyItems(this)
     val lobbySecret = LobbySecret(this)
+    val lobbyFishing = Fishington(this)
 
     private var buildMode = false
 
@@ -124,12 +125,13 @@ class Game(val plugin : Main) {
         infoBoardManager.updatePlacements()
         entranceManager.resetEntrances()
         doorManager.resetDoors()
-        eliminationManager.reset()
+        lifestates.reset()
         teamManager.showDisplayTeamNames()
         sharedItemManager.clearTelepickaxeOwners()
         queueVisuals.removeQueueNPC()
         queueVisuals.spawnQueueNPC()
         queueVisuals.setAllQueueInvisible()
+        queue.deleteQueue()
         queue.setMaxPlayers(16)
         queue.setMinPlayers(8)
         for(player in Bukkit.getOnlinePlayers()) {
