@@ -105,16 +105,17 @@ class GameManager(private val game : Game) {
 
     private fun startRound() {
         for(player in Bukkit.getOnlinePlayers()) {
-            player.playSound(player.location, Sounds.Round.ROUND_START_PLING, 1f, 1f)
-            player.playSound(player.location, Sounds.Round.ROUND_START_PLING, 1f, 2f)
+            player.playSound(player.location, Sounds.Timer.STARTING_GO, 1f, 1f)
             player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 1f)
-            player.playSound(player.location, Sounds.Round.ENTRANCE, 1f, 1.25f)
+            player.playSound(player.location, Sounds.Round.ENTRANCE, 1f, 1f)
             game.musicTask.startMusicLoop(player, game.plugin, Music.MAIN)
             player.resetTitle()
         }
         game.playerManager.setPlayersSurvival()
         game.entranceManager.openAllEntrances()
         game.scoreManager.calculatePlacements()
+        game.infoBoardManager.updatePlayersAlive()
+        game.infoBoardManager.updateTeamsAlive()
     }
 
     private fun starting() {
@@ -127,6 +128,7 @@ class GameManager(private val game : Game) {
         game.teamManager.hideDisplayTeamNames()
         game.entranceManager.resetEntrances()
         game.doorManager.resetDoors()
+        game.meltingManager.resetMeltedBlocks()
         game.coinCrateManager.clearCoinCrates()
         game.coinCrateManager.distributeRandomCoinCrates()
         game.blockManager.setCoinCrates(Material.RAW_GOLD_BLOCK)
@@ -153,6 +155,8 @@ class GameManager(private val game : Game) {
                 }
             }
         }
+        game.infoBoardManager.updatePlayersAlive()
+        game.infoBoardManager.updateTeamsAlive()
     }
 
     private fun startOvertime() {
@@ -170,10 +174,7 @@ class GameManager(private val game : Game) {
 
     private fun gameEnd() {
         for(player in Bukkit.getOnlinePlayers()) {
-            player.playSound(player.location, Sounds.GameOver.GAME_OVER_PLING, 1f, 1f)
-            player.playSound(player.location, Sounds.GameOver.GAME_OVER_PLING, 1f, 2f)
-            player.playSound(player.location, Sounds.GameOver.GAME_OVER_JINGLE, 1f, 1f)
-            player.playSound(player.location, Sounds.GameOver.GAME_OVER_COMPLETE, 1f, 1f)
+            player.playSound(player.location, Sounds.GameOver.GAME_OVER, 1f, 1f)
             game.musicTask.stopMusicLoop(player, Music.MAIN)
             game.musicTask.stopMusicLoop(player, Music.OVERTIME)
             player.playSound(player.location, Sounds.Music.GAME_OVER_MUSIC, SoundCategory.VOICE, 0.85f, 1f)
@@ -197,13 +198,13 @@ class GameManager(private val game : Game) {
         game.heaterManager.stopAllHeaters()
         game.scoreManager.calculateRoundPlacement()
         game.scoreManager.calculatePlacements()
+        game.infoBoardManager.updatePlayersAlive()
+        game.infoBoardManager.updateTeamsAlive()
     }
 
     private fun roundEnd() {
         for(player in Bukkit.getOnlinePlayers()) {
-            player.playSound(player.location, Sounds.Round.ROUND_END_PLING, 1f, 1f)
-            player.playSound(player.location, Sounds.Round.ROUND_END_PLING, 1f, 2f)
-            player.playSound(player.location, Sounds.Round.ROUND_END_JINGLE, 1f, 1f)
+            player.playSound(player.location, Sounds.Round.ROUND_END, 1f, 1f)
             game.musicTask.stopMusicLoop(player, Music.MAIN)
             game.musicTask.stopMusicLoop(player, Music.OVERTIME)
             player.playSound(player.location, Sounds.Music.ROUND_OVER_MUSIC, SoundCategory.VOICE, 0.85f, 1f)
@@ -228,6 +229,8 @@ class GameManager(private val game : Game) {
         game.heaterManager.stopAllHeaters()
         game.scoreManager.calculateRoundPlacement()
         game.scoreManager.calculatePlacements()
+        game.infoBoardManager.updatePlayersAlive()
+        game.infoBoardManager.updateTeamsAlive()
         game.roundManager.nextRound()
     }
 
@@ -249,7 +252,7 @@ class GameManager(private val game : Game) {
 
     companion object {
         const val GAME_STARTING_TIME = 80
-        const val ROUND_STARTING_TIME = 20
+        const val ROUND_STARTING_TIME = 30
         const val IN_GAME_TIME = 300
         const val ROUND_END_TIME = 15
         const val GAME_END_TIME = 30

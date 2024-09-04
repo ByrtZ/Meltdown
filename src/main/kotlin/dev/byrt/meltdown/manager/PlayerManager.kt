@@ -19,6 +19,7 @@ class PlayerManager(private var game : Game) {
         if (player.gameMode == GameMode.ADVENTURE || player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = false
             player.isFlying = false
+            player.fireTicks = 0
         }
     }
 

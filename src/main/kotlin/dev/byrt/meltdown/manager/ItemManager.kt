@@ -160,7 +160,7 @@ class ItemManager(private val game : Game) {
             Component.text("Frost Tipped Arrows.", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)
         ))
         frostBowMeta.isUnbreakable = true
-        frostBowMeta.addEnchant(Enchantment.ARROW_INFINITE, 1, true)
+        frostBowMeta.addEnchant(Enchantment.INFINITY, 1, true)
         frostBowMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
         frostBow.itemMeta = frostBowMeta
         player.inventory.addItem(frostBow)
@@ -250,7 +250,7 @@ class ItemManager(private val game : Game) {
             Component.text("laboratory you have mysteriously", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false),
             Component.text("ended up in.", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)
         ))
-        arenaMapMeta.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS)
+        arenaMapMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
         val arenaMapView = game.plugin.server.createMap(player.world)
         arenaMapView.scale = MapView.Scale.CLOSE
         arenaMapView.centerX = -2000
@@ -270,7 +270,7 @@ class ItemManager(private val game : Game) {
                         x,
                         z,
                         direction(player),
-                        MapCursor.Type.WHITE_POINTER, true)
+                        MapCursor.Type.PLAYER, true)
                     )
                 }
             }

@@ -14,10 +14,14 @@ class ConfigManager(private val game : Game) {
     private lateinit var whitelistConfig : File
     private lateinit var whitelistFileConfig : FileConfiguration
 
+    private lateinit var meltableConfig : File
+    private lateinit var meltableFileConfig : FileConfiguration
+
     fun setup() {
         Main.getPlugin().config.options().copyDefaults()
         Main.getPlugin().saveDefaultConfig()
         setupWhitelistConfig()
+        setupMeltableConfig()
     }
 
     private fun setupWhitelistConfig() {
@@ -46,5 +50,35 @@ class ConfigManager(private val game : Game) {
 
     fun getWhitelistConfig(): FileConfiguration {
         return whitelistFileConfig
+    }
+
+    private fun setupMeltableConfig() {
+        meltableConfig = File(Bukkit.getServer().pluginManager.getPlugin("Meltdown")!!.dataFolder, "meltable.yml")
+        if (!meltableConfig.exists()) {
+            try {
+                meltableConfig.createNewFile()
+            } catch (e : IOException) {
+                // no.
+            }
+        }
+        meltableFileConfig = YamlConfiguration.loadConfiguration(meltableConfig)
+        game.meltingManager.reloadMeltableBlocksList()
+    }
+
+    fun saveMeltableConfig() {
+        try {
+            meltableFileConfig.save(meltableConfig)
+        } catch (e: IOException) {
+            Main.getPlugin().logger.severe("Unable to save meltable configuration, printing stack trace:\n${e.printStackTrace()}")
+        }
+    }
+
+    fun reloadMeltableConfig() {
+        meltableFileConfig = YamlConfiguration.loadConfiguration(meltableConfig)
+        game.meltingManager.reloadMeltableBlocksList()
+    }
+
+    fun getMeltableConfig(): FileConfiguration {
+        return meltableFileConfig
     }
 }

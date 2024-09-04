@@ -2,31 +2,25 @@ package dev.byrt.meltdown.state
 
 class Sounds {
     object Music {
-        const val GAME_MUSIC = "mcc.meltdown"
-        const val OVERTIME_INTRO_MUSIC = "mcc.overtime_intro"
-        const val OVERTIME_MUSIC = "mcc.overtime"
-        const val GAME_OVER_MUSIC = "mcc.game_over"
-        const val ROUND_OVER_MUSIC = ""
+        const val GAME_MUSIC = "mcc.music.meltdown"
+        const val OVERTIME_INTRO_MUSIC = "mcc.music.overtime_intro"
+        const val OVERTIME_MUSIC = "mcc.music.overtime"
+        const val GAME_STARTING_MUSIC = "mcc.music.game_starting"
+        const val GAME_OVER_MUSIC = "mcc.music.game_over"
+        const val ROUND_OVER_MUSIC = "mcc.music.round_end"
     }
     object Timer {
-        const val STARTING_123 = "block.note_block.pling"
-        const val CLOCK_TICK = "block.note_block.bass"
-        const val CLOCK_TICK_HIGH = "block.note_block.bass"
+        const val STARTING_123 = "mcc.game.123"
+        const val STARTING_GO = "mcc.game.go"
+        const val CLOCK_TICK = "mcc.game.timer.tick_normal"
+        const val CLOCK_TICK_HIGH = "mcc.game.timer.tick_high"
     }
     object Round {
-        const val ROUND_START_PLING = "block.note_block.pling"
-        const val ROUND_END_PLING = "block.note_block.pling"
-        const val ROUND_END_JINGLE = "block.respawn_anchor.deplete"
-        const val ROUND_STARTING = ""
-        const val WIN_ROUND = "ui.toast.challenge_complete"
-        const val LOSE_ROUND = "entity.ender_dragon.growl"
-        const val DRAW_ROUND = "entity.wither.spawn"
-        const val ENTRANCE = "block.end_portal.spawn"
+        const val ROUND_END = "mcc.game.roundend"
+        const val ENTRANCE = "mcc.meltdown.entrance"
     }
     object GameOver {
-        const val GAME_OVER_PLING = "block.note_block.pling"
-        const val GAME_OVER_JINGLE = "block.respawn_anchor.deplete"
-        const val GAME_OVER_COMPLETE = "ui.toast.challenge_complete"
+        const val GAME_OVER = "mcc.game.roundend"
     }
     object Start {
         const val START_GAME_SUCCESS = "block.respawn_anchor.set_spawn"
@@ -40,8 +34,8 @@ class Sounds {
         const val QUEUE_TICK = "block.note_block.pling"
     }
     object Bow {
-        const val FROST_BOW_SHOOT = "entity.player.hurt_freeze"
-        const val FROST_ARROW_HIT = "event.bow_hit"
+        const val FROST_BOW_SHOOT = "mcc.meltdown.freeze_bow_fire"
+        const val FROST_ARROW_HIT = "mcc.meltdown.freeze_bow_hit"
     }
     object Heater {
         const val HEATER_LOOP = "block.beacon.ambient"
@@ -53,25 +47,26 @@ class Sounds {
         const val CLAIM = "entity.iron_golem.repair"
     }
     object Freeze {
-        const val FROZEN_1 = "entity.player.hurt_freeze"
-        const val FROZEN_2 = "entity.generic.extinguish_fire"
+        const val FROZEN = "mcc.meltdown.frozen"
         const val UNFREEZE = "block.lava.extinguish"
     }
     object Melting {
-        const val BEGIN_MELTING = "item.trident.thunder"
-        const val MELTING_LOOP = "block.amethyst_block.resonate"
+        const val BEGIN_MELTING = "mcc.meltdown.alarm_start"
+        const val MELTING_LOOP = "mcc.meltdown.alarm_loop"
     }
     object Score {
-        const val ELIMINATION = "entity.player.levelup"
+        const val ACQUIRED = "mcc.game.score.acquired"
+        const val BIG_ACQUIRED = "mcc.game.score.bigacquired"
         const val UNDO_ELIMINATION = "entity.enderman.teleport"
         const val FALL_INTO_LAVA = "entity.player.hurt_on_fire"
         const val SQUASHED_BY_DOOR = "entity.iron_golem.death"
         const val MELTED_BY_MELTDOWN = "entity.blaze.death"
-        const val TEAM_ELIMINATED = "block.beacon.deactivate"
-        const val MINE_COIN_CRATE = "entity.experience_orb.pickup"
+        const val TEAM_ELIMINATED = "mcc.game.team_eliminated"
+        const val MINE_COIN_CRATE = "mcc.game.score.small_coins"
     }
     object Alert {
-        const val GENERAL_ALERT = "block.note_block.bit"
+        const val GENERAL_ALERT = "mcc.game.map_alert"
+        const val GENERAL_UPDATE = "mcc.game.map_update"
         const val OVERTIME_ALERT = "block.portal.travel"
     }
     object Tutorial {

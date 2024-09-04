@@ -39,6 +39,12 @@ class InfoBoardManager(private val game : Game) {
     private var fourthPlaceLine = scoreboard.registerNewTeam("fourthPlaceLine")
     private val fourthPlaceLineKey = ChatColor.DARK_GRAY.toString()
 
+    private val playersAliveLine = scoreboard.registerNewTeam("playersAliveLine")
+    private val playersAliveLineKey = ChatColor.BLACK.toString()
+
+    private val teamsAliveLine = scoreboard.registerNewTeam("teamsAliveLine")
+    private val teamsAliveLineKey = ChatColor.BLUE.toString()
+
     fun buildScoreboard() {
         game.plugin.logger.info("Building scoreboard...")
         objective.displaySlot = DisplaySlot.SIDEBAR
@@ -94,6 +100,19 @@ class InfoBoardManager(private val game : Game) {
 
         // Static blank space
         objective.getScore("§§").score = 0
+
+        // Modifiable players remaining information
+        playersAliveLine.addEntry(playersAliveLineKey)
+        playersAliveLine.prefix(Component.text("Players Alive: ", NamedTextColor.GREEN, TextDecoration.BOLD))
+        playersAliveLine.suffix(Component.text("0/0"))
+        objective.getScore(playersAliveLineKey).score = -1
+
+        // Modifiable teams remaining information
+        teamsAliveLine.addEntry(teamsAliveLineKey)
+        teamsAliveLine.prefix(Component.text("Teams Alive: ", NamedTextColor.GREEN, TextDecoration.BOLD))
+        teamsAliveLine.suffix(Component.text("0/0"))
+        objective.getScore(teamsAliveLineKey).score = -2
+
         game.plugin.logger.info("Scoreboard constructed with ID ${objective.name}...")
     }
 
@@ -160,6 +179,22 @@ class InfoBoardManager(private val game : Game) {
         }
     }
 
+    fun updatePlayersAlive() {
+        if(game.gameManager.getGameState() == GameState.IDLE) {
+            playersAliveLine.suffix(Component.text("0/0"))
+        } else {
+            playersAliveLine.suffix(Component.text("${game.lifestates.getTrulyAlivePlayers().size}/${game.lifestates.getTotalPlayers().size}"))
+        }
+    }
+
+    fun updateTeamsAlive() {
+        if(game.gameManager.getGameState() == GameState.IDLE) {
+            teamsAliveLine.suffix(Component.text("0/0"))
+        } else {
+            teamsAliveLine.suffix(Component.text("${game.lifestates.getAliveTeams().size}/${game.teamManager.getActiveTeams().size}"))
+        }
+    }
+
     fun showScoreboard(player : Player) {
         player.scoreboard = scoreboard
     }
@@ -171,6 +206,8 @@ class InfoBoardManager(private val game : Game) {
         secondPlaceLine.unregister()
         thirdPlaceLine.unregister()
         fourthPlaceLine.unregister()
+        playersAliveLine.unregister()
+        teamsAliveLine.unregister()
         objective.unregister()
     }
 }

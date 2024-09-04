@@ -105,6 +105,7 @@ class Game(val plugin : Main) {
         entranceManager.resetEntrances()
         queueVisuals.removeQueueNPC()
         configManager.saveWhitelistConfig()
+        configManager.saveMeltableConfig()
     }
 
     fun reload() {
@@ -134,6 +135,7 @@ class Game(val plugin : Main) {
         queue.deleteQueue()
         queue.setMaxPlayers(16)
         queue.setMinPlayers(8)
+        meltingManager.resetMeltedBlocks()
         for(player in Bukkit.getOnlinePlayers()) {
             player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(3), Duration.ofSeconds(1))))
             Main.getGame().teamManager.addToTeam(player, player.uniqueId, Teams.SPECTATOR)
@@ -141,6 +143,8 @@ class Game(val plugin : Main) {
                 Main.getGame().teamManager.addToAdminDisplay(player.uniqueId)
             }
         }
+        infoBoardManager.updatePlayersAlive()
+        infoBoardManager.updateTeamsAlive()
     }
 
     fun setBuildMode(mode : Boolean) {

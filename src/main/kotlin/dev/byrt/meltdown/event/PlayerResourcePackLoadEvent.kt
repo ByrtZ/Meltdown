@@ -19,13 +19,13 @@ class PlayerResourcePackLoadEvent : Listener {
     @EventHandler
     private fun onPackLoad(e : PlayerResourcePackStatusEvent) {
         if(e.status == Status.SUCCESSFULLY_LOADED) {
-            e.player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(1), Duration.ofSeconds(1))))
             if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME) {
                 Main.getGame().musicTask.startMusicLoop(e.player, Main.getPlugin(), Music.MAIN)
             }
             if(Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
                 Main.getGame().musicTask.startMusicLoop(e.player, Main.getPlugin(), Music.OVERTIME)
             }
+            e.player.showTitle(Title.title(Component.text("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(1), Duration.ofSeconds(1))))
         }
     }
 }

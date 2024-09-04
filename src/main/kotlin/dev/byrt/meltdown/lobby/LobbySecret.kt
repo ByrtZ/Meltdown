@@ -51,7 +51,7 @@ class LobbySecret(private val game : Game) {
         val secretBatRunnable = object : BukkitRunnable() {
             override fun run() {
                 if(game.gameManager.getGameState() == GameState.IDLE) {
-                    game.locationManager.getWorld().spawnParticle(Particle.REDSTONE, bat.location, 1, DustOptions(getRandomColour(), 0.75f))
+                    game.locationManager.getWorld().spawnParticle(Particle.DUST, bat.location, 1, DustOptions(getRandomColour(), 0.75f))
                     taskTicks++
                     if(taskTicks >= 30) {
                         bat.remove()

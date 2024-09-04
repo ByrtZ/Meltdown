@@ -21,8 +21,9 @@ class ProjectileMoveEvent : Listener {
                 object : BukkitRunnable() {
                     override fun run() {
                         if(!arrow.isDead) {
+                            arrow.isCritical = false
                             arrow.location.world.spawnParticle(
-                                Particle.REDSTONE,
+                                Particle.DUST,
                                 arrow.location,
                                 4,
                                 Particle.DustOptions(Color.WHITE, 1f)

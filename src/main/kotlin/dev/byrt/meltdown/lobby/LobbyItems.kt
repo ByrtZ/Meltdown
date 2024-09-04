@@ -84,7 +84,7 @@ class LobbyItems(private val game : Game) {
                 break
             } else {
                 val world  = player.world
-                world.spawnParticle(Particle.FIREWORKS_SPARK, loc, 1, 0.0, 0.0, 0.0, 0.05)
+                world.spawnParticle(Particle.FIREWORK, loc, 1, 0.0, 0.0, 0.0, 0.05)
             }
         }
     }
@@ -135,7 +135,7 @@ class LobbyItems(private val game : Game) {
                         val x = r * cos(theta) * sin(phi)
                         val z = r * sin(theta) * sin(phi)
                         sphereLoc.add(x, y, z)
-                        sphereLoc.world.spawnParticle(Particle.SPELL_WITCH, sphereLoc, 1, 0.0, 0.0, 0.0, 0.0)
+                        sphereLoc.world.spawnParticle(Particle.WITCH, sphereLoc, 1, 0.0, 0.0, 0.0, 0.0)
                         sphereLoc.subtract(x, y, z)
                         theta += Math.PI / 30
                     }

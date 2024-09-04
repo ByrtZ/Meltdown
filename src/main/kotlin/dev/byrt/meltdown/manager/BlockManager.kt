@@ -112,7 +112,7 @@ class BlockManager(private val game : Game) {
         }
         if(material == Material.AIR) {
             for(player in Bukkit.getOnlinePlayers()) {
-                player.playSound(player.location, Sounds.Alert.GENERAL_ALERT, 1f, 1f)
+                player.playSound(player.location, Sounds.Alert.GENERAL_UPDATE, 1f, 1f)
                 player.sendMessage(
                     Component.text("[")
                         .append(Component.text("▶").color(NamedTextColor.YELLOW))
@@ -140,7 +140,7 @@ class BlockManager(private val game : Game) {
         }
         if(material == Material.AIR) {
             for(player in Bukkit.getOnlinePlayers()) {
-                player.playSound(player.location, Sounds.Alert.GENERAL_ALERT, 1f, 1f)
+                player.playSound(player.location, Sounds.Alert.GENERAL_UPDATE, 1f, 1f)
                 player.sendMessage(
                     Component.text("[")
                         .append(Component.text("▶").color(NamedTextColor.YELLOW))

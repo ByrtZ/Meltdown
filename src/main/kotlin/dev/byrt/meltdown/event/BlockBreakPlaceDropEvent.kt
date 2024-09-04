@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockDropItemEvent
+import org.bukkit.event.block.BlockPhysicsEvent
 import org.bukkit.event.block.BlockPlaceEvent
 
 @Suppress("unused")
@@ -27,7 +28,7 @@ class BlockBreakPlaceDropEvent : Listener {
             if(Main.getGame().gameManager.getGameState() == GameState.IN_GAME || Main.getGame().gameManager.getGameState() == GameState.OVERTIME) {
                 if(e.block.type == Material.RAW_GOLD_BLOCK && e.player.inventory.itemInMainHand.type == Material.NETHERITE_PICKAXE) {
                     Main.getGame().scoreManager.modifyScore(10, ScoreModificationMode.ADD, Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId))
-                    Main.getGame().teamManager.playTeamSound(Sounds.Score.MINE_COIN_CRATE, 2f, Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId))
+                    Main.getGame().teamManager.playTeamSound(Sounds.Score.MINE_COIN_CRATE, 1f, Main.getGame().teamManager.getPlayerTeam(e.player.uniqueId))
                     e.isCancelled = false
                 } else {
                     e.isCancelled = true
@@ -49,5 +50,10 @@ class BlockBreakPlaceDropEvent : Listener {
     @EventHandler
     private fun onBlockBreakBlock(e : BlockBreakBlockEvent) {
         e.drops.clear()
+    }
+
+    @EventHandler
+    private fun onBlockPhysics(e : BlockPhysicsEvent) {
+        e.isCancelled = true
     }
 }

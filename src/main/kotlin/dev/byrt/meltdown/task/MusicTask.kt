@@ -20,7 +20,7 @@ class MusicTask(private val game : Game) {
                 when(music) {
                     Music.MAIN -> {
                         if(musicTimer == 0) {
-                            player.playSound(player.location, Music.MAIN.track, SoundCategory.VOICE, 0.75f, 1f)
+                            player.playSound(player.location, Music.MAIN.track, SoundCategory.VOICE, 0.5f, 1f)
                         }
                         if(musicTimer == 306) {
                             musicTimer = -1

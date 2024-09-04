@@ -17,7 +17,7 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 
-import java.util.Random
+import kotlin.random.Random
 
 class Fishington(private val game : Game) {
     private val fishingLootTypeChances = ArrayList<FishingLootType>()
@@ -110,7 +110,7 @@ class Fishington(private val game : Game) {
                 val randomEnchantments = enchantmentsList.shuffled().subList(0, 2)
                 val enchantedBookMeta = enchantedBook.itemMeta
                 for(enchant in randomEnchantments) {
-                    enchantedBookMeta.addEnchant(enchant, Random().nextInt(10), true)
+                    enchantedBookMeta.addEnchant(enchant, Random.nextInt(1, 10), true)
                 }
                 enchantedBookMeta.displayName((treasureDrop.nameComponent).color(TextColor.fromHexString(treasureDrop.itemRarity.rarityColour)).decoration(TextDecoration.ITALIC, false))
                 val lore = listOf(
@@ -152,7 +152,7 @@ class Fishington(private val game : Game) {
     /** Populates fishing loot type chances. These chances are for rolling a random category of loot and are added into the list x amount of times as per their weight. **/
     private fun populateFishingLootTypeChances() {
         game.plugin.logger.info("Populating loot type chances...")
-        for(lootType in FishingLootType.values()) {
+        for(lootType in FishingLootType.entries) {
             for(i in 1..lootType.lootTypeChance) {
                 fishingLootTypeChances.add(lootType)
             }
@@ -162,7 +162,7 @@ class Fishington(private val game : Game) {
     /** Populates fish loot chances. These chances are for rolling a random category of loot and are added into the list x amount of times as per their weight. **/
     private fun populateFishLootChances() {
         game.plugin.logger.info("Populating fish drop chances...")
-        for(fishDrop in FishDrops.values()) {
+        for(fishDrop in FishDrops.entries) {
             for(i in 1..fishDrop.dropChance) {
                 fishLootChances.add(fishDrop)
             }
@@ -172,7 +172,7 @@ class Fishington(private val game : Game) {
     /** Populates junk loot chances. These chances are for rolling a random category of loot and are added into the list x amount of times as per their weight. **/
     private fun populateJunkLootChances() {
         game.plugin.logger.info("Populating junk drop chances...")
-        for(junkDrop in JunkDrops.values()) {
+        for(junkDrop in JunkDrops.entries) {
             for(i in 1..junkDrop.dropChance) {
                 junkLootChances.add(junkDrop)
             }
@@ -182,7 +182,7 @@ class Fishington(private val game : Game) {
     /** Populates treasure loot chances. These chances are for rolling a random category of loot and are added into the list x amount of times as per their weight. **/
     private fun populateTreasureLootChances() {
         game.plugin.logger.info("Populating treasure drop chances...")
-        for(treasureDrop in TreasureDrops.values()) {
+        for(treasureDrop in TreasureDrops.entries) {
             for(i in 1..treasureDrop.dropChance) {
                 treasureLootChances.add(treasureDrop)
             }
@@ -192,7 +192,7 @@ class Fishington(private val game : Game) {
     /** Populates special loot chances. These chances are for rolling a random category of loot and are added into the list x amount of times as per their weight. **/
     private fun populateSpecialLootChances() {
         game.plugin.logger.info("Populating special drop chances...")
-        for(specialDrop in SpecialDrops.values()) {
+        for(specialDrop in SpecialDrops.entries) {
             for(i in 1..specialDrop.dropChance) {
                 specialLootChances.add(specialDrop)
             }
@@ -221,7 +221,7 @@ class Fishington(private val game : Game) {
         musicDiscs.add(Material.MUSIC_DISC_STRAD)
         musicDiscs.add(Material.MUSIC_DISC_WAIT)
         musicDiscs.add(Material.MUSIC_DISC_WARD)
-        return musicDiscs[Random().nextInt(musicDiscs.size)]
+        return musicDiscs[Random.nextInt(musicDiscs.size)]
     }
 
     /** Returns a random Armour Trim as a Material.
@@ -230,7 +230,7 @@ class Fishington(private val game : Game) {
     private fun getRandomTrimFromKey() : Material {
         val keys = ArrayList<NamespacedKey>()
         Registry.TRIM_PATTERN.forEach{ trim -> Registry.TRIM_PATTERN.get(trim.key() as NamespacedKey)}
-        return when(keys[Random().nextInt(keys.size)].key) {
+        return when(keys[Random.nextInt(keys.size)].key) {
             "sentry" -> Material.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE
             "dune" -> Material.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE
             "coast" -> Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE
@@ -256,9 +256,9 @@ class Fishington(private val game : Game) {
  * @param lootTypeChance Chance of the loot type occurring, relative to all other loot types.
  **/
 enum class FishingLootType(val lootTypeName : String, val lootTypeChance : Int) {
-    FISH_LOOT("Fish", 50),
-    JUNK_LOOT("Junk", 30),
-    TREASURE_LOOT("Treasure", 19),
+    FISH_LOOT("Fish", 80),
+    JUNK_LOOT("Junk", 50),
+    TREASURE_LOOT("Treasure", 20),
     SPECIAL_LOOT("Special", 1)
 }
 

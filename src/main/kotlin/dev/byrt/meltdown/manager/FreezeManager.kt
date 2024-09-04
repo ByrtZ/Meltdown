@@ -20,8 +20,7 @@ class FreezeManager(private var game : Game) {
         player.teleport(freezeLoc)
         setFrozenBlocks(player, Material.LIGHT_BLUE_STAINED_GLASS)
         player.damage(0.01)
-        player.playSound(player.location, Sounds.Freeze.FROZEN_1, 5f, 1f)
-        player.playSound(player.location, Sounds.Freeze.FROZEN_2, 1f, 1f)
+        player.playSound(player.location, Sounds.Freeze.FROZEN, 1f, 1f)
         game.playerManager.clearKit(player)
         game.freezeTask.startFreezeLoop(player, shooter, freezeLoc, game.teamManager.getPlayerTeam(player.uniqueId))
         game.freezeTask.startFrostVignetteTask(player)
@@ -64,7 +63,7 @@ class FreezeManager(private var game : Game) {
                     .append(Component.text("] You froze "))
                     .append(Component.text(frozenPlayer.name).color(game.teamManager.getPlayerTeam(frozenPlayer.uniqueId).textColor))
                     .append(Component.text("!")))
-            shooter.playSound(shooter.location, Sounds.Score.ELIMINATION, 1f, 1.25f)
+            shooter.playSound(shooter.location, Sounds.Score.ACQUIRED, 1f, 1f)
             game.scoreManager.modifyScore(25, ScoreModificationMode.ADD, game.teamManager.getPlayerTeam(shooter.uniqueId))
         }
     }

@@ -59,7 +59,7 @@ class HeaterTask(private val game : Game) {
                     val x = cos(i.toDouble()) * Heater.HEATER_RADIUS
                     val z = sin(i.toDouble()) * Heater.HEATER_RADIUS
                     location.world.spawnParticle(
-                        Particle.REDSTONE,
+                        Particle.DUST,
                         location.x + x + 0.5,
                         location.y + 0.25,
                         location.z + z + 0.5,

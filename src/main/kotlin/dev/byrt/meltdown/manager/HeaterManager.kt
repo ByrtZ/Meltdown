@@ -9,7 +9,7 @@ import org.bukkit.*
 import org.bukkit.entity.Player
 
 class HeaterManager(private val game : Game) {
-    private var heaterList = ArrayList<Heater>()
+    private var heaterList = mutableSetOf<Heater>()
     private var latestHeaterId = 0
     fun placeHeater(location : Location, player : Player) {
         player.inventory.remove(Material.NETHERITE_SHOVEL)
@@ -64,7 +64,7 @@ class HeaterManager(private val game : Game) {
         return null
     }
 
-    fun getHeaterList() : ArrayList<Heater> {
+    fun getHeaterList() : Set<Heater> {
         return heaterList
     }
 }

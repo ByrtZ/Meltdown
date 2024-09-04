@@ -39,6 +39,7 @@ class Lifestates(private val game : Game) {
                eliminatePlayer(player)
            }
        }
+        game.infoBoardManager.updatePlayersAlive()
     }
 
     fun changeTeamLifeState(team : Teams, lifeState : TeamLifeState) {
@@ -56,6 +57,7 @@ class Lifestates(private val game : Game) {
                 eliminateTeam(team, if(game.gameTask.getTimeLeft() < 10 || !getFullTeamStatus(team).containsValue(PlayerLifeState.FROZEN)) TeamEliminationType.INSTANT else TeamEliminationType.FROZEN)
             }
         }
+        game.infoBoardManager.updateTeamsAlive()
     }
 
     fun onPlayerQuit(player : Player) {
@@ -123,6 +125,22 @@ class Lifestates(private val game : Game) {
 
     fun isFrozen(player : Player) : Boolean {
         return frozenPlayers.contains(player.uniqueId)
+    }
+
+    fun getTotalPlayers() : ArrayList<Player> {
+        val players = ArrayList<Player>()
+        for(uuid in alivePlayers + frozenPlayers + eliminatedPlayers) {
+            Bukkit.getPlayer((uuid))?.let { players.add(it) }
+        }
+        return players
+    }
+
+    fun getTrulyAlivePlayers() : ArrayList<Player> {
+        val players = ArrayList<Player>()
+        for(uuid in alivePlayers + frozenPlayers) {
+            Bukkit.getPlayer((uuid))?.let { players.add(it) }
+        }
+        return players
     }
 
     fun getAlivePlayers() : ArrayList<Player> {

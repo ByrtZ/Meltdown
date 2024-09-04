@@ -22,7 +22,7 @@ import java.util.*
 
 class FreezeTask(private val game : Game) {
     private var freezeLoopMap  = mutableMapOf<UUID, BukkitRunnable>()
-    private var isHeatingList = ArrayList<UUID>()
+    private var isHeatingList = mutableSetOf<UUID>()
     private var frostVignetteTaskMap = mutableMapOf<UUID, BukkitRunnable>()
     fun startFreezeLoop(player : Player, freezer : Player?, frozenLoc : Location, team : Teams) {
         val freezeRunnable = object : BukkitRunnable() {
@@ -53,13 +53,15 @@ class FreezeTask(private val game : Game) {
                                 thawTimer++
                             }
                         } else {
-                            player.world.spawnParticle(Particle.FLAME, player.location, 10, 0.75, 0.75, 0.75, 0.1)
+                            if(thawTimer % 20 == 0 ) {
+                                player.world.spawnParticle(Particle.FLAME, player.location, 10, 0.75, 0.75, 0.75, 0.1)
+                            }
                             if(thawTimer < 1 * 20) {
                                 player.sendActionBar(Component.text("You have been unfrozen!").color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true))
                                 game.lifestates.checkTeamStatus(team)
                                 stopFreezeLoop(player, freezer, false)
                             } else {
-                                player.sendActionBar(Component.text("You will thaw in ${thawTimer}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
+                                player.sendActionBar(Component.text("You will thaw in ${thawTimer / 20}s...").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true))
                                 thawTimer--
                             }
                         }
@@ -124,7 +126,7 @@ class FreezeTask(private val game : Game) {
         game.lifestates.changePlayerLifeState(player, PlayerLifeState.ELIMINATED)
     }
 
-    fun getHeatingList() : ArrayList<UUID> {
+    fun getHeatingList() : Set<UUID> {
         return isHeatingList
     }
 

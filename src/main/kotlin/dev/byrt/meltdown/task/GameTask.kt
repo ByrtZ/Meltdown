@@ -15,7 +15,7 @@ import net.kyori.adventure.title.Title
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.entity.Player
+import org.bukkit.command.CommandSender
 import org.bukkit.scheduler.BukkitRunnable
 
 import java.time.Duration
@@ -71,7 +71,7 @@ class GameTask(private var game : Game) {
                     if(timeLeft in 4..10) {
                         if(timeLeft == 10) {
                             for(player in Bukkit.getOnlinePlayers()) {
-                                player.playSound(player.location, Sounds.Round.ROUND_STARTING, 1f, 1f)
+                                player.playSound(player.location, Sounds.Music.GAME_STARTING_MUSIC, 1f, 1f)
                             }
                         }
                         for(player in Bukkit.getOnlinePlayers()) {
@@ -155,7 +155,7 @@ class GameTask(private var game : Game) {
                     if(timeLeft == 60) {
                         game.blockManager.setCentreCoinCrateBarriers(Material.AIR)
                     }
-                    if(timeLeft == 0) {
+                    if(timeLeft == 15) {
                         game.roomManager.beginMeltingRoomType(RoomType.CENTRE)
                     }
                     if(timeLeft in 11..30 || timeLeft % 60 == 0) {
@@ -165,7 +165,7 @@ class GameTask(private var game : Game) {
                     }
                     if(timeLeft in 0..10) {
                         for(player in Bukkit.getOnlinePlayers()) {
-                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 2f)
+                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 1f)
                         }
                     }
                 }
@@ -183,7 +183,7 @@ class GameTask(private var game : Game) {
                     }
                     if(timeLeft in 0..10) {
                         for(player in Bukkit.getOnlinePlayers()) {
-                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 2f)
+                            player.playSound(player.location, Sounds.Timer.CLOCK_TICK_HIGH, 1f, 1f)
                         }
                     }
                 }
@@ -220,7 +220,7 @@ class GameTask(private var game : Game) {
         gameRunnableList.remove(currentGameTaskId)?.cancel()
     }
 
-    fun setTimeLeft(setTimeLeft : Int, sender : Player?) {
+    fun setTimeLeft(setTimeLeft : Int, sender : CommandSender?) {
         timeLeft = setTimeLeft
         displayTime = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60)
         game.infoBoardManager.updateTimer()

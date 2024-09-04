@@ -69,8 +69,7 @@ class ScoreManager(private val game : Game) {
                     .append(Component.text("Your team placed ${roundPlacement}${placementSuffix(roundPlacement)} this round!", NamedTextColor.GREEN, TextDecoration.BOLD)),
                 team
             )
-            game.teamManager.playTeamSound(Sounds.Score.ELIMINATION, 1.25f, team)
-            game.teamManager.playTeamSound(Sounds.Score.ELIMINATION, 1f, team)
+            game.teamManager.playTeamSound(Sounds.Score.BIG_ACQUIRED, 1f, team)
             modifyScore(placementScore, ScoreModificationMode.ADD, team)
             placementScore += 50
             roundPlacement--
@@ -111,7 +110,7 @@ class ScoreManager(private val game : Game) {
     }
 
     fun resetScores() {
-        for(team in Teams.values()) {
+        for(team in Teams.entries) {
             team.score = 0
         }
         placements.clear()
